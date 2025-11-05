@@ -1,4 +1,5 @@
 package Epi.BarCassonne.game.Interfaces;
 
-public class Movable {
+public interface Movable {
+    void move();
 }

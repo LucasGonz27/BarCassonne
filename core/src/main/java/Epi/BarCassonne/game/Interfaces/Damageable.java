@@ -1,4 +1,5 @@
 package Epi.BarCassonne.game.Interfaces;
 
-public class Damageable {
+public interface Damageable {
+    void recevoirDegats(int degats);
 }
