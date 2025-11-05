@@ -1,4 +1,10 @@
 package Epi.BarCassonne.game.Entities.Mechants;
 
-public class PaysanGoblin {
+import Epi.BarCassonne.game.Managers.AssetMana;
+
+public class PaysanGoblin extends Mechant {
+
+    public PaysanGoblin(){
+        super(50,1f,100f,100f, AssetMana.getSprite(""));
+    }
 }
