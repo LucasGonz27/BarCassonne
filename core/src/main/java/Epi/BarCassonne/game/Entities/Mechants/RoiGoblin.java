@@ -5,6 +5,6 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 public class RoiGoblin extends Mechant {
 
     public RoiGoblin() {
-        super(300, 0.9f, 100f, 100f, AssetMana.getSprite("RoiGoblin"));
+        super(500, 0.5f, 450f, 450f, AssetMana.getSprite("RoiGoblin"));
     }
 }
