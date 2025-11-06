@@ -6,6 +6,6 @@ import com.badlogic.gdx.assets.AssetManager;
 public class Cochon extends Mechant{
 
     public Cochon(){
-        super(100,0.7f,100f,100f, AssetMana.getSprite(""));
+        super(100,0.7f,100f,100f, AssetMana.getSprite(""), 50f, 60f);
     }
 }

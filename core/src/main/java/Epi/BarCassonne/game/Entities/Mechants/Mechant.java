@@ -17,14 +17,18 @@ public abstract class Mechant implements Movable, Affichage , Damageable {
     protected Texture sprite;
     protected List<Vector2> chemin;
     protected int indexActuel = 0;
+    protected float widht;
+    protected float height;
 
 
-    public Mechant(int PV, float Vitesse, float PositionX, float PositionY, Texture sprite) {
+    public Mechant(int PV, float Vitesse, float PositionX, float PositionY, Texture sprite, float widht, float height) {
         this.PV = PV;
         this.Vitesse = Vitesse;
         this.positionX = PositionX;
         this.positionY = PositionY;
         this.sprite = sprite;
+        this.widht = widht;
+        this.height = height;
     }
 
     public int getPV(){
@@ -35,9 +39,16 @@ public abstract class Mechant implements Movable, Affichage , Damageable {
         return this.positionX;
     }
 
-
     public float getPositionY(){
         return this.positionY;
+    }
+
+    public float getWidht(){
+        return this.widht;
+    }
+
+    public float getHeight(){
+        return this.height;
     }
 
     public void setPositionX(float positionX){
