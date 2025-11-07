@@ -2,7 +2,7 @@ package Epi.BarCassonne.game.Batiments;
 
 import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 
-public class Batiment {
+public abstract class Batiment {
     protected float positionX;
     protected float positionY;
     protected int level;
