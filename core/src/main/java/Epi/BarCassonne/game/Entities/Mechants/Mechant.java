@@ -5,11 +5,16 @@ import Epi.BarCassonne.game.Interfaces.Damageable;
 import Epi.BarCassonne.game.Interfaces.Movable;
 import Epi.BarCassonne.game.Managers.AssetMana;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Mechant implements Movable, Affichage , Damageable {
 
+    private Animation<TextureRegion> animation;
     protected int PV;
     protected float Vitesse;
     protected float positionX;
@@ -17,14 +22,21 @@ public abstract class Mechant implements Movable, Affichage , Damageable {
     protected Texture sprite;
     protected List<Vector2> chemin;
     protected int indexActuel = 0;
+    protected float stateTime = 0f;
 
 
-    public Mechant(int PV, float Vitesse, float PositionX, float PositionY, Texture sprite) {
+
+    public Mechant(int PV, float Vitesse, float positionX, float positionY, Animation<TextureRegion> animation) {
         this.PV = PV;
         this.Vitesse = Vitesse;
-        this.positionX = PositionX;
-        this.positionY = PositionY;
-        this.sprite = sprite;
+        this.positionX = positionX;
+        this.positionY = positionY;
+        this.animation = animation;
+    }
+
+    public TextureRegion getFrame(float delta) {
+        stateTime += delta;
+        return animation.getKeyFrame(stateTime, true);
     }
 
     public int getPV(){
@@ -52,6 +64,9 @@ public abstract class Mechant implements Movable, Affichage , Damageable {
         this.chemin = chemin;
         this.indexActuel = 0;
     }
+
+
+
 
     public void recevoirDegats(int degats) {
         if (!isEnVie()) {
@@ -119,6 +134,5 @@ public abstract class Mechant implements Movable, Affichage , Damageable {
     protected void atteindreFinChemin() {
         this.PV = 0;
     }
-
 
 }
