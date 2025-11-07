@@ -75,7 +75,7 @@ public class GameScreen implements Screen {
 
         batch.begin();
         background.render(batch);
-        batch.draw(AssetMana.getSprite("RoiGoblin"), roiGoblin.getPositionX(), roiGoblin.getPositionY());
+        batch.draw(AssetMana.getSprite("RoiGoblin"), roiGoblin.getPositionX(), roiGoblin.getPositionY(), roiGoblin.getWidht(), roiGoblin.getHeight());
         batch.end();
     }
 
