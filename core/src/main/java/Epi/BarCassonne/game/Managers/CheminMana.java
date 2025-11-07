@@ -4,20 +4,40 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Gestionnaire du chemin que suivent les ennemis.
+ * Définit les points de passage sur la carte.
+ */
 public class CheminMana {
 
+    // ------------------------------------------------------------------------
+    // REGION : CHAMPS
+    // ------------------------------------------------------------------------
     protected List<Vector2> cheminPrincipal;
 
+    // ------------------------------------------------------------------------
+    // REGION : CONSTRUCTEUR
+    // ------------------------------------------------------------------------
+    /**
+     * Crée le chemin principal avec les points de passage.
+     */
     public CheminMana() {
-
         cheminPrincipal = new ArrayList<>();
-        cheminPrincipal.add(new Vector2(100, 500));
-        cheminPrincipal.add(new Vector2(300, 500));
-        cheminPrincipal.add(new Vector2(300, 300));
-        cheminPrincipal.add(new Vector2(600, 300));
-        cheminPrincipal.add(new Vector2(800, 100));
+
+        // Définir les points du chemin (de gauche à droite, de haut en bas)
+        cheminPrincipal.add(new Vector2(350, 550));
+        cheminPrincipal.add(new Vector2(350, 360));
+        cheminPrincipal.add(new Vector2(150, 360));
+        cheminPrincipal.add(new Vector2(150, 180));
+        cheminPrincipal.add(new Vector2(800, 180));
     }
 
+    // ------------------------------------------------------------------------
+    // REGION : GETTERS
+    // ------------------------------------------------------------------------
+    /**
+     * @return La liste des points du chemin principal
+     */
     public List<Vector2> getCheminPrincipal() {
         return cheminPrincipal;
     }

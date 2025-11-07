@@ -1,17 +1,22 @@
 package Epi.BarCassonne.game.Entities.Mechants;
 
-import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import Epi.BarCassonne.game.Managers.AssetMana;
 
+/**
+ * Classe représentant le PaysanGoblin.
+ * C'est un ennemi de base avec PV et vitesse spécifiques.
+ * Il utilise une animation provenant d'AssetMana.
+ */
 public class PaysanGoblin extends Mechant {
 
-    // Animation du goblin
-    private Animation<TextureRegion> animation;
-
-    public PaysanGoblin(Animation<TextureRegion> animation) {
-        super(50, 1f, 100f, 100f, null);
-        this.animation = animation;
+    // ------------------------------------------------------------------------
+    // REGION : CONSTRUCTEUR
+    // ------------------------------------------------------------------------
+    /**
+     * Constructeur par défaut.
+     * Initialise les PV, la vitesse et l'animation.
+     */
+    public PaysanGoblin() {
+        super(50, 30f, AssetMana.getAnimation("PaysanGoblin"));
     }
-
 }

@@ -2,12 +2,18 @@ package Epi.BarCassonne.game.Managers;
 
 import Epi.BarCassonne.game.Entities.Mechants.*;
 import Epi.BarCassonne.game.Vague.Vague;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
 /**
- * Gestion des vagues et spawn des ennemis.
+ * Gestionnaire des vagues d'ennemis.
+ * Gère le spawn, la mise à jour et le passage entre les vagues.
  */
 public class VagueMana {
+
+    // ------------------------------------------------------------------------
+    // REGION : CHAMPS
+    // ------------------------------------------------------------------------
     private Array<Vague> vagues;
     private int indexVagueActuelle;
     private Vague vagueActuelle;
@@ -16,6 +22,13 @@ public class VagueMana {
     private float tempsDepuisFinVague = 0f;
     private CheminMana cheminMana;
 
+    // ------------------------------------------------------------------------
+    // REGION : CONSTRUCTEUR
+    // ------------------------------------------------------------------------
+    /**
+     * Crée un nouveau gestionnaire de vagues.
+     * @param cheminMana Le gestionnaire de chemin pour les ennemis
+     */
     public VagueMana(CheminMana cheminMana) {
         this.cheminMana = cheminMana;
         this.vagues = new Array<>();
@@ -25,6 +38,12 @@ public class VagueMana {
         vagueActuelle = vagues.get(0);
     }
 
+    // ------------------------------------------------------------------------
+    // REGION : INITIALISATION
+    // ------------------------------------------------------------------------
+    /**
+     * Crée toutes les vagues du jeu.
+     */
     private void creerVagues() {
         // Vague 1
         Vague v1 = new Vague(1);
@@ -42,7 +61,7 @@ public class VagueMana {
         v3.ajouterEnnemi(GuerrierGoblin.class, 8);
         vagues.add(v3);
 
-        // Vague 4
+        //vague 4
         Vague v4 = new Vague(4);
         v4.ajouterEnnemi(GuerrierGoblin.class, 10);
         v4.ajouterEnnemi(GoblinGuerrisseur.class, 2);
@@ -128,6 +147,13 @@ public class VagueMana {
         vagues.add(v15);
     }
 
+    // ------------------------------------------------------------------------
+    // REGION : MISE À JOUR
+    // ------------------------------------------------------------------------
+    /**
+     * Met à jour le système de vagues.
+     * @param deltaTime Temps écoulé depuis la dernière frame
+     */
     public void update(float deltaTime) {
         if (vagueActuelle == null) return;
 
@@ -135,22 +161,59 @@ public class VagueMana {
             passerVagueSuivante(deltaTime);
             return;
         }
+        
+        spawnEnnemis(deltaTime);
+        mettreAJourEnnemis(deltaTime);
+    }
 
-        // Spawn des ennemis
+    /**
+     * Gère le spawn des ennemis selon l'intervalle défini.
+     */
+    private void spawnEnnemis(float deltaTime) {
         float temps = vagueActuelle.getTempsDepuisDernierSpawn() + deltaTime;
         vagueActuelle.setTempsDepuisDernierSpawn(temps);
 
         if (temps >= vagueActuelle.getIntervalleSpawn()) {
             Mechant ennemi = vagueActuelle.spawnEnnemi();
             if (ennemi != null) {
-                ennemi.setChemin(cheminMana.getCheminPrincipal());
+                initialiserEnnemi(ennemi);
                 vagueActuelle.getEnnemisActifs().add(ennemi);
                 ennemisActifs.add(ennemi);
             }
             vagueActuelle.setTempsDepuisDernierSpawn(0f);
         }
+    }
 
-        // Mise à jour et nettoyage des ennemis
+    /**
+     * Initialise un ennemi avec son chemin et sa position de départ.
+     */
+    private void initialiserEnnemi(Mechant ennemi) {
+        if (cheminMana == null || cheminMana.getCheminPrincipal() == null ||
+            cheminMana.getCheminPrincipal().isEmpty()) {
+            System.err.println("Erreur: Le chemin n'est pas défini !");
+            return;
+        }
+
+        ennemi.setChemin(cheminMana.getCheminPrincipal());
+
+        // Placer l'ennemi au premier point du chemin
+        Vector2 premierPoint = cheminMana.getCheminPrincipal().get(0);
+        ennemi.setPositionX(premierPoint.x);
+        ennemi.setPositionY(premierPoint.y);
+
+        // Commencer à viser le deuxième point (index 1)
+        if (cheminMana.getCheminPrincipal().size() > 1) {
+            ennemi.setIndexActuel(1);
+        } else {
+            // Si un seul point, l'ennemi reste sur place
+            ennemi.setIndexActuel(0);
+        }
+    }
+
+    /**
+     * Met à jour tous les ennemis actifs et nettoie les morts.
+     */
+    private void mettreAJourEnnemis(float deltaTime) {
         for (int i = ennemisActifs.size - 1; i >= 0; i--) {
             Mechant m = ennemisActifs.get(i);
             if (!m.isEnVie()) {
@@ -161,29 +224,44 @@ public class VagueMana {
         }
     }
 
+    /**
+     * Passe à la vague suivante après un délai.
+     */
     private void passerVagueSuivante(float deltaTime) {
         tempsDepuisFinVague += deltaTime;
+
         if (tempsDepuisFinVague >= delaiEntreVagues) {
             indexVagueActuelle++;
             if (indexVagueActuelle < vagues.size) {
                 vagueActuelle = vagues.get(indexVagueActuelle);
                 tempsDepuisFinVague = 0f;
             } else {
-                vagueActuelle = null;
+                vagueActuelle = null; // Toutes les vagues sont terminées
             }
         }
     }
 
+    // ------------------------------------------------------------------------
+    // REGION : GETTERS
+    // ------------------------------------------------------------------------
+    /**
+     * @return La liste de tous les ennemis actifs
+     */
     public Array<Mechant> getEnnemisActifs() {
         return ennemisActifs;
     }
 
+    /**
+     * @return La vague actuellement en cours
+     */
     public Vague getVagueActuelle() {
         return vagueActuelle;
     }
 
+    /**
+     * @return true si toutes les vagues sont terminées
+     */
     public boolean toutesVaguesTerminees() {
         return vagueActuelle == null;
     }
-
 }
