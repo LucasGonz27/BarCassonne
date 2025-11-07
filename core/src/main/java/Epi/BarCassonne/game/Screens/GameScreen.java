@@ -8,27 +8,45 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import Epi.BarCassonne.game.Entities.Mechants.RoiGoblin;
+import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 import Epi.BarCassonne.game.Managers.AssetMana;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
+import Epi.BarCassonne.game.Managers.CheminMana;
+import Epi.BarCassonne.game.Managers.VagueMana;
 
+/**
+ * Écran principal du jeu.
+ * Gère l'affichage et la mise à jour du jeu.
+ */
 public class GameScreen implements Screen {
 
+    // ------------------------------------------------------------------------
+    // REGION : CHAMPS
+    // ------------------------------------------------------------------------
     private SpriteBatch batch;
     private BackgroundManager background;
     private OrthographicCamera camera;
     private Viewport viewport;
-
-    private RoiGoblin roiGoblin;
-    private float x, y;         // position actuelle
-    private float destX, destY; // destination
-    private float speed = 200f; // pixels/sec
+    private VagueMana vagueMana;
+    private CheminMana chemin;
 
     private static final float WORLD_WIDTH = 800;
     private static final float WORLD_HEIGHT = 600;
 
+    // ------------------------------------------------------------------------
+    // REGION : INITIALISATION
+    // ------------------------------------------------------------------------
     @Override
     public void show() {
+        initialiserRendu();
+        chargerAssets();
+        initialiserJeu();
+    }
+
+    /**
+     * Initialise les composants de rendu.
+     */
+    private void initialiserRendu() {
         batch = new SpriteBatch();
         background = new BackgroundManager("backgrounds/map.png");
 
@@ -36,58 +54,106 @@ public class GameScreen implements Screen {
         viewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, camera);
         viewport.apply();
         camera.position.set(WORLD_WIDTH / 2, WORLD_HEIGHT / 2, 0);
-
-        // Charger les assets et créer le RoiGoblin
-        AssetMana.load();
-        roiGoblin = new RoiGoblin();
-
-        x = roiGoblin.getPositionX();
-        y = roiGoblin.getPositionY();
-
-        destX = 500;
-        destY = 300;
     }
 
+    /**
+     * Charge tous les assets nécessaires.
+     */
+    private void chargerAssets() {
+        AssetMana.loadAnimation("PaysanGoblin");
+        // Décommenter les autres animations si nécessaire
+        // AssetMana.loadAnimation("GuerrierGoblin");
+        // AssetMana.loadAnimation("GoblinGuerrisseur");
+        // AssetMana.loadAnimation("GoblinBomb");
+        // AssetMana.loadAnimation("Cochon");
+        // AssetMana.loadAnimation("Chevalier");
+        // AssetMana.loadAnimation("BossChevalier");
+        // AssetMana.loadAnimation("Golem");
+        // AssetMana.loadAnimation("RoiGoblin");
+    }
+
+    /**
+     * Initialise les composants du jeu.
+     */
+    private void initialiserJeu() {
+        chemin = new CheminMana();
+        vagueMana = new VagueMana(chemin);
+        System.out.println("GameScreen initialisé - Vague " + vagueMana.getVagueActuelle().getNumero());
+    }
+
+    // ------------------------------------------------------------------------
+    // REGION : RENDU
+    // ------------------------------------------------------------------------
     @Override
     public void render(float delta) {
-        // Mettre à jour la position du RoiGoblin
-        float dx = destX - x;
-        float dy = destY - y;
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
+        mettreAJourJeu(delta);
+        dessiner();
+    }
 
-        if (distance > speed * delta) {
-            x += dx / distance * speed * delta;
-            y += dy / distance * speed * delta;
-        } else {
-            x = destX;
-            y = destY;
+    /**
+     * Met à jour la logique du jeu.
+     */
+    private void mettreAJourJeu(float delta) {
+        vagueMana.update(delta);
+
+        if (vagueMana.toutesVaguesTerminees()) {
+            System.out.println("Toutes les vagues sont terminées !");
         }
 
-        roiGoblin.setPositionX(x);
-        roiGoblin.setPositionY(y);
 
-        // Rendu
+    }
+
+    /**
+     * Dessine tous les éléments à l'écran.
+     */
+    private void dessiner() {
+        // Effacer l'écran
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        // Mettre à jour la caméra
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
+        // Dessiner
         batch.begin();
         background.render(batch);
-        batch.draw(AssetMana.getSprite("RoiGoblin"), roiGoblin.getPositionX(), roiGoblin.getPositionY(), roiGoblin.getWidht(), roiGoblin.getHeight());
+        dessinerEnnemis();
         batch.end();
     }
 
+    /**
+     * Dessine tous les ennemis actifs.
+     */
+    private void dessinerEnnemis() {
+        for (Mechant m : vagueMana.getEnnemisActifs()) {
+
+            if (m.isEnVie() && m.getFrame() != null) {
+                batch.draw(m.getFrame(), m.getPositionX(), m.getPositionY());
+            }
+        }
+    }
+
+    // ------------------------------------------------------------------------
+    // REGION : GESTION D'ÉVÉNEMENTS
+    // ------------------------------------------------------------------------
     @Override
     public void resize(int width, int height) {
         viewport.update(width, height);
     }
 
-    @Override public void pause() {}
-    @Override public void resume() {}
-    @Override public void hide() {}
+    @Override
+    public void pause() {}
 
+    @Override
+    public void resume() {}
+
+    @Override
+    public void hide() {}
+
+    // ------------------------------------------------------------------------
+    // REGION : NETTOYAGE
+    // ------------------------------------------------------------------------
     @Override
     public void dispose() {
         batch.dispose();
