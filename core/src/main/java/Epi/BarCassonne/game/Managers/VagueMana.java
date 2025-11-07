@@ -161,7 +161,7 @@ public class VagueMana {
             passerVagueSuivante(deltaTime);
             return;
         }
-
+        
         spawnEnnemis(deltaTime);
         mettreAJourEnnemis(deltaTime);
     }

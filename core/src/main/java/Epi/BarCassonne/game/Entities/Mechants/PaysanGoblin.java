@@ -17,6 +17,6 @@ public class PaysanGoblin extends Mechant {
      * Initialise les PV, la vitesse et l'animation.
      */
     public PaysanGoblin() {
-        super(50, 100f, AssetMana.getAnimation("PaysanGoblin"));
+        super(50, 30f, AssetMana.getAnimation("PaysanGoblin"));
     }
 }

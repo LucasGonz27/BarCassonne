@@ -29,6 +29,7 @@ public class GameScreen implements Screen {
     private Viewport viewport;
     private VagueMana vagueMana;
     private CheminMana chemin;
+    private int numeroVaguePrecedente = 0;
 
     private static final float WORLD_WIDTH = 800;
     private static final float WORLD_HEIGHT = 600;
@@ -78,7 +79,12 @@ public class GameScreen implements Screen {
     private void initialiserJeu() {
         chemin = new CheminMana();
         vagueMana = new VagueMana(chemin);
-        System.out.println("GameScreen initialisé - Vague " + vagueMana.getVagueActuelle().getNumero());
+
+        // Initialiser le numéro de vague précédente
+        if (vagueMana.getVagueActuelle() != null) {
+            numeroVaguePrecedente = vagueMana.getVagueActuelle().getNumero();
+            System.out.println("GameScreen initialisé - Vague " + numeroVaguePrecedente);
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -94,13 +100,17 @@ public class GameScreen implements Screen {
      * Met à jour la logique du jeu.
      */
     private void mettreAJourJeu(float delta) {
+
         vagueMana.update(delta);
+            int numeroVagueActuelle = vagueMana.getVagueActuelle().getNumero();
+            if (numeroVagueActuelle != numeroVaguePrecedente) {
+                System.out.println("Vague " + numeroVagueActuelle + " commencée !");
+                numeroVaguePrecedente = numeroVagueActuelle;
+            }
 
         if (vagueMana.toutesVaguesTerminees()) {
             System.out.println("Toutes les vagues sont terminées !");
         }
-
-
     }
 
     /**
