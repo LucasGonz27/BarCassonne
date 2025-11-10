@@ -14,14 +14,13 @@ public class BackgroundManager {
         } catch (Exception e) {
             System.err.println("Erreur lors du chargement du background: " + path);
             e.printStackTrace();
-            // Créer une texture de secours (noire)
             background = new Texture(800, 600, com.badlogic.gdx.graphics.Pixmap.Format.RGBA8888);
         }
     }
 
     public void render(SpriteBatch batch) {
         if (background != null) {
-            batch.draw(background, 0, 0, 800, 600); // taille du monde
+            batch.draw(background, 0, 0, 800, 600);
         }
     }
 

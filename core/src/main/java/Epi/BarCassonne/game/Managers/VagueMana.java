@@ -161,7 +161,7 @@ public class VagueMana {
             passerVagueSuivante(deltaTime);
             return;
         }
-        
+
         spawnEnnemis(deltaTime);
         mettreAJourEnnemis(deltaTime);
     }
@@ -215,11 +215,11 @@ public class VagueMana {
      */
     private void mettreAJourEnnemis(float deltaTime) {
         for (int i = ennemisActifs.size - 1; i >= 0; i--) {
-            Mechant m = ennemisActifs.get(i);
-            if (!m.isEnVie()) {
+            Mechant unMechant = ennemisActifs.get(i);
+            if (!unMechant.isEnVie()) {
                 ennemisActifs.removeIndex(i);
             } else {
-                m.update(deltaTime);
+                unMechant.update(deltaTime);
             }
         }
     }

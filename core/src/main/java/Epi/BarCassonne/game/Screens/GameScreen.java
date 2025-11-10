@@ -63,7 +63,7 @@ public class GameScreen implements Screen {
     private void chargerAssets() {
         AssetMana.loadAnimation("PaysanGoblin");
         // Décommenter les autres animations si nécessaire
-        // AssetMana.loadAnimation("GuerrierGoblin");
+        AssetMana.loadAnimation("GuerrierGoblin");
         // AssetMana.loadAnimation("GoblinGuerrisseur");
         // AssetMana.loadAnimation("GoblinBomb");
         // AssetMana.loadAnimation("Cochon");
