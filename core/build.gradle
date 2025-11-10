@@ -8,3 +8,17 @@ dependencies {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
 }
+
+// Configuration Javadoc
+javadoc {
+    source = sourceSets.main.allJava
+    classpath = configurations.compileClasspath
+    destinationDir = file("${buildDir}/docs/javadoc")
+    options.encoding = 'UTF-8'
+    options.charSet = 'UTF-8'
+    options.author = true
+    options.version = true
+    options.windowTitle = "BarCassonne - Documentation API"
+    options.docTitle = "BarCassonne - Documentation API"
+    options.bottom = "Généré avec Javadoc"
+}

@@ -2,6 +2,7 @@ package Epi.BarCassonne.game.Managers;
 
 import Epi.BarCassonne.game.Entities.Mechants.*;
 import Epi.BarCassonne.game.Vague.Vague;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -263,5 +264,20 @@ public class VagueMana {
      */
     public boolean toutesVaguesTerminees() {
         return vagueActuelle == null;
+    }
+
+    // ------------------------------------------------------------------------
+    // REGION : RENDU
+    // ------------------------------------------------------------------------
+    /**
+     * Dessine tous les ennemis actifs.
+     * @param batch Le SpriteBatch pour le rendu
+     */
+    public void render(SpriteBatch batch) {
+        for (Mechant mechant : ennemisActifs) {
+            if (mechant.isEnVie() && mechant.getFrame() != null) {
+                batch.draw(mechant.getFrame(), mechant.getPositionX(), mechant.getPositionY());
+            }
+        }
     }
 }

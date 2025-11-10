@@ -72,7 +72,7 @@ public abstract class Batiment {
     // endregion
 
     // region [Methods]
-    public void attack(Mechant target) {
+    public void attacker(Mechant target) {
         if (target == null) return;
 
         float distance = (float) Math.sqrt(Math.pow(target.getPositionX() - positionX, 2) + Math.pow(target.getPositionY() - positionY, 2));

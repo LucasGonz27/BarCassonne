@@ -7,7 +7,7 @@ public class Main extends Game {
 
     @Override
     public void create() {
-        // Définir GameScreen comme écran principal
+        // Lance ton écran de jeu
         setScreen(new GameScreen());
     }
 
