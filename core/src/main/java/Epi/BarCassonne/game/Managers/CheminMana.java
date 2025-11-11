@@ -25,10 +25,10 @@ public class CheminMana {
         cheminPrincipal = new ArrayList<>();
 
         // Définir les points du chemin (de gauche à droite, de haut en bas)
-        cheminPrincipal.add(new Vector2(0, 400));
-        cheminPrincipal.add(new Vector2(750, 420));
-        cheminPrincipal.add(new Vector2(750, 650));
-        cheminPrincipal.add(new Vector2(1460, 650));
+        cheminPrincipal.add(new Vector2(0, 350));
+        cheminPrincipal.add(new Vector2(750, 400));
+        cheminPrincipal.add(new Vector2(750, 590));
+        cheminPrincipal.add(new Vector2(1460, 590));
        
     }
 

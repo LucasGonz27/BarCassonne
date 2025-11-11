@@ -3,7 +3,6 @@ package Epi.BarCassonne.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -13,7 +12,6 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
 import Epi.BarCassonne.game.Managers.CheminMana;
 import Epi.BarCassonne.game.Managers.GameState;
-import Epi.BarCassonne.game.Managers.HUDBackgroundManager;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
 
@@ -22,14 +20,6 @@ import Epi.BarCassonne.game.UI.HUD;
  * Gère l'affichage et la mise à jour du jeu.
  */
 public class GameScreen implements Screen {
-
-    // ------------------------------------------------------------------------
-    // REGION : CONSTANTES
-    // ------------------------------------------------------------------------
-    private static final float HAUTEUR_BARRE_VIE = 50f;
-    private static final float LARGEUR_HUD = 400f;
-    private static final int LINGOTS_INITIAUX = 500;
-    private static final int VIE_INITIALE = 100;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
@@ -43,7 +33,6 @@ public class GameScreen implements Screen {
     
     // Managers
     private BackgroundManager backgroundManager;
-    private HUDBackgroundManager hudBackgroundManager;
     private CheminMana cheminManager;
     private VagueMana vagueManager;
     private GameState gameState;
@@ -67,16 +56,15 @@ public class GameScreen implements Screen {
      * Initialise les composants de rendu (caméras, viewports, textures).
      */
     private void initialiserRendu() {
+
         spriteBatch = new SpriteBatch();
         backgroundManager = new BackgroundManager("backgrounds/map.png");
-        hudBackgroundManager = new HUDBackgroundManager("HUD/BarreDeVie.png", "HUD/HUD.png");
-
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
         // Caméra et viewport pour la map
-        float mapWidth = screenWidth - LARGEUR_HUD;
-        float mapHeight = screenHeight - HAUTEUR_BARRE_VIE;
+        float mapWidth = screenWidth - HUD.LARGEUR_HUD;
+        float mapHeight = screenHeight - HUD.HAUTEUR_BARRE_VIE;
         mapCamera = new OrthographicCamera();
         mapViewport = new StretchViewport(mapWidth, mapHeight, mapCamera);
         mapViewport.apply();
@@ -110,7 +98,7 @@ public class GameScreen implements Screen {
      * Initialise les composants du jeu (état, managers, HUD).
      */
     private void initialiserJeu() {
-        gameState = new GameState(LINGOTS_INITIAUX, VIE_INITIALE);
+        gameState = new GameState(500, 100);
         cheminManager = new CheminMana();
         vagueManager = new VagueMana(cheminManager);
         hud = new HUD(gameState);
@@ -125,76 +113,36 @@ public class GameScreen implements Screen {
      */
     @Override
     public void render(float delta) {
-        gererInput();
-        mettreAJourJeu(delta);
-        dessiner();
-    }
-
-    /**
-     * Gère les entrées utilisateur (clavier, souris, etc.).
-     */
-    private void gererInput() {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
-    }
-
-    /**
-     * Met à jour la logique du jeu.
-     * @param delta Temps écoulé depuis la dernière frame
-     */
-    private void mettreAJourJeu(float delta) {
-        vagueManager.update(delta);
         
-        // Mettre à jour le numéro de vague dans l'état du jeu
+        vagueManager.update(delta);
         if (vagueManager.getVagueActuelle() != null) {
             gameState.setNumeroVague(vagueManager.getVagueActuelle().getNumero());
         }
+        
+        dessiner();
     }
 
     /**
      * Dessine tous les éléments à l'écran.
      */
     private void dessiner() {
-        effacerEcran();
-        dessinerMap();
-        dessinerHUD();
-    }
-
-    /**
-     * Efface l'écran avec une couleur de fond.
-     */
-    private void effacerEcran() {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-    }
-
-    /**
-     * Dessine la map et les ennemis.
-     */
-    private void dessinerMap() {
+        // Map
         mapViewport.apply();
         mapCamera.update();
         spriteBatch.setProjectionMatrix(mapCamera.combined);
-
         spriteBatch.begin();
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
         vagueManager.render(spriteBatch);
         spriteBatch.end();
-    }
-
-    /**
-     * Dessine le HUD (barre de vie et panneau vertical à droite).
-     */
-    private void dessinerHUD() {
+        
+        // HUD
         hudViewport.apply();
         hudCamera.update();
         spriteBatch.setProjectionMatrix(hudCamera.combined);
-
-        float screenWidth = Gdx.graphics.getWidth();
-        float screenHeight = Gdx.graphics.getHeight();
-
-        hud.render(spriteBatch, hudBackgroundManager, screenWidth, screenHeight, LARGEUR_HUD, HAUTEUR_BARRE_VIE);
+        hud.render(spriteBatch);
     }
 
     // ------------------------------------------------------------------------
@@ -207,8 +155,8 @@ public class GameScreen implements Screen {
      */
     @Override
     public void resize(int width, int height) {
-        float mapWidth = width - LARGEUR_HUD;
-        float mapHeight = height - HAUTEUR_BARRE_VIE;
+        float mapWidth = width - HUD.LARGEUR_HUD;
+        float mapHeight = height - HUD.HAUTEUR_BARRE_VIE;
         
         // Mettre à jour le viewport de la map
         mapViewport.update((int)mapWidth, (int)mapHeight);
@@ -249,7 +197,6 @@ public class GameScreen implements Screen {
     public void dispose() {
         spriteBatch.dispose();
         backgroundManager.dispose();
-        hudBackgroundManager.dispose();
         hud.dispose();
         AssetMana.dispose();
     }

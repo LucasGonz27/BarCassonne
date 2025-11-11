@@ -1,133 +1,120 @@
 package Epi.BarCassonne.game.UI;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import Epi.BarCassonne.game.Managers.GameState;
-import Epi.BarCassonne.game.Managers.HUDBackgroundManager;
+import Epi.BarCassonne.game.Managers.TextureManager;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
 /**
  * Affiche l'interface du jeu (barre de vie, lingots, vie, vague).
  */
 public class HUD {
 
-    // ------------------------------------------------------------------------
-    // REGION : CONSTANTES
-    // ------------------------------------------------------------------------
-    // Positions du texte dans le panneau HUD (à droite)
-    private static final float LINGOTS_X = 30f;
-    private static final float LINGOTS_Y = 200f;
+    public static final float HAUTEUR_BARRE_VIE = 150f;
+    public static final float LARGEUR_HUD = 400f;
+
+    private static final float LINGOTS_X = 295f;
+    private static final float LINGOTS_Y = 845f;
+
     private static final float VIE_X = 30f;
     private static final float VIE_Y = 100f;
-    private static final float VAGUE_X = 30f;
-    private static final float VAGUE_Y = 50f;
 
-    // ------------------------------------------------------------------------
-    // REGION : CHAMPS
-    // ------------------------------------------------------------------------
+    private static final float VAGUE_X = 200f;
+    private static final float VAGUE_Y = 970f;
+
     private GameState gameState;
     private BitmapFont font;
-    private ShapeRenderer shapeRenderer;
+    private BitmapFont fontLingots;
+    private BitmapFont fontVague;
+    private Texture barreVieTexture;
+    private Texture hudTexture;
 
-    // ------------------------------------------------------------------------
-    // REGION : CONSTRUCTEUR
-    // ------------------------------------------------------------------------
-    /**
-     * Crée un nouveau HUD.
-     * @param gameState L'état du jeu à afficher
-     */
     public HUD(GameState gameState) {
         this.gameState = gameState;
         this.font = new BitmapFont();
-        this.font.setColor(Color.WHITE);
-        this.shapeRenderer = new ShapeRenderer();
+        this.font.setColor(Color.BLACK);
+
+
+
+        try {
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Pieces of Eight.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.color = Color.BLACK;
+            parameter.size = 20;
+            this.fontLingots = generator.generateFont(parameter);
+            generator.dispose();
+        } catch (Exception e) {
+            this.fontLingots = new BitmapFont();
+            this.fontLingots.setColor(Color.BLACK);
+            this.fontLingots.getData().setScale(1.5f);
+        }
+
+        try {
+            FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/Pieces of Eight.ttf"));
+            FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+            parameter.color = Color.BLACK;
+            parameter.size = 50;
+            this.fontVague = generator.generateFont(parameter);
+            generator.dispose();
+        } catch (Exception e) {
+            this.fontVague = new BitmapFont();
+            this.fontVague.setColor(Color.BLACK);
+            this.fontVague.getData().setScale(4.0f);
+        }
+
+        this.barreVieTexture = TextureManager.chargerTexture("HUD/BarreDeVie.png");
+        this.hudTexture = TextureManager.chargerTexture("HUD/HUD.png");
     }
 
-    // ------------------------------------------------------------------------
-    // REGION : RENDU
-    // ------------------------------------------------------------------------
-    /**
-     * Dessine tout le HUD (barre de vie horizontale + panneau vertical à droite).
-     * @param batch Le SpriteBatch pour le rendu
-     * @param hudBackgroundManager Le gestionnaire des images de fond du HUD
-     * @param screenWidth La largeur de l'écran
-     * @param screenHeight La hauteur de l'écran
-     * @param largeurHUD La largeur du panneau HUD à droite
-     * @param hauteurBarreVie La hauteur de la barre de vie
-     */
-    public void render(SpriteBatch batch, HUDBackgroundManager hudBackgroundManager,
-                       float screenWidth, float screenHeight, float largeurHUD, float hauteurBarreVie) {
-        
-        float mapWidth = screenWidth - largeurHUD;
-        float barreVieY = screenHeight - hauteurBarreVie;
-        float hudX = screenWidth - largeurHUD;
-        
-        // Images de fond
+    public void render(SpriteBatch batch) {
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float mapWidth = screenWidth - LARGEUR_HUD;
+        float barreVieY = screenHeight - HAUTEUR_BARRE_VIE;
+        float hudX = screenWidth - LARGEUR_HUD;
+
         batch.begin();
-        hudBackgroundManager.renderBarreVie(batch, 0, barreVieY, mapWidth, hauteurBarreVie);
-        hudBackgroundManager.renderHUD(batch, hudX, 0, largeurHUD, screenHeight);
+        dessinerBarreVie(batch, 0, barreVieY, mapWidth, HAUTEUR_BARRE_VIE);
+        dessinerPanneauHUD(batch, hudX, screenHeight);
+        dessinerTextes(batch, hudX);
         batch.end();
+    }
 
-        // Barre de vie
-        dessinerBarreVie(batch, 0, barreVieY, mapWidth, hauteurBarreVie);
-        
-        // Textes
-        dessinerTextes(batch, hudX, 0, largeurHUD, screenHeight);
+    private void dessinerPanneauHUD(SpriteBatch batch, float hudX, float screenHeight) {
+        if (hudTexture != null) {
+            batch.draw(hudTexture, hudX, 0, LARGEUR_HUD, screenHeight);
+        }
     }
 
     /**
-     * Dessine la barre de vie (rectangle vert sur fond rouge).
-     * @param batch Le SpriteBatch pour le rendu
-     * @param x Position X
-     * @param y Position Y
-     * @param width Largeur de la barre
-     * @param height Hauteur de la barre
+     * Dessine la barre de vie
      */
     private void dessinerBarreVie(SpriteBatch batch, float x, float y, float width, float height) {
-        float viePourcentage = gameState.getViePourcentage();
-        float largeurVie = width * viePourcentage;
-
-        shapeRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        
-        // Fond rouge
-        shapeRenderer.setColor(Color.RED);
-        shapeRenderer.rect(x, y, width, height);
-        
-        // Barre verte (vie actuelle)
-        shapeRenderer.setColor(Color.GREEN);
-        shapeRenderer.rect(x, y, largeurVie, height);
-        
-        shapeRenderer.end();
+        if (barreVieTexture == null) {
+            return;
+        }
+        font.draw(batch, "Vie: " + gameState.getVie() + "/" + gameState.getVieMax(), VIE_X, VIE_Y);
+        batch.draw(barreVieTexture, x, y, width, height);
     }
 
-    /**
-     * Dessine les textes du HUD (lingots, vie, vague).
-     * @param batch Le SpriteBatch pour le rendu
-     * @param hudX Position X du panneau HUD
-     * @param hudY Position Y du panneau HUD
-     * @param hudWidth Largeur du panneau HUD
-     * @param hudHeight Hauteur du panneau HUD
-     */
-    private void dessinerTextes(SpriteBatch batch, float hudX, float hudY, float hudWidth, float hudHeight) {
-        batch.begin();
-        
-        font.draw(batch, "Lingots: " + gameState.getLingots(), hudX + LINGOTS_X, hudY + LINGOTS_Y);
-        font.draw(batch, "Vie: " + gameState.getVie() + "/" + gameState.getVieMax(), hudX + VIE_X, hudY + VIE_Y);
-        font.draw(batch, "Vague: " + gameState.getNumeroVague(), hudX + VAGUE_X, hudY + VAGUE_Y);
-        
-        batch.end();
+    private void dessinerTextes(SpriteBatch batch, float hudX) {
+        fontLingots.draw(batch, Integer.toString(gameState.getLingots()), hudX + LINGOTS_X, LINGOTS_Y);
+        fontVague.draw(batch, Integer.toString(gameState.getNumeroVague()), hudX + VAGUE_X, VAGUE_Y);
     }
 
-    // ------------------------------------------------------------------------
-    // REGION : NETTOYAGE
-    // ------------------------------------------------------------------------
-    /**
-     * Libère les ressources utilisées par le HUD.
-     */
     public void dispose() {
         font.dispose();
-        shapeRenderer.dispose();
+        fontLingots.dispose();
+        fontVague.dispose();
+        if (barreVieTexture != null) {
+            barreVieTexture.dispose();
+        }
+        if (hudTexture != null) {
+            hudTexture.dispose();
+        }
     }
 }
