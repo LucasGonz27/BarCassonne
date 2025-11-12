@@ -11,8 +11,8 @@ import Epi.BarCassonne.game.Utils.Button;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Game;
 import Epi.BarCassonne.game.Utils.Texte;
-import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 
 
@@ -20,7 +20,7 @@ import com.badlogic.gdx.graphics.Texture;
  * Écran du menu principal du jeu.
  * Gère l'affichage du menu et la navigation vers le jeu.
  */
-public class Menu implements Screen {
+public class Chargement implements Screen {
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
@@ -30,10 +30,8 @@ public class Menu implements Screen {
     private BackgroundManager backgroundManager;
     private Viewport viewport;
     private OrthographicCamera camera;
-    private Button boutonJouer;
-    private Button boutonOptionsMenu;
-    private Button boutonQuitter;
-    private Sound sound;
+    private Button boutonCommencer;
+  
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -42,7 +40,7 @@ public class Menu implements Screen {
      * Crée un nouvel écran de menu.
      * @param game L'instance du jeu pour changer d'écran
      */
-    public Menu(Game game) {
+    public Chargement(Game game) {
         this.game = game;
     }
 
@@ -66,7 +64,7 @@ public class Menu implements Screen {
      */
     public void initialiserRendu(float screenWidth, float screenHeight) {
         batch = new SpriteBatch();
-        backgroundManager = new BackgroundManager("backgrounds/Menu.png");
+        backgroundManager = new BackgroundManager("backgrounds/Chargement.png");
         viewport = new StretchViewport(screenWidth, screenHeight);
         viewport.apply();
         camera = new OrthographicCamera();
@@ -77,50 +75,23 @@ public class Menu implements Screen {
        
 
         // Créer le bouton "Jouer"
-        float boutonWidthJouer = 400f;
+        float boutonWidthJouer = 600f;
         float boutonHeightJouer = 300f;
-        float boutonXJouer = (screenWidth * 0.65f); 
-        float boutonYJouer = (screenHeight * 0.35f); 
-        
-        boutonJouer = new Button(boutonXJouer, boutonYJouer, boutonWidthJouer, boutonHeightJouer, "Jouer", "skin/SkinBoutonBois.png", Color.WHITE, 45);
-        boutonJouer.setAction(new Runnable() {
+        float boutonXJouer = (screenWidth / 2f - boutonWidthJouer / 2f); 
+        float boutonYJouer = (screenHeight / 2f - boutonHeightJouer / 2f - 200f); 
+
+        boutonCommencer = new Button(boutonXJouer, boutonYJouer, boutonWidthJouer, boutonHeightJouer, "Commencer la partie", "skin/SkinBoutonBois.png", Color.WHITE, 45);
+        boutonCommencer.setAction(new Runnable() {
             @Override
             public void run() {
-                game.setScreen(new Chargement(game));
+                game.setScreen(new GameScreen());
             }
         });
-
-        // Créer le bouton "Options" (en dessous du bouton Jouer)
-        float boutonWidthOptions = 400f;
-        float boutonHeightOptions = 300f;
-        float boutonXOptions = boutonXJouer; 
-        float boutonYOptions = boutonYJouer - 100f; 
-         boutonOptionsMenu = new Button(boutonXOptions, boutonYOptions, boutonWidthOptions, boutonHeightOptions, "Options", "skin/SkinBoutonBois.png", Color.WHITE, 45);
-         boutonOptionsMenu.setAction(new Runnable() {
-             @Override
-             public void run() {
-                 //game.setScreen(new OptionsScreen());
-             }
-         });
-
-        // Créer le bouton "Quitter" (en dessous du bouton options)
-        float boutonWidthQuitter = 400f;
-        float boutonHeightQuitter = 300f;
-        float boutonXQuitter = boutonXJouer; 
-        float boutonYQuitter = boutonYOptions - 100f; 
         
-        boutonQuitter = new Button(boutonXQuitter, boutonYQuitter, boutonWidthQuitter, boutonHeightQuitter, "Quitter", "skin/SkinBoutonBois.png", Color.WHITE, 45);
-        boutonQuitter.setAction(new Runnable() {
-            @Override
-            public void run() {
-                Gdx.app.exit();
-            }
-        });
+        
 
-        sound = Gdx.audio.newSound(Gdx.files.internal("sounds/musiqueJeux.mp3"));
-        if (sound != null) {
-            sound.loop();
-        }
+   
+     
     }
 
     // ------------------------------------------------------------------------
@@ -136,9 +107,8 @@ public class Menu implements Screen {
         float screenHeight = Gdx.graphics.getHeight();
         
         // Mettre à jour les boutons
-        boutonJouer.update();
-        boutonOptionsMenu.update();
-        boutonQuitter.update();
+        boutonCommencer.update();
+       
         
         // Dessiner le fond
         batch.begin();
@@ -147,22 +117,22 @@ public class Menu implements Screen {
         
         // Dessiner les boutons et le titre
         batch.begin();
-        boutonJouer.render(batch);
-        boutonOptionsMenu.render(batch);
-        boutonQuitter.render(batch);
+        boutonCommencer.render(batch);
         
-      
-      
-        
-        // Dessiner le titre du jeu (centré en haut)
-        float titreX = (screenWidth * 0.50f);
-        float titreY = screenHeight * 0.71f; 
-        Texte.drawText(batch, "BarCassonne", titreX, titreY, Color.WHITE, 126);
 
-        float titreSousX = (screenWidth * 0.55f);
-        float titreSousY = screenHeight * 0.62f; 
-        Texte.drawText(batch, "Défendez votre chateau !", titreSousX, titreSousY, Color.WHITE, 46);
+        String texteChargement = "Chargement...";
+        int taillePolice = 155;
+        BitmapFont font = Texte.getFont(taillePolice);
+        GlyphLayout layout = new GlyphLayout();
+        layout.setText(font, texteChargement);
+        
+        float texteX = (screenWidth / 2f) - (layout.width / 2f);
+        
+        float texteY = (screenHeight / 2f) + (layout.height / 2f);
+        
+        Texte.drawText(batch, texteChargement, texteX, texteY, Color.WHITE, taillePolice);
         batch.end();
+        
     }
     
     // ------------------------------------------------------------------------
@@ -219,14 +189,9 @@ public class Menu implements Screen {
         if (backgroundManager != null) {
             backgroundManager.dispose();
         }
-        if (boutonJouer != null) {
-            boutonJouer.dispose();
+        if (boutonCommencer != null) {
+            boutonCommencer.dispose();
         }
-        if (boutonOptionsMenu != null) {
-            boutonOptionsMenu.dispose();
-        }
-        if (boutonQuitter != null) {
-            boutonQuitter.dispose();
-        }
+        
     }
 }

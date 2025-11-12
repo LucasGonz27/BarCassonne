@@ -2,12 +2,14 @@ package Epi.BarCassonne.game.Utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.math.Rectangle;
+import Epi.BarCassonne.game.Managers.TextureManager;
 
 /**
- * Classe utilitaire pour créer et gérer des boutons interactifs.
+ * Classe utilitaire simple pour créer et gérer des boutons interactifs.
  * Gère la détection de clics et l'affichage avec texte centré.
  */
 public class Button {
@@ -17,37 +19,37 @@ public class Button {
     // ------------------------------------------------------------------------
     private float x, y, width, height;
     private String texte;
-    private Color couleurFond;
+    private Texture texture;
     private Color couleurTexte;
     private int taillePolice;
-    private Rectangle rectangle;
     private Runnable action;
     
     // ------------------------------------------------------------------------
-    // REGION : CONSTRUCTEUR
+    // REGION : CONSTRUCTEURS
     // ------------------------------------------------------------------------
     /**
-     * Crée un bouton avec tous les paramètres.
+     * Crée un bouton avec une texture (skin PNG).
      * @param x Position X du bouton
      * @param y Position Y du bouton
      * @param width Largeur du bouton
      * @param height Hauteur du bouton
      * @param texte Texte à afficher sur le bouton
-     * @param couleurFond Couleur de fond du bouton
+     * @param cheminTexture Chemin vers la texture (ex: "skins/bouton.png")
      * @param couleurTexte Couleur du texte
-     * @param taillePolice Taille de la police du texte
+     * @param taillePolice Taille de la police
      */
-    public Button(float x, float y, float width, float height, String texte, Color couleurFond, Color couleurTexte, int taillePolice) {
+    public Button(float x, float y, float width, float height, String texte, String cheminTexture, Color couleurTexte, int taillePolice) {
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
         this.texte = texte;
-        this.couleurFond = couleurFond;
+        this.texture = TextureManager.chargerTexture(cheminTexture);
         this.couleurTexte = couleurTexte;
         this.taillePolice = taillePolice;
-        this.rectangle = new Rectangle(x, y, width, height);
     }
+    
+
     
     // ------------------------------------------------------------------------
     // REGION : MÉTHODES PUBLIQUES
@@ -60,33 +62,83 @@ public class Button {
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         
-        if (rectangle.contains(mouseX, mouseY) && Gdx.input.isButtonJustPressed(com.badlogic.gdx.Input.Buttons.LEFT) && action != null) {
-            action.run();
-        }
-    }
-    
-    /**
-     * Dessine le bouton (rectangle et texte centré).
-     * Note: Le SpriteBatch et ShapeRenderer doivent être configurés.
-     * @param batch Le SpriteBatch pour le rendu (déjà ouvert avec batch.begin())
-     * @param shapeRenderer Le ShapeRenderer pour dessiner le rectangle (déjà ouvert avec shapeRenderer.begin())
-     */
-    public void render(SpriteBatch batch, ShapeRenderer shapeRenderer) {
-        shapeRenderer.setColor(couleurFond);
-        shapeRenderer.rect(x, y, width, height);
+        // Vérifier si la souris est dans la zone du bouton
+        boolean estDansBouton = mouseX >= x && mouseX <= x + width && 
+                                mouseY >= y && mouseY <= y + height;
         
+        if (estDansBouton && Gdx.input.isButtonJustPressed(com.badlogic.gdx.Input.Buttons.LEFT)) {
+            if (action != null) {
+                action.run();
+            }
+        }
+    
+    }
+    
+    /**
+     * Dessine le bouton.
+     * @param batch Le SpriteBatch (déjà ouvert avec batch.begin())
+     */
+    public void render(SpriteBatch batch) {
+        // Dessiner la texture
+        if (texture != null) {
+            batch.draw(texture, x, y, width, height);
+        }
+        
+        // Dessiner le texte centré
         if (texte != null && !texte.isEmpty()) {
-            float texteX = x + (width / 2) - (texte.length() * taillePolice * 0.3f);
-            float texteY = y + (height / 2) + (taillePolice / 3);
-            Texte.drawText(batch, texte, texteX, texteY, couleurTexte, taillePolice);
+            // Calculer la vraie largeur du texte pour un centrage parfait
+            BitmapFont font = Texte.getFont(taillePolice);
+            GlyphLayout layout = new GlyphLayout();
+            layout.setText(font, texte);
+            
+            // Centrer horizontalement
+            float texteX = x + (width / 2) - (layout.width / 2);
+            // Centrer verticalement
+            float texteY = y + (height / 2) + (layout.height / 2);
+            
+            font.setColor(couleurTexte);
+            font.draw(batch, texte, texteX, texteY);
         }
     }
     
     /**
-     * Définit l'action à exécuter lors du clic sur le bouton.
-     * @param action L'action à exécuter (Runnable)
+     * Définit l'action à exécuter lors du clic.
+     * @param action L'action à exécuter
      */
     public void setAction(Runnable action) {
         this.action = action;
+    }
+    
+    /**
+     * Met à jour la position du bouton.
+     * @param x Nouvelle position X
+     * @param y Nouvelle position Y
+     */
+    public void setPosition(float x, float y) {
+        this.x = x;
+        this.y = y;
+    }
+    
+    /**
+     * Met à jour la taille du bouton.
+     * @param width Nouvelle largeur
+     * @param height Nouvelle hauteur
+     */
+    public void setSize(float width, float height) {
+        this.width = width;
+        this.height = height;
+    }
+    
+    // ------------------------------------------------------------------------
+    // REGION : NETTOYAGE
+    // ------------------------------------------------------------------------
+    /**
+     * Libère les ressources.
+     */
+    public void dispose() {
+        if (texture != null) {
+            TextureManager.libererTexture(texture);
+            texture = null;
+        }
     }
 }

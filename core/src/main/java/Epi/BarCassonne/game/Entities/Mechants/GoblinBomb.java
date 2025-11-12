@@ -4,6 +4,6 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 
 public class GoblinBomb extends Mechant {
     public GoblinBomb() {
-        super(130, 1f, AssetMana.getAnimation("GoblinBomb"));
+        super(130, 25f, AssetMana.getAnimation("GoblinBomb"));
     }
 }

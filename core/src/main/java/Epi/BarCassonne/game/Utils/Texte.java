@@ -32,8 +32,10 @@ public class Texte {
 
     /**
      * Obtient une font avec la taille spécifiée (utilise un cache pour éviter de régénérer).
+     * @param size La taille de la police
+     * @return La font avec la taille spécifiée
      */
-    private static BitmapFont getFont(int size) {
+    public static BitmapFont getFont(int size) {
         initGenerator();
 
         if (generator == null) {

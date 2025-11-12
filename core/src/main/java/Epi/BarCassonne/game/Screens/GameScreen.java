@@ -17,6 +17,7 @@ import Epi.BarCassonne.game.Managers.GameState;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
 import Epi.BarCassonne.game.Utils.Texte;
+import Epi.BarCassonne.game.Screens.Menu;
 
 /**
  * Écran principal du jeu.
@@ -92,14 +93,14 @@ public class GameScreen implements Screen {
      */
     private void chargerAssets() {
         AssetMana.loadAnimation("PaysanGoblin");
-        // AssetMana.loadAnimation("GuerrierGoblin"); // Fichier supprimé
+        AssetMana.loadAnimation("GuerrierGoblin"); 
         // AssetMana.loadAnimation("GoblinGuerrisseur");
-        // AssetMana.loadAnimation("GoblinBomb");
+        AssetMana.loadAnimation("GoblinBomb");
         // AssetMana.loadAnimation("Cochon");
         // AssetMana.loadAnimation("Chevalier");
         // AssetMana.loadAnimation("BossChevalier");
         // AssetMana.loadAnimation("Golem");
-        // AssetMana.loadAnimation("RoiGoblin");
+        AssetMana.loadAnimation("RoiGoblin");
     }
 
     /**
@@ -108,7 +109,7 @@ public class GameScreen implements Screen {
      * @param mapHeight Hauteur de la map
      */
     private void initialiserJeu(float mapWidth, float mapHeight) {
-        gameState = new GameState(500, 100);
+        gameState = new GameState(500, 10);
         // Initialiser le chemin avec les dimensions de la map
         cheminManager = new CheminMana(mapWidth, mapHeight);
         vagueManager = new VagueMana(cheminManager, gameState);
@@ -188,10 +189,9 @@ public class GameScreen implements Screen {
             float screenHeight = hudViewport.getWorldHeight();
         
             String message = "GAME OVER";
-            float textWidth = message.length() * 60 * 0.6f;
-            float x = (screenWidth - textWidth) / 2;
-            float y = screenHeight / 2;
-            Texte.drawText(spriteBatch, message, x, y, Color.RED, 60);
+            float x = (screenWidth / 4);
+            float y = (screenHeight / 2);
+            Texte.drawText(spriteBatch, message, x, y, Color.RED, 100);
             spriteBatch.end();
         }
     }
