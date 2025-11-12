@@ -34,11 +34,25 @@ public class HUD {
     private GameState gameState;
     private Texture barreVieTexture;
     private Texture hudTexture;
+    private Texture tourArcherLevel1Texture;
+    private Texture tourMagieLevel1Texture;
+
+    // Positions des slots dans le HUD (basées sur la résolution de référence)
+    // Position du premier slot (le plus haut) - coordonnées relatives au HUD
+    // Les slots sont dans la zone centrale du HUD, après la zone d'information
+    // Utilisation d'un ratio similaire aux autres éléments pour la cohérence
+    private static final float SLOT1_X_RATIO = 1665f / REF_WIDTH;  // Position X du premier slot (position absolue sur l'écran) - centré dans le slot
+    private static final float SLOT1_Y_RATIO = 675f / REF_HEIGHT;  // Position Y du premier slot (depuis le bas) - dans le slot, pas au-dessus
+    private static final float SLOT2_X_RATIO = 1665f / REF_WIDTH;  // Position X du deuxième slot (même X que le premier)
+    private static final float SLOT2_Y_RATIO = 485f / REF_HEIGHT;  // Position Y du deuxième slot (plus bas que le premier)
+    private static final float SLOT_SIZE = 110f;  // Taille des slots (largeur et hauteur)
 
     public HUD(GameState gameState) {
         this.gameState = gameState;
         this.barreVieTexture = TextureManager.chargerTexture("HUD/BarreDeVie.png");
         this.hudTexture = TextureManager.chargerTexture("HUD/HUD.png");
+        this.tourArcherLevel1Texture = TextureManager.chargerTexture("sprites/TourArcherLevel1.png");
+        this.tourMagieLevel1Texture = TextureManager.chargerTexture("sprites/TourMagieLevel1.png");
     }
 
     public void render(SpriteBatch batch) {
@@ -52,6 +66,7 @@ public class HUD {
         dessinerBarreVie(batch, 0, barreVieY, mapWidth, HAUTEUR_BARRE_VIE, screenWidth, screenHeight);
         dessinerPanneauHUD(batch, hudX, screenHeight);
         dessinerTextes(batch, hudX, screenWidth, screenHeight);
+        dessinerTours(batch, hudX, screenWidth, screenHeight);
         batch.end();
     }
 
@@ -82,9 +97,84 @@ public class HUD {
         float lingotsY = LINGOTS_Y_RATIO * screenHeight;
         float vagueX = hudX + (VAGUE_X_RATIO * screenWidth);
         float vagueY = VAGUE_Y_RATIO * screenHeight;
-        
+
         Texte.drawText(batch, Integer.toString(gameState.getLingots()), lingotsX, lingotsY, Color.BLACK, 20);
         Texte.drawText(batch, Integer.toString(gameState.getNumeroVague()), vagueX, vagueY, Color.BLACK, 50);
+    }
+
+    /**
+     * Dessine les tours disponibles dans les slots du HUD.
+     */
+    private void dessinerTours(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
+        // Ajuster la taille du slot en fonction de la résolution
+        float scale = screenWidth / REF_WIDTH;
+        float slotSize = SLOT_SIZE * scale;
+        
+        // Calculer la position du premier slot
+        float slot1X = SLOT1_X_RATIO * screenWidth;
+        float slot1Y = SLOT1_Y_RATIO * screenHeight;
+        
+        // Dessiner la TourArcherLevel1 dans le premier slot
+        if (tourArcherLevel1Texture != null) {
+            batch.draw(tourArcherLevel1Texture, slot1X, slot1Y, slotSize, slotSize);
+        }
+        
+        // Calculer la position du deuxième slot
+        float slot2X = SLOT2_X_RATIO * screenWidth;
+        float slot2Y = SLOT2_Y_RATIO * screenHeight;
+        
+        // Dessiner la TourMagieLevel1 dans le deuxième slot
+        if (tourMagieLevel1Texture != null) {
+            batch.draw(tourMagieLevel1Texture, slot2X, slot2Y, slotSize, slotSize);
+        }
+    }
+    
+    /**
+     * Vérifie si un clic a été effectué sur un slot de tour dans le HUD.
+     * @param screenX Position X du clic (coordonnées écran)
+     * @param screenY Position Y du clic (coordonnées écran)
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     * @return Le numéro du slot cliqué (1 ou 2), ou 0 si aucun slot n'a été cliqué
+     */
+    public int getSlotClic(float screenX, float screenY, float screenWidth, float screenHeight) {
+        float scale = screenWidth / REF_WIDTH;
+        float slotSize = SLOT_SIZE * scale;
+        
+        // Inverser Y car LibGDX a l'origine en haut, mais le HUD en bas
+        float yInverse = screenHeight - screenY;
+        
+        // Vérifier le premier slot (TourArcher)
+        float slot1X = SLOT1_X_RATIO * screenWidth;
+        float slot1Y = SLOT1_Y_RATIO * screenHeight;
+        if (screenX >= slot1X && screenX <= slot1X + slotSize &&
+            yInverse >= slot1Y && yInverse <= slot1Y + slotSize) {
+            return 1;
+        }
+        
+        // Vérifier le deuxième slot (TourMagie)
+        float slot2X = SLOT2_X_RATIO * screenWidth;
+        float slot2Y = SLOT2_Y_RATIO * screenHeight;
+        if (screenX >= slot2X && screenX <= slot2X + slotSize &&
+            yInverse >= slot2Y && yInverse <= slot2Y + slotSize) {
+            return 2;
+        }
+        
+        return 0; // Aucun slot cliqué
+    }
+    
+    /**
+     * Vérifie si un clic a été effectué sur la tour dans le HUD.
+     * @param screenX Position X du clic (coordonnées écran)
+     * @param screenY Position Y du clic (coordonnées écran)
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     * @return true si le clic est sur une tour, false sinon
+     * @deprecated Utilisez getSlotClic() à la place pour identifier quel slot est cliqué
+     */
+    @Deprecated
+    public boolean estClicSurTour(float screenX, float screenY, float screenWidth, float screenHeight) {
+        return getSlotClic(screenX, screenY, screenWidth, screenHeight) > 0;
     }
 
     public void dispose() {
@@ -93,6 +183,12 @@ public class HUD {
         }
         if (hudTexture != null) {
             hudTexture.dispose();
+        }
+        if (tourArcherLevel1Texture != null) {
+            tourArcherLevel1Texture.dispose();
+        }
+        if (tourMagieLevel1Texture != null) {
+            tourMagieLevel1Texture.dispose();
         }
     }
 }
