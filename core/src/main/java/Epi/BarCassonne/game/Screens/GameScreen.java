@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -22,6 +24,7 @@ import Epi.BarCassonne.game.Managers.TextureManager;
 import Epi.BarCassonne.game.Managers.TowerManager;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
+import Epi.BarCassonne.game.Utils.CollisionValid;
 import Epi.BarCassonne.game.Utils.CoordinateConverter;
 import Epi.BarCassonne.game.Utils.Texte;
 
@@ -36,6 +39,7 @@ public class GameScreen implements Screen {
     // ------------------------------------------------------------------------
     // Rendu
     private SpriteBatch spriteBatch;
+    private ShapeRenderer shapeRenderer;
     private OrthographicCamera mapCamera;
     private OrthographicCamera hudCamera;
     private Viewport mapViewport;
@@ -48,6 +52,7 @@ public class GameScreen implements Screen {
     private GameState gameState;
     private HUD hud;
     private TowerManager towerManager;
+    private CollisionValid collisionValid;
 
     // Game Over
     private boolean gameOver;
@@ -64,6 +69,10 @@ public class GameScreen implements Screen {
     private Texture tourPreviewTexture;
     private float tourPreviewX;
     private float tourPreviewY;
+    private boolean positionValide; // Indique si la position actuelle est valide
+    
+    // Mode debug pour définir les zones de collision
+    private java.util.List<Vector2> pointsClic; // Stocke les 4 points cliqués
 
     // ------------------------------------------------------------------------
     // REGION : INITIALISATION
@@ -90,6 +99,7 @@ public class GameScreen implements Screen {
     private void initialiserRendu(float screenWidth, float screenHeight, float mapWidth, float mapHeight) {
 
         spriteBatch = new SpriteBatch();
+        shapeRenderer = new ShapeRenderer();
         backgroundManager = new BackgroundManager("backgrounds/map.png");
 
         // Caméra et viewport pour la map
@@ -134,6 +144,7 @@ public class GameScreen implements Screen {
         vagueManager = new VagueMana(cheminManager, gameState);
         hud = new HUD(gameState);
         towerManager = new TowerManager();
+        collisionValid = new CollisionValid(mapWidth, mapHeight);
 
         // Initialiser le game over
         gameOver = false;
@@ -143,6 +154,10 @@ public class GameScreen implements Screen {
         enModePlacement = false;
         typeTourAPlacer = 0;
         tourPreviewTexture = null;
+        positionValide = false;
+        
+        // Initialiser le mode debug
+        pointsClic = new java.util.ArrayList<>();
     }
 
     // ------------------------------------------------------------------------
@@ -203,14 +218,24 @@ public class GameScreen implements Screen {
         
         // Afficher l'aperçu de la tour si on est en mode placement
         if (enModePlacement && tourPreviewTexture != null) {
+            // Changer la couleur selon si la position est valide
+            if (!positionValide) {
+                spriteBatch.setColor(1f, 0.3f, 0.3f, 0.7f); // Rouge transparent si invalide
+            } else {
+                spriteBatch.setColor(1f, 1f, 1f, 0.7f); // Blanc transparent si valide
+            }
             spriteBatch.draw(tourPreviewTexture, 
                 tourPreviewX - TAILLE_APERCU_TOUR / 2, 
                 tourPreviewY - TAILLE_APERCU_TOUR / 2, 
                 TAILLE_APERCU_TOUR, 
                 TAILLE_APERCU_TOUR);
+            spriteBatch.setColor(1f, 1f, 1f, 1f); // Réinitialiser la couleur
         }
         
         spriteBatch.end();
+        
+        // Dessiner les zones non constructibles en rouge
+        dessinerZonesNonConstructibles();
 
         // HUD
         hudViewport.apply();
@@ -232,6 +257,35 @@ public class GameScreen implements Screen {
             Texte.drawText(spriteBatch, message, x, y, Color.RED, 60);
             spriteBatch.end();
         }
+    }
+    
+    /**
+     * Dessine les zones non constructibles en rouge avec faible opacité.
+     */
+    private void dessinerZonesNonConstructibles() {
+        if (collisionValid == null) {
+            return;
+        }
+        
+        mapViewport.apply();
+        shapeRenderer.setProjectionMatrix(mapCamera.combined);
+        
+        // Dessiner uniquement les contours des zones (pas de remplissage pour voir le terrain)
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(1f, 0f, 0f, 0.6f); // Contours rouges visibles (60%)
+        
+        float[][] zones = collisionValid.getZonesNonConstructibles();
+        for (float[] zone : zones) {
+            float x = zone[0];
+            float y = zone[1];
+            float width = zone[2];
+            float height = zone[3];
+            
+            // Dessiner uniquement le contour du rectangle (pas de remplissage)
+            shapeRenderer.rect(x, y, width, height);
+        }
+        
+        shapeRenderer.end();
     }
 
     // ------------------------------------------------------------------------
@@ -282,7 +336,77 @@ public class GameScreen implements Screen {
         // Si on est en mode placement, placer la tour sur le terrain
         if (enModePlacement) {
             placerTour(screenX, screenY, screenWidth, screenHeight);
+        } else {
+            // Mode debug : afficher les coordonnées du clic dans le terminal
+            afficherCoordonneesClic(screenX, screenY, screenWidth, screenHeight);
         }
+    }
+    
+    /**
+     * Affiche les coordonnées du clic dans le terminal pour faciliter la définition des zones de collision.
+     * Enregistre 4 clics et génère automatiquement les coordonnées du rectangle prêtes à copier-coller.
+     * @param screenX Position X du clic (coordonnées écran)
+     * @param screenY Position Y du clic (coordonnées écran)
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     */
+    private void afficherCoordonneesClic(float screenX, float screenY, float screenWidth, float screenHeight) {
+        Vector3 worldPos = CoordinateConverter.convertirEcranVersMonde(
+            screenX, screenY, screenWidth, screenHeight, mapViewport);
+        
+        if (worldPos == null || !CoordinateConverter.estDansLimitesMap(worldPos.x, worldPos.y, mapViewport)) {
+            return;
+        }
+        
+        // Ajouter le point cliqué
+        pointsClic.add(new Vector2(worldPos.x, worldPos.y));
+        
+        // Si on a 4 points, calculer le rectangle et afficher le format prêt à copier
+        if (pointsClic.size() == 4) {
+            calculerEtAfficherRectangle();
+            pointsClic.clear(); // Réinitialiser pour le prochain rectangle
+        }
+    }
+    
+    /**
+     * Calcule le rectangle englobant les 4 points et affiche le format prêt à copier-coller.
+     */
+    private void calculerEtAfficherRectangle() {
+        if (pointsClic.size() != 4) {
+            return;
+        }
+        
+        // Trouver les valeurs min et max
+        float minX = Float.MAX_VALUE;
+        float minY = Float.MAX_VALUE;
+        float maxX = Float.MIN_VALUE;
+        float maxY = Float.MIN_VALUE;
+        
+        for (Vector2 point : pointsClic) {
+            minX = Math.min(minX, point.x);
+            minY = Math.min(minY, point.y);
+            maxX = Math.max(maxX, point.x);
+            maxY = Math.max(maxY, point.y);
+        }
+        
+        // Calculer les ratios et valeurs de référence
+        float mapWidth = mapViewport.getWorldWidth();
+        float mapHeight = mapViewport.getWorldHeight();
+        
+        float minXRef = (minX / mapWidth) * 1520f;
+        float minYRef = (minY / mapHeight) * 930f;
+        float maxXRef = (maxX / mapWidth) * 1520f;
+        float maxYRef = (maxY / mapHeight) * 930f;
+        
+        // Arrondir les valeurs pour avoir des nombres entiers (comme dans CollisionValid)
+        int minXRefInt = Math.round(minXRef);
+        int minYRefInt = Math.round(minYRef);
+        int maxXRefInt = Math.round(maxXRef);
+        int maxYRefInt = Math.round(maxYRef);
+        
+        // Afficher uniquement le code prêt à copier-coller
+        System.out.println("{" + minXRefInt + "f / REF_MAP_WIDTH, " + minYRefInt + "f / REF_MAP_HEIGHT, " + 
+                          maxXRefInt + "f / REF_MAP_WIDTH, " + maxYRefInt + "f / REF_MAP_HEIGHT},");
     }
     
     /**
@@ -322,10 +446,32 @@ public class GameScreen implements Screen {
             return;
         }
         
+        // Vérifier si la position est valide avant de placer
+        float tourSize = obtenirTailleTour(typeTourAPlacer);
+        if (!collisionValid.estPositionValide(worldPos.x, worldPos.y, tourSize, towerManager.getTours())) {
+            return; // Position invalide, ne pas placer
+        }
+        
         Batiment nouvelleTour = creerTour(typeTourAPlacer, worldPos.x, worldPos.y);
         if (nouvelleTour != null) {
             towerManager.ajouterTour(nouvelleTour);
             annulerModePlacement();
+        }
+    }
+    
+    /**
+     * Obtient la taille d'une tour selon son type.
+     * @param typeTour Le type de tour
+     * @return La taille de la tour
+     */
+    private float obtenirTailleTour(int typeTour) {
+        switch (typeTour) {
+            case TYPE_TOUR_ARCHER:
+                return 90f;
+            case TYPE_TOUR_MAGIE:
+                return 120f;
+            default:
+                return 90f;
         }
     }
     
@@ -385,6 +531,12 @@ public class GameScreen implements Screen {
         if (worldPos != null) {
             tourPreviewX = worldPos.x;
             tourPreviewY = worldPos.y;
+            
+            // Vérifier si la position est valide
+            float tourSize = obtenirTailleTour(typeTourAPlacer);
+            positionValide = collisionValid.estPositionValide(worldPos.x, worldPos.y, tourSize, towerManager.getTours());
+        } else {
+            positionValide = false;
         }
     }
     
@@ -415,6 +567,11 @@ public class GameScreen implements Screen {
         if (cheminManager != null) {
             cheminManager.mettreAJourChemin(mapWidth, mapHeight);
         }
+        
+        // Mettre à jour le validateur de collision
+        if (collisionValid != null) {
+            collisionValid.mettreAJourDimensions(mapWidth, mapHeight);
+        }
     }
 
     /**
@@ -444,6 +601,9 @@ public class GameScreen implements Screen {
     @Override
     public void dispose() {
         spriteBatch.dispose();
+        if (shapeRenderer != null) {
+            shapeRenderer.dispose();
+        }
         backgroundManager.dispose();
         hud.dispose();
         if (tourPreviewTexture != null) {
