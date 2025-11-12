@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -32,14 +33,14 @@ public class GameScreen implements Screen {
     private OrthographicCamera hudCamera;
     private Viewport mapViewport;
     private Viewport hudViewport;
-    
+
     // Managers
     private BackgroundManager backgroundManager;
     private CheminMana cheminManager;
     private VagueMana vagueManager;
     private GameState gameState;
     private HUD hud;
-    
+
     // Game Over
     private boolean gameOver;
     private float tempsGameOver;
@@ -57,7 +58,7 @@ public class GameScreen implements Screen {
         float screenHeight = Gdx.graphics.getHeight();
         float mapWidth = screenWidth - HUD.LARGEUR_HUD;
         float mapHeight = screenHeight - HUD.HAUTEUR_BARRE_VIE;
-        
+
         initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
         chargerAssets();
         initialiserJeu(mapWidth, mapHeight);
@@ -91,7 +92,7 @@ public class GameScreen implements Screen {
      */
     private void chargerAssets() {
         AssetMana.loadAnimation("PaysanGoblin");
-        AssetMana.loadAnimation("GuerrierGoblin");
+        // AssetMana.loadAnimation("GuerrierGoblin"); // Fichier supprimé
         // AssetMana.loadAnimation("GoblinGuerrisseur");
         // AssetMana.loadAnimation("GoblinBomb");
         // AssetMana.loadAnimation("Cochon");
@@ -112,7 +113,7 @@ public class GameScreen implements Screen {
         cheminManager = new CheminMana(mapWidth, mapHeight);
         vagueManager = new VagueMana(cheminManager, gameState);
         hud = new HUD(gameState);
-        
+
         // Initialiser le game over
         gameOver = false;
         tempsGameOver = 0f;
@@ -136,7 +137,7 @@ public class GameScreen implements Screen {
             gameOver = true;
             tempsGameOver = 0f;
         }
-        
+
         // Mettre à jour le jeu seulement si le joueur est encore en vie
         if (gameState.estEnVie()) {
             vagueManager.update(delta);
@@ -146,13 +147,13 @@ public class GameScreen implements Screen {
         } else if (gameOver) {
             // Compter le temps depuis le game over
             tempsGameOver += delta;
-            
+
             // Fermer le jeu après 5 secondes
             if (tempsGameOver >= 5.0f) {
                 Gdx.app.exit();
             }
         }
-        
+
         // Toujours dessiner (même en game over pour afficher l'écran de défaite)
         dessiner();
     }
@@ -161,6 +162,10 @@ public class GameScreen implements Screen {
      * Dessine tous les éléments à l'écran.
      */
     private void dessiner() {
+
+        Gdx.gl.glClearColor(0.2f, 0.2f, 0.3f, 1f); 
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        
         // Map
         mapViewport.apply();
         mapCamera.update();
@@ -169,21 +174,20 @@ public class GameScreen implements Screen {
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
         vagueManager.render(spriteBatch);
         spriteBatch.end();
-        
+
         // HUD
         hudViewport.apply();
         hudCamera.update();
         spriteBatch.setProjectionMatrix(hudCamera.combined);
         hud.render(spriteBatch);
-        
+
         // Afficher le message Game Over
         if (gameOver) {
             spriteBatch.begin();
             float screenWidth = hudViewport.getWorldWidth();
             float screenHeight = hudViewport.getWorldHeight();
+        
             String message = "GAME OVER";
-            // Calculer la position centrée en utilisant les dimensions du viewport
-            // Approximation de la largeur du texte (environ 60% de la taille de la font)
             float textWidth = message.length() * 60 * 0.6f;
             float x = (screenWidth - textWidth) / 2;
             float y = screenHeight / 2;
@@ -204,7 +208,7 @@ public class GameScreen implements Screen {
     public void resize(int width, int height) {
         float mapWidth = width - HUD.LARGEUR_HUD;
         float mapHeight = height - HUD.HAUTEUR_BARRE_VIE;
-        
+
         // Mettre à jour le viewport de la map
         mapViewport.update((int)mapWidth, (int)mapHeight);
         mapCamera.position.set(mapWidth / 2, mapHeight / 2, 0);
@@ -214,7 +218,7 @@ public class GameScreen implements Screen {
         hudViewport.update(width, height);
         hudCamera.position.set(width / 2, height / 2, 0);
         hudCamera.update();
-        
+
         // Mettre à jour le chemin avec les nouvelles dimensions de la map
         if (cheminManager != null) {
             cheminManager.mettreAJourChemin(mapWidth, mapHeight);
@@ -251,6 +255,6 @@ public class GameScreen implements Screen {
         backgroundManager.dispose();
         hud.dispose();
         AssetMana.dispose();
-        Texte.dispose();
+        
     }
 }

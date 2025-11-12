@@ -16,9 +16,9 @@ public class CheminMana {
     protected List<Vector2> cheminPrincipal;
     
     // Résolution de référence pour les coordonnées de la map
-    // (1920 - 400 pour le HUD, 1080 - 150 pour la barre de vie)
+    // (1920 - 400 pour le HUD, 1080 - 170 pour la barre de vie)
     private static final float REF_MAP_WIDTH = 1520f;  // 1920 - 400 (HUD)
-    private static final float REF_MAP_HEIGHT = 930f;  // 1080 - 150 (barre de vie)
+    private static final float REF_MAP_HEIGHT = 910f;  // 1080 - 170 (barre de vie)
     
     // Coordonnées relatives du chemin (basées sur la résolution de référence)
     private static final float[][] CHEMIN_POINTS_RELATIFS = {

@@ -12,10 +12,10 @@ import java.util.Map;
  * Utilitaire pour dessiner du texte avec différentes polices, couleurs et tailles.
  */
 public class Texte {
-    
+
     private static FreeTypeFontGenerator generator = null;
     private static Map<Integer, BitmapFont> fontCache = new HashMap<>();
-    
+
     /**
      * Initialise le générateur de font (appelé automatiquement au premier usage).
      */
@@ -29,25 +29,25 @@ public class Texte {
             }
         }
     }
-    
+
     /**
      * Obtient une font avec la taille spécifiée (utilise un cache pour éviter de régénérer).
      */
     private static BitmapFont getFont(int size) {
         initGenerator();
-        
+
         if (generator == null) {
             // Fallback sur la police par défaut
             BitmapFont defaultFont = new BitmapFont();
             defaultFont.getData().setScale(size / 20f);
             return defaultFont;
         }
-        
+
         // Vérifier si la font est déjà en cache
         if (fontCache.containsKey(size)) {
             return fontCache.get(size);
         }
-        
+
         // Générer une nouvelle font
         FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = size;
@@ -55,7 +55,7 @@ public class Texte {
         fontCache.put(size, font);
         return font;
     }
-    
+
     /**
      * Libère toutes les ressources (à appeler lors de la fermeture du jeu).
      */
@@ -65,14 +65,14 @@ public class Texte {
             font.dispose();
         }
         fontCache.clear();
-        
+
         // Libérer le générateur
         if (generator != null) {
             generator.dispose();
             generator = null;
         }
     }
-    
+
     /**
      * Dessine du texte à l'écran avec la police, la couleur et la taille spécifiées.
      * Note: Le SpriteBatch doit déjà être ouvert (batch.begin() appelé avant).
@@ -88,6 +88,4 @@ public class Texte {
         font.setColor(color);
         font.draw(batch, text, x, y);
     }
-    
-
 }

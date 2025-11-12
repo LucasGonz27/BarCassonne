@@ -263,13 +263,6 @@ public class VagueMana {
         return vagueActuelle;
     }
 
-    /**
-     * @return true si toutes les vagues sont terminées
-     */
-    public boolean toutesVaguesTerminees() {
-        return vagueActuelle == null;
-    }
-
     // ------------------------------------------------------------------------
     // REGION : RENDU
     // ------------------------------------------------------------------------
@@ -282,12 +275,6 @@ public class VagueMana {
             if (mechant.isEnVie() && mechant.getFrame() != null) {
                 batch.draw(mechant.getFrame(), mechant.getPositionX(), mechant.getPositionY());
             }
-
-            
         }
     }
-
-    
-
-   
 }

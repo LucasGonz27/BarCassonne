@@ -68,10 +68,6 @@ public class GameState {
         return vieMax;
     }
 
-    public float getViePourcentage() {
-        return vieMax > 0 ? (float) vie / vieMax : 0f;
-    }
-
     public int getNumeroVague() {
         return numeroVague;
     }
@@ -84,4 +80,3 @@ public class GameState {
         return vie > 0;
     }
 }
-

@@ -90,7 +90,6 @@ public class Vague {
             if (m.isEnVie()) return false;
         }
         return true;
-
     }
 
     // ------------------------------------------------------------------------
