@@ -22,6 +22,7 @@ public class VagueMana {
     private float delaiEntreVagues = 5f;
     private float tempsDepuisFinVague = 0f;
     private CheminMana cheminMana;
+    private GameState gameState;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -29,9 +30,11 @@ public class VagueMana {
     /**
      * Crée un nouveau gestionnaire de vagues.
      * @param cheminMana Le gestionnaire de chemin pour les ennemis
+     * @param gameState L'état du jeu
      */
-    public VagueMana(CheminMana cheminMana) {
+    public VagueMana(CheminMana cheminMana, GameState gameState) {
         this.cheminMana = cheminMana;
+        this.gameState = gameState;
         this.vagues = new Array<>();
         this.ennemisActifs = new Array<>();
         creerVagues();
@@ -177,6 +180,7 @@ public class VagueMana {
         if (temps >= vagueActuelle.getIntervalleSpawn()) {
             Mechant ennemi = vagueActuelle.spawnEnnemi();
             if (ennemi != null) {
+                ennemi.setGameState(gameState);
                 initialiserEnnemi(ennemi);
                 vagueActuelle.getEnnemisActifs().add(ennemi);
                 ennemisActifs.add(ennemi);
@@ -278,6 +282,8 @@ public class VagueMana {
             if (mechant.isEnVie() && mechant.getFrame() != null) {
                 batch.draw(mechant.getFrame(), mechant.getPositionX(), mechant.getPositionY());
             }
+
+            
         }
     }
 

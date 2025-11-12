@@ -3,6 +3,7 @@ package Epi.BarCassonne.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -14,6 +15,7 @@ import Epi.BarCassonne.game.Managers.CheminMana;
 import Epi.BarCassonne.game.Managers.GameState;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
+import Epi.BarCassonne.game.Utils.Texte;
 
 /**
  * Écran principal du jeu.
@@ -37,6 +39,10 @@ public class GameScreen implements Screen {
     private VagueMana vagueManager;
     private GameState gameState;
     private HUD hud;
+    
+    // Game Over
+    private boolean gameOver;
+    private float tempsGameOver;
 
     // ------------------------------------------------------------------------
     // REGION : INITIALISATION
@@ -47,24 +53,25 @@ public class GameScreen implements Screen {
      */
     @Override
     public void show() {
-        initialiserRendu();
+        float screenWidth = Gdx.graphics.getWidth();
+        float screenHeight = Gdx.graphics.getHeight();
+        float mapWidth = screenWidth - HUD.LARGEUR_HUD;
+        float mapHeight = screenHeight - HUD.HAUTEUR_BARRE_VIE;
+        
+        initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
         chargerAssets();
-        initialiserJeu();
+        initialiserJeu(mapWidth, mapHeight);
     }
 
     /**
      * Initialise les composants de rendu (caméras, viewports, textures).
      */
-    private void initialiserRendu() {
+    private void initialiserRendu(float screenWidth, float screenHeight, float mapWidth, float mapHeight) {
 
         spriteBatch = new SpriteBatch();
         backgroundManager = new BackgroundManager("backgrounds/map.png");
-        float screenWidth = Gdx.graphics.getWidth();
-        float screenHeight = Gdx.graphics.getHeight();
 
         // Caméra et viewport pour la map
-        float mapWidth = screenWidth - HUD.LARGEUR_HUD;
-        float mapHeight = screenHeight - HUD.HAUTEUR_BARRE_VIE;
         mapCamera = new OrthographicCamera();
         mapViewport = new StretchViewport(mapWidth, mapHeight, mapCamera);
         mapViewport.apply();
@@ -96,12 +103,19 @@ public class GameScreen implements Screen {
 
     /**
      * Initialise les composants du jeu (état, managers, HUD).
+     * @param mapWidth Largeur de la map
+     * @param mapHeight Hauteur de la map
      */
-    private void initialiserJeu() {
+    private void initialiserJeu(float mapWidth, float mapHeight) {
         gameState = new GameState(500, 100);
-        cheminManager = new CheminMana();
-        vagueManager = new VagueMana(cheminManager);
+        // Initialiser le chemin avec les dimensions de la map
+        cheminManager = new CheminMana(mapWidth, mapHeight);
+        vagueManager = new VagueMana(cheminManager, gameState);
         hud = new HUD(gameState);
+        
+        // Initialiser le game over
+        gameOver = false;
+        tempsGameOver = 0f;
     }
 
     // ------------------------------------------------------------------------
@@ -116,12 +130,30 @@ public class GameScreen implements Screen {
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
-        
-        vagueManager.update(delta);
-        if (vagueManager.getVagueActuelle() != null) {
-            gameState.setNumeroVague(vagueManager.getVagueActuelle().getNumero());
+
+        // Vérifier si le joueur a perdu
+        if (!gameState.estEnVie() && !gameOver) {
+            gameOver = true;
+            tempsGameOver = 0f;
         }
         
+        // Mettre à jour le jeu seulement si le joueur est encore en vie
+        if (gameState.estEnVie()) {
+            vagueManager.update(delta);
+            if (vagueManager.getVagueActuelle() != null) {
+                gameState.setNumeroVague(vagueManager.getVagueActuelle().getNumero());
+            }
+        } else if (gameOver) {
+            // Compter le temps depuis le game over
+            tempsGameOver += delta;
+            
+            // Fermer le jeu après 5 secondes
+            if (tempsGameOver >= 5.0f) {
+                Gdx.app.exit();
+            }
+        }
+        
+        // Toujours dessiner (même en game over pour afficher l'écran de défaite)
         dessiner();
     }
 
@@ -143,6 +175,21 @@ public class GameScreen implements Screen {
         hudCamera.update();
         spriteBatch.setProjectionMatrix(hudCamera.combined);
         hud.render(spriteBatch);
+        
+        // Afficher le message Game Over
+        if (gameOver) {
+            spriteBatch.begin();
+            float screenWidth = hudViewport.getWorldWidth();
+            float screenHeight = hudViewport.getWorldHeight();
+            String message = "GAME OVER";
+            // Calculer la position centrée en utilisant les dimensions du viewport
+            // Approximation de la largeur du texte (environ 60% de la taille de la font)
+            float textWidth = message.length() * 60 * 0.6f;
+            float x = (screenWidth - textWidth) / 2;
+            float y = screenHeight / 2;
+            Texte.drawText(spriteBatch, message, x, y, Color.RED, 60);
+            spriteBatch.end();
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -167,6 +214,11 @@ public class GameScreen implements Screen {
         hudViewport.update(width, height);
         hudCamera.position.set(width / 2, height / 2, 0);
         hudCamera.update();
+        
+        // Mettre à jour le chemin avec les nouvelles dimensions de la map
+        if (cheminManager != null) {
+            cheminManager.mettreAJourChemin(mapWidth, mapHeight);
+        }
     }
 
     /**
@@ -199,5 +251,6 @@ public class GameScreen implements Screen {
         backgroundManager.dispose();
         hud.dispose();
         AssetMana.dispose();
+        Texte.dispose();
     }
 }

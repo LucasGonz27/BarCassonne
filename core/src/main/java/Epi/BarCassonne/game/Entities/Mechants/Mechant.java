@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import java.util.List;
+import Epi.BarCassonne.game.Managers.GameState;
 
 /**
  * Classe abstraite représentant un ennemi.
@@ -25,6 +26,7 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
     protected int indexActuel = 0;                       // Point actuel du chemin
     protected Animation<TextureRegion> animation;        // Animation
     protected float stateTime = 0f;                      // Temps pour l'animation
+    protected GameState gameState;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -82,6 +84,14 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
      */
     public void setIndexActuel(int index) {
         this.indexActuel = index;
+    }
+
+    /**
+     * Définit le GameState pour cet ennemi.
+     * @param gameState L'état du jeu
+     */
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
     }
 
     // ------------------------------------------------------------------------
@@ -166,10 +176,46 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
 
     /**
      * Appelé quand l'ennemi atteint la fin du chemin.
-     * Par défaut, l'ennemi meurt.
+     * Par défaut, l'ennemi meurt et inflige des dégâts à la vie de la base.
      */
     protected void atteindreFinChemin() {
         this.PV = 0;
+        if (gameState != null) {
+            int degats = 0;
+            switch (this.getClass().getSimpleName()) {
+                case "PaysanGoblin":
+                    degats = 1;
+                    break;
+                case "GuerrierGoblin":
+                    degats = 2;
+                    break;
+                case "GoblinGuerrisseur":
+                    degats = 3;
+                    break;
+                case "GoblinBomb":
+                    degats = 4;
+                    break;
+                case "Cochon":
+                    degats = 5;
+                    break;
+                case "Chevalier":
+                    degats = 8;
+                    break;
+                case "BossChevalier":
+                    degats = 10;
+                    break;
+                case "Golem":
+                    degats = 12;
+                    break;
+                case "RoiGoblin":
+                    degats = 20;
+                    break;
+                default:
+                    degats = 1;
+                    break;
+            }
+            gameState.setVie(gameState.getVie() - degats);
+        }
     }
 
     // ------------------------------------------------------------------------
