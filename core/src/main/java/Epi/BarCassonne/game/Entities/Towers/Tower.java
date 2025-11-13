@@ -1,8 +1,8 @@
-package Epi.BarCassonne.game.Batiments;
+package Epi.BarCassonne.game.Entities.Towers;
 
 import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 
-public abstract class Batiment {
+public abstract class Tower {
     protected float positionX;
     protected float positionY;
     protected int level;
@@ -10,8 +10,8 @@ public abstract class Batiment {
     protected float damage;
     protected float portee;
 
-    //region [Constructeur]
-    public Batiment(float positionX, float positionY, int level, int maxLevel, float damage, float portee) {
+
+    public Tower(float positionX, float positionY, int level, int maxLevel, float damage, float portee) {
         this.positionX = positionX;
         this.positionY = positionY;
         this.level = level;

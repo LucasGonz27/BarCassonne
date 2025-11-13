@@ -2,9 +2,11 @@ package Epi.BarCassonne.game.Managers;
 
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import Epi.BarCassonne.game.Batiments.Batiment;
-import Epi.BarCassonne.game.Batiments.TourArcher;
-import Epi.BarCassonne.game.Batiments.TourMagie;
+
+import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
+import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
+import Epi.BarCassonne.game.Entities.Towers.Tower;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,7 +15,7 @@ import java.util.List;
  */
 public class TowerManager {
     
-    private List<Batiment> tours;
+    private List<Tower> tours;
     private Texture tourArcherTexture;
     private Texture tourMagieTexture;
     private static final float TOUR_ARCHER_SIZE = 90f; // Taille d'affichage de la TourArcher
@@ -30,7 +32,7 @@ public class TowerManager {
      * Ajoute une tour au gestionnaire.
      * @param tour La tour à ajouter
      */
-    public void ajouterTour(Batiment tour) {
+    public void ajouterTour(Tower tour) {
         tours.add(tour);
     }
     
@@ -38,7 +40,7 @@ public class TowerManager {
      * Retourne la liste de toutes les tours.
      * @return La liste des tours
      */
-    public List<Batiment> getTours() {
+    public List<Tower> getTours() {
         return tours;
     }
     
@@ -47,15 +49,15 @@ public class TowerManager {
      * @param batch Le SpriteBatch pour le rendu
      */
     public void render(SpriteBatch batch) {
-        for (Batiment tour : tours) {
+        for (Tower tour : tours) {
             // Déterminer quelle texture et quelle taille utiliser selon le type de tour
             Texture texture = null;
             float tourSize = TOUR_ARCHER_SIZE; // Taille par défaut
             
-            if (tour instanceof TourArcher) {
+            if (tour instanceof TowerArcher) {
                 texture = tourArcherTexture;
                 tourSize = TOUR_ARCHER_SIZE;
-            } else if (tour instanceof TourMagie) {
+            } else if (tour instanceof TowerMagie) {
                 texture = tourMagieTexture;
                 tourSize = TOUR_MAGIE_SIZE; // TourMagie est plus grande
             }
@@ -74,7 +76,7 @@ public class TowerManager {
      * @param delta Temps écoulé depuis la dernière frame
      */
     public void update(float delta) {
-        for (Batiment tour : tours) {
+        for (Tower tour : tours) {
             tour.update();
         }
     }

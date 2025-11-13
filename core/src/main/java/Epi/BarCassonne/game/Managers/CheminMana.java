@@ -14,18 +14,14 @@ public class CheminMana {
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
     protected List<Vector2> cheminPrincipal;
-    
-    // Résolution de référence pour les coordonnées de la map
-    // (1920 - 400 pour le HUD, 1080 - 170 pour la barre de vie)
-    private static final float REF_MAP_WIDTH = 1520f;  // 1920 - 400 (HUD)
-    private static final float REF_MAP_HEIGHT = 910f;  // 1080 - 170 (barre de vie)
-    
-    // Coordonnées relatives du chemin (basées sur la résolution de référence)
+
+    // Coordonnées relatives du chemin (ratios de 0.0 à 1.0 par rapport à la map)
+    // Chaque point est défini comme [ratioX, ratioY] où ratioX et ratioY sont entre 0.0 et 1.0
     private static final float[][] CHEMIN_POINTS_RELATIFS = {
-        {0f / REF_MAP_WIDTH, 350f / REF_MAP_HEIGHT},      // Point 0
-        {750f / REF_MAP_WIDTH, 400f / REF_MAP_HEIGHT},   // Point 1
-        {750f / REF_MAP_WIDTH, 590f / REF_MAP_HEIGHT},   // Point 2
-        {1460f / REF_MAP_WIDTH, 590f / REF_MAP_HEIGHT}   // Point 3
+        {0.0f, 0.376f},      // Point 0 : début à gauche, 37.6% de la hauteur
+        {0.494f, 0.430f},    // Point 1 : 49.4% de la largeur, 43.0% de la hauteur
+        {0.494f, 0.634f},    // Point 2 : 49.4% de la largeur, 63.4% de la hauteur
+        {0.961f, 0.634f}     // Point 3 : 96.1% de la largeur, 63.4% de la hauteur
     };
 
     // ------------------------------------------------------------------------

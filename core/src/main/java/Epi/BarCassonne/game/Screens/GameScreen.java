@@ -14,9 +14,9 @@ import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import Epi.BarCassonne.game.Batiments.Batiment;
-import Epi.BarCassonne.game.Batiments.TourArcher;
-import Epi.BarCassonne.game.Batiments.TourMagie;
+import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
+import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
+import Epi.BarCassonne.game.Entities.Towers.Tower;
 import Epi.BarCassonne.game.Managers.AssetMana;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
 import Epi.BarCassonne.game.Managers.CheminMana;
@@ -28,10 +28,11 @@ import Epi.BarCassonne.game.UI.HUD;
 import Epi.BarCassonne.game.Utils.CollisionValid;
 import Epi.BarCassonne.game.Utils.CoordinateConverter;
 import Epi.BarCassonne.game.Utils.Texte;
-import Epi.BarCassonne.game.Screens.Menu;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+
+
 
 /**
  * Écran principal du jeu.
@@ -163,11 +164,11 @@ public class GameScreen implements Screen {
         tempsAffichageMessage = 0f;
         afficherMessageVague = false;
 
+        // Initialiser la musique de jeu
         musiqueJeux = Gdx.audio.newSound(Gdx.files.internal("sounds/musiqueDurantJeux.mp3"));
         if (musiqueJeux != null) {
             musiqueJeux.loop();
         }
-
 
         // Initialiser le mode placement
         enModePlacement = false;
@@ -175,8 +176,7 @@ public class GameScreen implements Screen {
         tourPreviewTexture = null;
         positionValide = false;
 
-        // Initialiser le mode debug
-        pointsClic = new java.util.ArrayList<>();
+    
     }
 
     // ------------------------------------------------------------------------
@@ -190,7 +190,7 @@ public class GameScreen implements Screen {
     public void render(float delta) {
 
 
-
+        // Quitter le jeu si la touche ESCAPE est pressée
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
@@ -513,7 +513,7 @@ public class GameScreen implements Screen {
             return; // Position invalide, ne pas placer
         }
 
-        Batiment nouvelleTour = creerTour(typeTourAPlacer, worldPos.x, worldPos.y);
+        Tower nouvelleTour = creerTour(typeTourAPlacer, worldPos.x, worldPos.y);
         if (nouvelleTour != null) {
             towerManager.ajouterTour(nouvelleTour);
             annulerModePlacement();
@@ -543,12 +543,12 @@ public class GameScreen implements Screen {
      * @param y Position Y en coordonnées monde
      * @return La tour créée, ou null si le type est invalide
      */
-    private Batiment creerTour(int typeTour, float x, float y) {
+    private Tower creerTour(int typeTour, float x, float y) {
         switch (typeTour) {
             case TYPE_TOUR_ARCHER:
-                return new TourArcher(x, y, 1, 4, 10f, 100f);
+                return new TowerArcher(x, y, 100f);
             case TYPE_TOUR_MAGIE:
-                return new TourMagie(x, y, 1, 4, 15f, 120f);
+                return new TowerMagie(x, y,  120f);
             default:
                 return null;
         }

@@ -1,9 +1,11 @@
 package Epi.BarCassonne.game.Utils;
 
 import com.badlogic.gdx.math.Vector2;
-import Epi.BarCassonne.game.Batiments.Batiment;
-import Epi.BarCassonne.game.Batiments.TourArcher;
-import Epi.BarCassonne.game.Batiments.TourMagie;
+
+import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
+import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
+import Epi.BarCassonne.game.Entities.Towers.Tower;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -139,7 +141,7 @@ public class CollisionValid {
      * @param toursExistantes Liste des tours déjà placées sur le terrain
      * @return true si la position est valide, false sinon
      */
-    public boolean estPositionValide(float x, float y, float tourSize, List<Batiment> toursExistantes) {
+    public boolean estPositionValide(float x, float y, float tourSize, List<Tower> toursExistantes) {
         Vector2 position = new Vector2(x, y);
 
         // Vérifier si la position est dans une zone de collision
@@ -167,20 +169,20 @@ public class CollisionValid {
      * @param toursExistantes Liste des tours déjà placées
      * @return true si la distance est suffisante, false sinon
      */
-    private boolean estDistanceValideAvecTours(float x, float y, float nouvelleTourSize, List<Batiment> toursExistantes) {
+    private boolean estDistanceValideAvecTours(float x, float y, float nouvelleTourSize, List<Tower> toursExistantes) {
         // Tailles des tours selon leur type (doivent correspondre à TowerManager)
         final float TOUR_ARCHER_SIZE = 90f;
         final float TOUR_MAGIE_SIZE = 120f;
         
-        for (Batiment tour : toursExistantes) {
+        for (Tower tour : toursExistantes) {
             float tourX = tour.getPositionX();
             float tourY = tour.getPositionY();
             
             // Déterminer la taille de la tour existante selon son type
             float tailleTourExistante;
-            if (tour instanceof TourArcher) {
+            if (tour instanceof TowerArcher) {
                 tailleTourExistante = TOUR_ARCHER_SIZE;
-            } else if (tour instanceof TourMagie) {
+            } else if (tour instanceof TowerMagie) {
                 tailleTourExistante = TOUR_MAGIE_SIZE;
             } else {
                 // Par défaut, utiliser la taille de TourArcher

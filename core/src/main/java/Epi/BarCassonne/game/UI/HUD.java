@@ -20,24 +20,29 @@ public class HUD {
     public static final float HAUTEUR_BARRE_VIE = 170f;
     public static final float LARGEUR_HUD = 400f;
 
-    // Résolution de référence pour les coordonnées (basée sur une résolution typique)
-    private static final float REF_WIDTH = 1920f;
-    private static final float REF_HEIGHT = 1080f;
+    // Positions relatives au viewport du HUD (ratios de 0.0 à 1.0)
+    // Position X des lingots : 15.4% de la largeur de l'écran depuis le début du HUD
 
-    // Positions relatives au viewport du HUD
-    private static final float LINGOTS_X_RATIO = 295f / REF_WIDTH;  // Ratio de la position X
-    private static final float LINGOTS_Y_RATIO = 845f / REF_HEIGHT; // Ratio de la position Y
+    private static final float LINGOTS_X_RATIO = 0.154f;
+    // Position Y des lingots : 78.2% de la hauteur de l'écran depuis le bas
+    private static final float LINGOTS_Y_RATIO = 0.782f;
 
-    private static final float TIMER_JEU_X_RATIO = 120f / REF_WIDTH;  // Ratio de la position X
-    private static final float TIMER_JEU_Y_RATIO = 845f / REF_HEIGHT; // Ratio de la position Y
+    // Position X du timer : 6.25% de la largeur de l'écran depuis le début du HUD
+    private static final float TIMER_JEU_X_RATIO = 0.0625f;
 
+    // Position Y du timer : 78.2% de la hauteur de l'écran depuis le bas
+    private static final float TIMER_JEU_Y_RATIO = 0.782f;
 
+    // Position X de la vie : 1.56% de la largeur de l'écran depuis le début
+    private static final float VIE_X_RATIO = 0.0156f;
+    
+    // Position Y de la vie : 9.26% de la hauteur de l'écran depuis le bas
+    private static final float VIE_Y_RATIO = 0.0926f;
 
-    private static final float VIE_X_RATIO = 30f / REF_WIDTH;
-    private static final float VIE_Y_RATIO = 100f / REF_HEIGHT;
-
-    private static final float VAGUE_X_RATIO = 200f / REF_WIDTH;
-    private static final float VAGUE_Y_RATIO = 970f / REF_HEIGHT;
+    // Position X de la vague : 10.4% de la largeur de l'écran depuis le début du HUD
+    private static final float VAGUE_X_RATIO = 0.104f;
+    // Position Y de la vague : 89.8% de la hauteur de l'écran depuis le bas
+    private static final float VAGUE_Y_RATIO = 0.898f;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
@@ -49,15 +54,17 @@ public class HUD {
     private Texture tourArcherLevel1Texture;
     private Texture tourMagieLevel1Texture;
 
-    // Positions des slots dans le HUD (basées sur la résolution de référence)
-    // Position du premier slot (le plus haut) - coordonnées relatives au HUD
-    // Les slots sont dans la zone centrale du HUD, après la zone d'information
-    // Utilisation d'un ratio similaire aux autres éléments pour la cohérence
-    private static final float SLOT1_X_RATIO = 1665f / REF_WIDTH;  // Position X du premier slot (position absolue sur l'écran) - centré dans le slot
-    private static final float SLOT1_Y_RATIO = 675f / REF_HEIGHT;  // Position Y du premier slot (depuis le bas) - dans le slot, pas au-dessus
-    private static final float SLOT2_X_RATIO = 1665f / REF_WIDTH;  // Position X du deuxième slot (même X que le premier)
-    private static final float SLOT2_Y_RATIO = 485f / REF_HEIGHT;  // Position Y du deuxième slot (plus bas que le premier)
-    private static final float SLOT_SIZE = 110f;  // Taille des slots (largeur et hauteur)
+    // Positions des slots dans le HUD (ratios relatifs)
+    // Position X du premier slot : 86.7% de la largeur de l'écran depuis le début
+    private static final float SLOT1_X_RATIO = 0.867f;
+    // Position Y du premier slot : 62.5% de la hauteur de l'écran depuis le bas
+    private static final float SLOT1_Y_RATIO = 0.625f;
+    // Position X du deuxième slot (même X que le premier)
+    private static final float SLOT2_X_RATIO = 0.867f;
+    // Position Y du deuxième slot : 44.9% de la hauteur de l'écran depuis le bas
+    private static final float SLOT2_Y_RATIO = 0.449f;
+    // Taille des slots : 5.73% de la largeur de l'écran
+    private static final float SLOT_SIZE_RATIO = 0.0573f;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -164,9 +171,8 @@ public class HUD {
      * Dessine les tours disponibles dans les slots du HUD.
      */
     private void dessinerTours(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
-        // Ajuster la taille du slot en fonction de la résolution
-        float scale = screenWidth / REF_WIDTH;
-        float slotSize = SLOT_SIZE * scale;
+        // Calculer la taille du slot en fonction de la résolution
+        float slotSize = SLOT_SIZE_RATIO * screenWidth;
 
         // Calculer la position du premier slot
         float slot1X = SLOT1_X_RATIO * screenWidth;
@@ -196,8 +202,8 @@ public class HUD {
      * @return Le numéro du slot cliqué (1 ou 2), ou 0 si aucun slot n'a été cliqué
      */
     public int getSlotClic(float screenX, float screenY, float screenWidth, float screenHeight) {
-        float scale = screenWidth / REF_WIDTH;
-        float slotSize = SLOT_SIZE * scale;
+        // Calculer la taille du slot en fonction de la résolution
+        float slotSize = SLOT_SIZE_RATIO * screenWidth;
 
         // Inverser Y car LibGDX a l'origine en haut, mais le HUD en bas
         float yInverse = screenHeight - screenY;
