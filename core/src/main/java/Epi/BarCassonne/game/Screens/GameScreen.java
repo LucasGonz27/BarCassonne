@@ -106,7 +106,7 @@ public class GameScreen implements Screen {
         AssetMana.loadAnimation("GuerrierGoblin"); 
         // AssetMana.loadAnimation("GoblinGuerrisseur");
         AssetMana.loadAnimation("GoblinBomb");
-        // AssetMana.loadAnimation("Cochon");
+        AssetMana.loadAnimation("Cochon");
         // AssetMana.loadAnimation("Chevalier");
         // AssetMana.loadAnimation("BossChevalier");
         // AssetMana.loadAnimation("Golem");

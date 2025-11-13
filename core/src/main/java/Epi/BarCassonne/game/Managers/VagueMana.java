@@ -51,6 +51,7 @@ public class VagueMana {
     private void creerVagues() {
         // Vague 1
         Vague v1 = new Vague(1);
+        v1.ajouterEnnemi(Cochon.class, 10);
         v1.ajouterEnnemi(PaysanGoblin.class, 8);
         vagues.add(v1);
 
