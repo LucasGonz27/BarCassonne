@@ -18,6 +18,9 @@ import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
 import Epi.BarCassonne.game.Utils.Texte;
 import Epi.BarCassonne.game.Screens.Menu;
+import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 /**
  * Écran principal du jeu.
@@ -35,6 +38,7 @@ public class GameScreen implements Screen {
     private Viewport mapViewport;
     private Viewport hudViewport;
 
+
     // Managers
     private BackgroundManager backgroundManager;
     private CheminMana cheminManager;
@@ -45,7 +49,13 @@ public class GameScreen implements Screen {
     // Game Over
     private boolean gameOver;
     private float tempsGameOver;
+    
+    // Message de vague
+    private float tempsAffichageMessage;
+    private boolean afficherMessageVague;
 
+    //musique
+    private Sound musiqueJeux;
     // ------------------------------------------------------------------------
     // REGION : INITIALISATION
     // ------------------------------------------------------------------------
@@ -118,6 +128,16 @@ public class GameScreen implements Screen {
         // Initialiser le game over
         gameOver = false;
         tempsGameOver = 0f;
+        
+        // Initialiser le message de vague
+        tempsAffichageMessage = 0f;
+        afficherMessageVague = false;
+
+        musiqueJeux = Gdx.audio.newSound(Gdx.files.internal("sounds/musiqueDurantJeux.mp3"));
+        if (musiqueJeux != null) {
+            musiqueJeux.loop();
+        }
+        
     }
 
     // ------------------------------------------------------------------------
@@ -129,6 +149,9 @@ public class GameScreen implements Screen {
      */
     @Override
     public void render(float delta) {
+
+        
+        
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
             Gdx.app.exit();
         }
@@ -143,7 +166,24 @@ public class GameScreen implements Screen {
         if (gameState.estEnVie()) {
             vagueManager.update(delta);
             if (vagueManager.getVagueActuelle() != null) {
-                gameState.setNumeroVague(vagueManager.getVagueActuelle().getNumero());
+                int nouveauNumeroVague = vagueManager.getVagueActuelle().getNumero();
+                int ancienNumeroVague = gameState.getNumeroVague();
+                
+                // Détecter le début d'une nouvelle vague avant de mettre à jour
+                if (nouveauNumeroVague != ancienNumeroVague) {
+                    afficherMessageVague = true;
+                    tempsAffichageMessage = 0f;
+                }
+                
+                gameState.setNumeroVague(nouveauNumeroVague);
+            }
+            
+            // Gérer l'affichage du message de vague
+            if (afficherMessageVague) {
+                tempsAffichageMessage += delta;
+                if (tempsAffichageMessage >= 2f) { // Afficher pendant 2 secondes
+                    afficherMessageVague = false;
+                }
             }
         } else if (gameOver) {
             // Compter le temps depuis le game over
@@ -182,6 +222,26 @@ public class GameScreen implements Screen {
         spriteBatch.setProjectionMatrix(hudCamera.combined);
         hud.render(spriteBatch);
 
+        // Afficher le message de vague
+        if (afficherMessageVague && vagueManager.getVagueActuelle() != null) {
+            spriteBatch.begin();
+            float screenWidth = hudViewport.getWorldWidth();
+            float screenHeight = hudViewport.getWorldHeight();
+            
+            String message = "Vague " + vagueManager.getVagueActuelle().getNumero();
+            int taillePolice = 120;
+            BitmapFont font = Texte.getFont(taillePolice);
+            GlyphLayout layout = new GlyphLayout();
+            layout.setText(font, message);
+            
+            // Centrer le message
+            float texteVaguex = (screenWidth / 2f) - (layout.width / 2f);
+            float texteVaguey = (screenHeight / 2f) + (layout.height / 2f);
+            
+            Texte.drawText(spriteBatch, message, texteVaguex, texteVaguey, Color.BLACK, taillePolice);
+            spriteBatch.end();
+        }
+        
         // Afficher le message Game Over
         if (gameOver) {
             spriteBatch.begin();
@@ -189,9 +249,9 @@ public class GameScreen implements Screen {
             float screenHeight = hudViewport.getWorldHeight();
         
             String message = "GAME OVER";
-            float x = (screenWidth / 4);
-            float y = (screenHeight / 2);
-            Texte.drawText(spriteBatch, message, x, y, Color.RED, 100);
+            float texteGameOverx = (screenWidth / 4);
+            float texteGameOvery = (screenHeight / 2);
+            Texte.drawText(spriteBatch, message, texteGameOverx, texteGameOvery, Color.RED, 100);
             spriteBatch.end();
         }
     }

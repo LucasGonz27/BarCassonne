@@ -28,6 +28,11 @@ public class HUD {
     private static final float LINGOTS_X_RATIO = 295f / REF_WIDTH;  // Ratio de la position X
     private static final float LINGOTS_Y_RATIO = 845f / REF_HEIGHT; // Ratio de la position Y
 
+    private static final float TIMER_JEU_X_RATIO = 120f / REF_WIDTH;  // Ratio de la position X
+    private static final float TIMER_JEU_Y_RATIO = 845f / REF_HEIGHT; // Ratio de la position Y
+
+
+
     private static final float VIE_X_RATIO = 30f / REF_WIDTH;
     private static final float VIE_Y_RATIO = 100f / REF_HEIGHT;
 
@@ -40,6 +45,7 @@ public class HUD {
     private GameState gameState;
     private Texture barreVieTexture;
     private Texture hudTexture;
+    private float timerJeu;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -123,7 +129,11 @@ public class HUD {
         float lingotsY = LINGOTS_Y_RATIO * screenHeight;
         float vagueX = hudX + (VAGUE_X_RATIO * screenWidth);
         float vagueY = VAGUE_Y_RATIO * screenHeight;
+        float timerJeuX = hudX + (TIMER_JEU_X_RATIO * screenWidth);
+        float timerJeuY = TIMER_JEU_Y_RATIO * screenHeight;
+        timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
 
+        Texte.drawText(batch, Integer.toString((int)timerJeu), timerJeuX, timerJeuY, Color.BLACK, 20);
         Texte.drawText(batch, Integer.toString(gameState.getLingots()), lingotsX, lingotsY, Color.BLACK, 20);
         Texte.drawText(batch, Integer.toString(gameState.getNumeroVague()), vagueX, vagueY, Color.BLACK, 50);
     }

@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Game;
 import Epi.BarCassonne.game.Utils.Texte;
 import com.badlogic.gdx.audio.Sound;
-import com.badlogic.gdx.graphics.Texture;
 
 
 
@@ -33,7 +32,7 @@ public class Menu implements Screen {
     private Button boutonJouer;
     private Button boutonOptionsMenu;
     private Button boutonQuitter;
-    private Sound sound;
+    private static Sound sound;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -203,6 +202,16 @@ public class Menu implements Screen {
     @Override
     public void hide() {
         // Pas d'action nécessaire
+    }
+    
+    /**
+     * Arrête la musique du menu.
+     * Peut être appelée depuis d'autres écrans.
+     */
+    public static void stopMusic() {
+        if (sound != null) {
+            sound.stop();
+        }
     }
 
     // ------------------------------------------------------------------------
