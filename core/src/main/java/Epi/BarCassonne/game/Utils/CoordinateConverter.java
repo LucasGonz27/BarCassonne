@@ -29,7 +29,7 @@ public class CoordinateConverter {
             Viewport mapViewport) {
         
         // Calculer les dimensions de la zone de jeu (sans HUD et barre de vie)
-        float hauteurBarreVie = HUD.getHauteurBarreVie(screenHeight);
+        float hauteurBarreVie = 0; 
         float largeurHUD = HUD.getLargeurHUD(screenWidth);
         float mapWidth = screenWidth - largeurHUD;
         float mapHeight = screenHeight - hauteurBarreVie;

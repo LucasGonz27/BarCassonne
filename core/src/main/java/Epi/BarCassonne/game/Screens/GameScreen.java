@@ -93,10 +93,18 @@ public class GameScreen implements Screen {
      */
     @Override
     public void show() {
+
+        //taille de l'écran (width)
         float screenWidth = Gdx.graphics.getWidth();
+
+        //taille de l'écran (height)
         float screenHeight = Gdx.graphics.getHeight();
+
+        //taille de la map (width)
         float mapWidth = screenWidth - HUD.getLargeurHUD(screenWidth);
-        float mapHeight = screenHeight - HUD.getHauteurBarreVie(screenHeight);
+
+        //taille de la map (height)
+        float mapHeight = screenHeight;
 
         initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
         chargerAssets();
@@ -108,18 +116,23 @@ public class GameScreen implements Screen {
      */
     private void initialiserRendu(float screenWidth, float screenHeight, float mapWidth, float mapHeight) {
 
+        //on crée le pinceau pour dessiner
         spriteBatch = new SpriteBatch();
+
+        //on crée le pinceau pour dessiner les zones non constructibles
         shapeRenderer = new ShapeRenderer();
+
+        //on charge le fond de la map
         backgroundManager = new BackgroundManager("backgrounds/map.png");
 
-        // Caméra et viewport pour la map
+        //on crée la caméra et le viewport pour la map
         mapCamera = new OrthographicCamera();
         mapViewport = new StretchViewport(mapWidth, mapHeight, mapCamera);
         mapViewport.apply();
         mapCamera.position.set(mapWidth / 2, mapHeight / 2, 0);
         mapCamera.update();
 
-        // Caméra et viewport pour le HUD
+        //on crée la caméra et le viewport pour le HUD
         hudCamera = new OrthographicCamera(screenWidth, screenHeight);
         hudViewport = new StretchViewport(screenWidth, screenHeight, hudCamera);
         hudViewport.apply();
@@ -148,12 +161,23 @@ public class GameScreen implements Screen {
      * @param mapHeight Hauteur de la map
      */
     private void initialiserJeu(float mapWidth, float mapHeight) {
-        gameState = new GameState(500, 10);
-        // Initialiser le chemin avec les dimensions de la map
+
+        //on crée l'état du jeu
+        gameState = new GameState(500, 100);
+
+        //on crée le gestionnaire de chemin
         cheminManager = new CheminMana(mapWidth, mapHeight);
+
+        //on crée le gestionnaire de vague
         vagueManager = new VagueMana(cheminManager, gameState);
+
+        //on crée le HUD
         hud = new HUD(gameState);
+
+        //on crée le gestionnaire de tour
         towerManager = new TowerManager();
+
+        //on crée le validateur de collision
         collisionValid = new CollisionValid(mapWidth, mapHeight);
 
         // Initialiser le game over
@@ -217,22 +241,21 @@ public class GameScreen implements Screen {
                     afficherMessageVague = true;
                     tempsAffichageMessage = 0f;
                 }
-
                 gameState.setNumeroVague(nouveauNumeroVague);
             }
 
             // Gérer l'affichage du message de vague
             if (afficherMessageVague) {
                 tempsAffichageMessage += delta;
-                if (tempsAffichageMessage >= 2f) { // Afficher pendant 2 secondes
+                if (tempsAffichageMessage >= 2f) { 
                     afficherMessageVague = false;
                 }
             }
         } else if (gameOver) {
-            // Compter le temps depuis le game over
+            //on compte le temps depuis le game over
             tempsGameOver += delta;
 
-            // Fermer le jeu après le délai défini
+            //on ferme le jeu après le délai défini
             if (tempsGameOver >= DELAI_FERMETURE_GAME_OVER) {
                 Gdx.app.exit();
             }
@@ -277,9 +300,6 @@ public class GameScreen implements Screen {
 
         spriteBatch.end();
 
-        // Dessiner les zones non constructibles en rouge
-        dessinerZonesNonConstructibles();
-
         // HUD
         hudViewport.apply();
         hudCamera.update();
@@ -320,34 +340,6 @@ public class GameScreen implements Screen {
         }
     }
 
-    /**
-     * Dessine les zones non constructibles en rouge avec faible opacité.
-     */
-    private void dessinerZonesNonConstructibles() {
-        if (collisionValid == null) {
-            return;
-        }
-
-        mapViewport.apply();
-        shapeRenderer.setProjectionMatrix(mapCamera.combined);
-
-        // Dessiner uniquement les contours des zones (pas de remplissage pour voir le terrain)
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(1f, 0f, 0f, 0.6f); // Contours rouges visibles (60%)
-
-        float[][] zones = collisionValid.getZonesNonConstructibles();
-        for (float[] zone : zones) {
-            float x = zone[0];
-            float y = zone[1];
-            float width = zone[2];
-            float height = zone[3];
-
-            // Dessiner uniquement le contour du rectangle (pas de remplissage)
-            shapeRenderer.rect(x, y, width, height);
-        }
-
-        shapeRenderer.end();
-    }
 
     // ------------------------------------------------------------------------
     // REGION : GESTION DES ENTRÉES
@@ -398,36 +390,11 @@ public class GameScreen implements Screen {
         if (enModePlacement) {
             placerTour(screenX, screenY, screenWidth, screenHeight);
         } else {
-            // Mode debug : afficher les coordonnées du clic dans le terminal
-            afficherCoordonneesClic(screenX, screenY, screenWidth, screenHeight);
+            
         }
     }
 
-    /**
-     * Affiche les coordonnées du clic dans le terminal pour faciliter la définition des zones de collision.
-     * Enregistre 4 clics et génère automatiquement les coordonnées du rectangle prêtes à copier-coller.
-     * @param screenX Position X du clic (coordonnées écran)
-     * @param screenY Position Y du clic (coordonnées écran)
-     * @param screenWidth Largeur de l'écran
-     * @param screenHeight Hauteur de l'écran
-     */
-    private void afficherCoordonneesClic(float screenX, float screenY, float screenWidth, float screenHeight) {
-        Vector3 worldPos = CoordinateConverter.convertirEcranVersMonde(
-            screenX, screenY, screenWidth, screenHeight, mapViewport);
-
-        if (worldPos == null || !CoordinateConverter.estDansLimitesMap(worldPos.x, worldPos.y, mapViewport)) {
-            return;
-        }
-
-        // Ajouter le point cliqué
-        pointsClic.add(new Vector2(worldPos.x, worldPos.y));
-
-        // Si on a 4 points, calculer le rectangle et afficher le format prêt à copier
-        if (pointsClic.size() == 4) {
-            calculerEtAfficherRectangle();
-            pointsClic.clear(); // Réinitialiser pour le prochain rectangle
-        }
-    }
+ 
 
     /**
      * Calcule le rectangle englobant les 4 points et affiche le format prêt à copier-coller.
@@ -450,24 +417,7 @@ public class GameScreen implements Screen {
             maxY = Math.max(maxY, point.y);
         }
 
-        // Calculer les ratios et valeurs de référence
-        float mapWidth = mapViewport.getWorldWidth();
-        float mapHeight = mapViewport.getWorldHeight();
-
-        float minXRef = (minX / mapWidth) * 1520f;
-        float minYRef = (minY / mapHeight) * 930f;
-        float maxXRef = (maxX / mapWidth) * 1520f;
-        float maxYRef = (maxY / mapHeight) * 930f;
-
-        // Arrondir les valeurs pour avoir des nombres entiers (comme dans CollisionValid)
-        int minXRefInt = Math.round(minXRef);
-        int minYRefInt = Math.round(minYRef);
-        int maxXRefInt = Math.round(maxXRef);
-        int maxYRefInt = Math.round(maxYRef);
-
-        // Afficher uniquement le code prêt à copier-coller
-        System.out.println("{" + minXRefInt + "f / REF_MAP_WIDTH, " + minYRefInt + "f / REF_MAP_HEIGHT, " +
-                          maxXRefInt + "f / REF_MAP_WIDTH, " + maxYRefInt + "f / REF_MAP_HEIGHT},");
+       
     }
 
     /**
@@ -612,7 +562,7 @@ public class GameScreen implements Screen {
     @Override
     public void resize(int width, int height) {
         float mapWidth = width - HUD.getLargeurHUD(width);
-        float mapHeight = height - HUD.getHauteurBarreVie(height);
+        float mapHeight = height;
 
         // Mettre à jour le viewport de la map
         mapViewport.update((int)mapWidth, (int)mapHeight);

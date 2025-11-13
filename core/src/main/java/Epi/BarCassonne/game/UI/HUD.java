@@ -20,8 +20,6 @@ public class HUD {
    
     // Ratios relatifs pour les dimensions du HUD 
 
-    // Hauteur de la barre de vie : 15% de la la height de l'écran
-    private static final float HAUTEUR_BARRE_VIE = 0.15f;
 
     // Largeur du HUD : 20% de la largeur de la width de l'écran 
     private static final float LARGEUR_HUD = 0.2f;
@@ -88,7 +86,6 @@ public class HUD {
      */
     public HUD(GameState gameState) {
         this.gameState = gameState;
-        this.barreVieTexture = TextureManager.chargerTexture("HUD/BarreDeVie.png");
         this.hudTexture = TextureManager.chargerTexture("HUD/HUD.png");
         this.tourArcherLevel1Texture = TextureManager.chargerTexture("sprites/TourArcherLevel1.png");
         this.tourMagieLevel1Texture = TextureManager.chargerTexture("sprites/TourMagieLevel1.png");
@@ -106,13 +103,9 @@ public class HUD {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         float largeurHUD = getLargeurHUD(screenWidth);
-        float hauteurBarreVie = getHauteurBarreVie(screenHeight);
-        float mapWidth = screenWidth - largeurHUD;
-        float barreVieY = screenHeight - hauteurBarreVie;
         float hudX = screenWidth - largeurHUD;
 
         batch.begin();
-        dessinerBarreVie(batch, 0, barreVieY, mapWidth, hauteurBarreVie, screenWidth, screenHeight);
         dessinerPanneauHUD(batch, hudX, screenHeight, largeurHUD);
         dessinerTextes(batch, hudX, screenWidth, screenHeight);
         dessinerTours(batch, hudX, screenWidth, screenHeight);
@@ -132,27 +125,7 @@ public class HUD {
         }
     }
 
-    /**
-     * Dessine la barre de vie en bas de l'écran avec le texte de vie.
-     * @param batch Le SpriteBatch pour le rendu
-     * @param x Position X de la barre
-     * @param y Position Y de la barre
-     * @param width Largeur de la barre
-     * @param height Hauteur de la barre
-     * @param screenWidth Largeur de l'écran
-     * @param screenHeight Hauteur de l'écran
-     */
-    private void dessinerBarreVie(SpriteBatch batch, float x, float y, float width, float height, float screenWidth, float screenHeight) {
-        if (barreVieTexture == null) {
-            return;
-        }
-        String texteVie = "Vie: " + gameState.getVie() + "/" + gameState.getVieMax();
-        // Convertir les coordonnées relatives en coordonnées réelles
-        float vieX = VIE_X * screenWidth;
-        float vieY = VIE_Y * screenHeight;
-        Texte.drawText(batch, texteVie, vieX, vieY, Color.BLACK, 30);
-        batch.draw(barreVieTexture, x, y, width, height);
-    }
+
 
     /**
      * Dessine tous les textes du HUD (lingots, numéro de vague).
@@ -171,6 +144,12 @@ public class HUD {
         float timerJeuY = TIMER_JEU_Y * screenHeight;
         timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
 
+        String texteVie = "Vie: " + gameState.getVie() + "/" + gameState.getVieMax();
+        // Convertir les coordonnées relatives en coordonnées réelles
+        float vieX = VIE_X * screenWidth;
+        float vieY = VIE_Y * screenHeight;
+        Texte.drawText(batch, texteVie, vieX, vieY, Color.BLACK, 30);
+
         Texte.drawText(batch, Integer.toString((int)timerJeu), timerJeuX, timerJeuY, Color.BLACK, 20);
 
         Texte.drawText(batch, Integer.toString(gameState.getLingots()), lingotsX, lingotsY, Color.BLACK, 20);
@@ -185,9 +164,7 @@ public class HUD {
      * @param screenHeight Hauteur de l'écran
      * @return La hauteur de la barre de vie
      */
-    public static float getHauteurBarreVie(float screenHeight) {
-        return HAUTEUR_BARRE_VIE * screenHeight;
-    }
+
 
     /**
      * Obtient la largeur du HUD en fonction de la largeur de l'écran.
