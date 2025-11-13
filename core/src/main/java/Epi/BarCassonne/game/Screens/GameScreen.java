@@ -95,8 +95,8 @@ public class GameScreen implements Screen {
     public void show() {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
-        float mapWidth = screenWidth - HUD.LARGEUR_HUD;
-        float mapHeight = screenHeight - HUD.HAUTEUR_BARRE_VIE;
+        float mapWidth = screenWidth - HUD.getLargeurHUD(screenWidth);
+        float mapHeight = screenHeight - HUD.getHauteurBarreVie(screenHeight);
 
         initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
         chargerAssets();
@@ -611,8 +611,8 @@ public class GameScreen implements Screen {
      */
     @Override
     public void resize(int width, int height) {
-        float mapWidth = width - HUD.LARGEUR_HUD;
-        float mapHeight = height - HUD.HAUTEUR_BARRE_VIE;
+        float mapWidth = width - HUD.getLargeurHUD(width);
+        float mapHeight = height - HUD.getHauteurBarreVie(height);
 
         // Mettre à jour le viewport de la map
         mapViewport.update((int)mapWidth, (int)mapHeight);

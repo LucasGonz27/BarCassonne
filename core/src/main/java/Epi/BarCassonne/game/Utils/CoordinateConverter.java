@@ -29,16 +29,18 @@ public class CoordinateConverter {
             Viewport mapViewport) {
         
         // Calculer les dimensions de la zone de jeu (sans HUD et barre de vie)
-        float mapWidth = screenWidth - HUD.LARGEUR_HUD;
-        float mapHeight = screenHeight - HUD.HAUTEUR_BARRE_VIE;
+        float hauteurBarreVie = HUD.getHauteurBarreVie(screenHeight);
+        float largeurHUD = HUD.getLargeurHUD(screenWidth);
+        float mapWidth = screenWidth - largeurHUD;
+        float mapHeight = screenHeight - hauteurBarreVie;
         
         // Vérifier que les coordonnées sont dans la zone de la map
-        if (screenX < mapWidth && screenY > HUD.HAUTEUR_BARRE_VIE) {
+        if (screenX < mapWidth && screenY > hauteurBarreVie) {
             // Calculer les coordonnées dans le système du viewport
             // Le viewport s'étire pour remplir l'espace disponible
             // Pour X: screenX est déjà dans le bon système (0 à mapWidth)
             // Pour Y: screenY a l'origine en haut, viewport a l'origine en bas
-            float relativeY = screenY - HUD.HAUTEUR_BARRE_VIE; // Position relative dans la zone de la map (origine en haut)
+            float relativeY = screenY - hauteurBarreVie; // Position relative dans la zone de la map (origine en haut)
             float viewportY = mapHeight - relativeY; // Inverser pour viewport (origine en bas)
             
             // Obtenir les dimensions du monde du viewport

@@ -17,32 +17,55 @@ public class HUD {
     // ------------------------------------------------------------------------
     // REGION : CONSTANTES
     // ------------------------------------------------------------------------
-    public static final float HAUTEUR_BARRE_VIE = 170f;
-    public static final float LARGEUR_HUD = 400f;
+   
+    // Ratios relatifs pour les dimensions du HUD 
 
-    // Positions relatives au viewport du HUD (ratios de 0.0 à 1.0)
-    // Position X des lingots : 15.4% de la largeur de l'écran depuis le début du HUD
+    // Hauteur de la barre de vie : 15% de la la height de l'écran
+    private static final float HAUTEUR_BARRE_VIE = 0.15f;
 
-    private static final float LINGOTS_X_RATIO = 0.154f;
-    // Position Y des lingots : 78.2% de la hauteur de l'écran depuis le bas
-    private static final float LINGOTS_Y_RATIO = 0.782f;
+    // Largeur du HUD : 20% de la largeur de la width de l'écran 
+    private static final float LARGEUR_HUD = 0.2f;
 
-    // Position X du timer : 6.25% de la largeur de l'écran depuis le début du HUD
-    private static final float TIMER_JEU_X_RATIO = 0.0625f;
+    // Position X des lingots : 15% de la largeur de l'écran depuis le début du HUD
+    private static final float LINGOTS_X = 0.15f;
 
-    // Position Y du timer : 78.2% de la hauteur de l'écran depuis le bas
-    private static final float TIMER_JEU_Y_RATIO = 0.782f;
+    // Position Y des lingots : 78% de la hauteur de l'écran depuis le bas
+    private static final float LINGOTS_Y = 0.782f;
+
+    // Position X du timer : 6.2% de la largeur de l'écran depuis le début du HUD
+    private static final float TIMER_JEU_X = 0.062f;
+
+    // Position Y du timer : 78% de la hauteur de l'écran depuis le bas
+    private static final float TIMER_JEU_Y = 0.782f;
 
     // Position X de la vie : 1.56% de la largeur de l'écran depuis le début
-    private static final float VIE_X_RATIO = 0.0156f;
-    
-    // Position Y de la vie : 9.26% de la hauteur de l'écran depuis le bas
-    private static final float VIE_Y_RATIO = 0.0926f;
+    private static final float VIE_X = 0.0156f;
 
-    // Position X de la vague : 10.4% de la largeur de l'écran depuis le début du HUD
-    private static final float VAGUE_X_RATIO = 0.104f;
-    // Position Y de la vague : 89.8% de la hauteur de l'écran depuis le bas
-    private static final float VAGUE_Y_RATIO = 0.898f;
+    // Position Y de la vie : 9.26% de la hauteur de l'écran depuis le bas
+    private static final float VIE_Y = 0.0926f;
+
+    // Position X de la vague : 10% de la largeur de l'écran depuis le début du HUD
+    private static final float VAGUE_X = 0.10f;
+
+    // Position Y de la vague : 90% de la hauteur de l'écran depuis le bas
+    private static final float VAGUE_Y = 0.90f;
+
+    // Positions des slots dans le HUD 
+
+    // Position X du premier slot : 86.8% de la largeur de l'écran depuis le début
+    private static final float SLOT1_X = 0.868f;
+
+    // Position Y du premier slot : 62.1% de la hauteur de l'écran depuis le bas
+    private static final float SLOT1_Y = 0.621f;
+
+    // Position X du deuxième slot : 87.2% de la largeur de l'écran depuis le début
+    private static final float SLOT2_X = 0.872f;
+
+    // Position Y du deuxième slot : 44.1% de la hauteur de l'écran depuis le bas
+    private static final float SLOT2_Y = 0.441f;
+
+    // Taille des slots : 5.8% de la largeur de l'écran
+    private static final float SLOT_SIZE = 0.058f;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
@@ -54,17 +77,7 @@ public class HUD {
     private Texture tourArcherLevel1Texture;
     private Texture tourMagieLevel1Texture;
 
-    // Positions des slots dans le HUD (ratios relatifs)
-    // Position X du premier slot : 86.7% de la largeur de l'écran depuis le début
-    private static final float SLOT1_X_RATIO = 0.867f;
-    // Position Y du premier slot : 62.5% de la hauteur de l'écran depuis le bas
-    private static final float SLOT1_Y_RATIO = 0.625f;
-    // Position X du deuxième slot (même X que le premier)
-    private static final float SLOT2_X_RATIO = 0.867f;
-    // Position Y du deuxième slot : 44.9% de la hauteur de l'écran depuis le bas
-    private static final float SLOT2_Y_RATIO = 0.449f;
-    // Taille des slots : 5.73% de la largeur de l'écran
-    private static final float SLOT_SIZE_RATIO = 0.0573f;
+
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -92,13 +105,15 @@ public class HUD {
 
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
-        float mapWidth = screenWidth - LARGEUR_HUD;
-        float barreVieY = screenHeight - HAUTEUR_BARRE_VIE;
-        float hudX = screenWidth - LARGEUR_HUD;
+        float largeurHUD = getLargeurHUD(screenWidth);
+        float hauteurBarreVie = getHauteurBarreVie(screenHeight);
+        float mapWidth = screenWidth - largeurHUD;
+        float barreVieY = screenHeight - hauteurBarreVie;
+        float hudX = screenWidth - largeurHUD;
 
         batch.begin();
-        dessinerBarreVie(batch, 0, barreVieY, mapWidth, HAUTEUR_BARRE_VIE, screenWidth, screenHeight);
-        dessinerPanneauHUD(batch, hudX, screenHeight);
+        dessinerBarreVie(batch, 0, barreVieY, mapWidth, hauteurBarreVie, screenWidth, screenHeight);
+        dessinerPanneauHUD(batch, hudX, screenHeight, largeurHUD);
         dessinerTextes(batch, hudX, screenWidth, screenHeight);
         dessinerTours(batch, hudX, screenWidth, screenHeight);
         batch.end();
@@ -109,10 +124,11 @@ public class HUD {
      * @param batch Le SpriteBatch pour le rendu
      * @param hudX Position X du panneau HUD
      * @param screenHeight Hauteur de l'écran
+     * @param largeurHUD Largeur du HUD
      */
-    private void dessinerPanneauHUD(SpriteBatch batch, float hudX, float screenHeight) {
+    private void dessinerPanneauHUD(SpriteBatch batch, float hudX, float screenHeight, float largeurHUD) {
         if (hudTexture != null) {
-            batch.draw(hudTexture, hudX, 0, LARGEUR_HUD, screenHeight);
+            batch.draw(hudTexture, hudX, 0, largeurHUD, screenHeight);
         }
     }
 
@@ -132,8 +148,8 @@ public class HUD {
         }
         String texteVie = "Vie: " + gameState.getVie() + "/" + gameState.getVieMax();
         // Convertir les coordonnées relatives en coordonnées réelles
-        float vieX = VIE_X_RATIO * screenWidth;
-        float vieY = VIE_Y_RATIO * screenHeight;
+        float vieX = VIE_X * screenWidth;
+        float vieY = VIE_Y * screenHeight;
         Texte.drawText(batch, texteVie, vieX, vieY, Color.BLACK, 30);
         batch.draw(barreVieTexture, x, y, width, height);
     }
@@ -147,18 +163,39 @@ public class HUD {
      */
     private void dessinerTextes(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
         // Convertir les coordonnées relatives en coordonnées réelles
-        float lingotsX = hudX + (LINGOTS_X_RATIO * screenWidth);
-        float lingotsY = LINGOTS_Y_RATIO * screenHeight;
-        float vagueX = hudX + (VAGUE_X_RATIO * screenWidth);
-        float vagueY = VAGUE_Y_RATIO * screenHeight;
-        float timerJeuX = hudX + (TIMER_JEU_X_RATIO * screenWidth);
-        float timerJeuY = TIMER_JEU_Y_RATIO * screenHeight;
+        float lingotsX = hudX + (LINGOTS_X * screenWidth);
+        float lingotsY = LINGOTS_Y* screenHeight;
+        float vagueX = hudX + (VAGUE_X * screenWidth);
+        float vagueY = VAGUE_Y * screenHeight;
+        float timerJeuX = hudX + (TIMER_JEU_X * screenWidth);
+        float timerJeuY = TIMER_JEU_Y * screenHeight;
         timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
 
         Texte.drawText(batch, Integer.toString((int)timerJeu), timerJeuX, timerJeuY, Color.BLACK, 20);
 
         Texte.drawText(batch, Integer.toString(gameState.getLingots()), lingotsX, lingotsY, Color.BLACK, 20);
         Texte.drawText(batch, Integer.toString(gameState.getNumeroVague()), vagueX, vagueY, Color.BLACK, 50);
+    }
+
+    // ------------------------------------------------------------------------
+    // REGION : MÉTHODES STATIQUES
+    // ------------------------------------------------------------------------
+    /**
+     * Obtient la hauteur de la barre de vie en fonction de la hauteur de l'écran.
+     * @param screenHeight Hauteur de l'écran
+     * @return La hauteur de la barre de vie
+     */
+    public static float getHauteurBarreVie(float screenHeight) {
+        return HAUTEUR_BARRE_VIE * screenHeight;
+    }
+
+    /**
+     * Obtient la largeur du HUD en fonction de la largeur de l'écran.
+     * @param screenWidth Largeur de l'écran
+     * @return La largeur du HUD
+     */
+    public static float getLargeurHUD(float screenWidth) {
+        return LARGEUR_HUD * screenWidth;
     }
 
     // ------------------------------------------------------------------------
@@ -172,11 +209,11 @@ public class HUD {
      */
     private void dessinerTours(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
         // Calculer la taille du slot en fonction de la résolution
-        float slotSize = SLOT_SIZE_RATIO * screenWidth;
+        float slotSize = SLOT_SIZE * screenWidth;
 
         // Calculer la position du premier slot
-        float slot1X = SLOT1_X_RATIO * screenWidth;
-        float slot1Y = SLOT1_Y_RATIO * screenHeight;
+        float slot1X = SLOT1_X * screenWidth;
+        float slot1Y = SLOT1_Y * screenHeight;
 
         // Dessiner la TourArcherLevel1 dans le premier slot
         if (tourArcherLevel1Texture != null) {
@@ -184,8 +221,8 @@ public class HUD {
         }
 
         // Calculer la position du deuxième slot
-        float slot2X = SLOT2_X_RATIO * screenWidth;
-        float slot2Y = SLOT2_Y_RATIO * screenHeight;
+        float slot2X = SLOT2_X * screenWidth;
+        float slot2Y = SLOT2_Y * screenHeight;
 
         // Dessiner la TourMagieLevel1 dans le deuxième slot
         if (tourMagieLevel1Texture != null) {
@@ -203,22 +240,22 @@ public class HUD {
      */
     public int getSlotClic(float screenX, float screenY, float screenWidth, float screenHeight) {
         // Calculer la taille du slot en fonction de la résolution
-        float slotSize = SLOT_SIZE_RATIO * screenWidth;
+        float slotSize = SLOT_SIZE * screenWidth;
 
         // Inverser Y car LibGDX a l'origine en haut, mais le HUD en bas
         float yInverse = screenHeight - screenY;
 
         // Vérifier le premier slot (TourArcher)
-        float slot1X = SLOT1_X_RATIO * screenWidth;
-        float slot1Y = SLOT1_Y_RATIO * screenHeight;
+        float slot1X = SLOT1_X * screenWidth;
+        float slot1Y = SLOT1_Y * screenHeight;
         if (screenX >= slot1X && screenX <= slot1X + slotSize &&
             yInverse >= slot1Y && yInverse <= slot1Y + slotSize) {
             return 1;
         }
 
         // Vérifier le deuxième slot (TourMagie)
-        float slot2X = SLOT2_X_RATIO * screenWidth;
-        float slot2Y = SLOT2_Y_RATIO * screenHeight;
+        float slot2X = SLOT2_X * screenWidth;
+        float slot2Y = SLOT2_Y * screenHeight;
         if (screenX >= slot2X && screenX <= slot2X + slotSize &&
             yInverse >= slot2Y && yInverse <= slot2Y + slotSize) {
             return 2;
