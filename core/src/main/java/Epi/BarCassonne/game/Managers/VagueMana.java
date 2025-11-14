@@ -167,21 +167,20 @@ public class VagueMana {
             return;
         }
 
-        spawnEnnemis(deltaTime);
+        spawnEnnemisSuivant(deltaTime);
         mettreAJourEnnemis(deltaTime);
     }
 
     /**
      * Gère le spawn des ennemis selon l'intervalle défini.
      */
-    private void spawnEnnemis(float deltaTime) {
+    private void spawnEnnemisSuivant(float deltaTime) {
         float temps = vagueActuelle.getTempsDepuisDernierSpawn() + deltaTime;
         vagueActuelle.setTempsDepuisDernierSpawn(temps);
 
         if (temps >= vagueActuelle.getIntervalleSpawn()) {
-            Mechant ennemi = vagueActuelle.spawnEnnemi();
+            Mechant ennemi = vagueActuelle.CreerEnnemi();
             if (ennemi != null) {
-                ennemi.setGameState(gameState);
                 initialiserEnnemi(ennemi);
                 vagueActuelle.getEnnemisActifs().add(ennemi);
                 ennemisActifs.add(ennemi);
@@ -226,6 +225,15 @@ public class VagueMana {
                 ennemisActifs.removeIndex(i);
             } else {
                 unMechant.update(deltaTime);
+                
+                // Vérifier si l'ennemi a atteint la fin du chemin
+                if (unMechant.aAtteintFinChemin()) {
+                    // Infliger les dégâts au joueur
+                    int degats = unMechant.getDegatsFinChemin();
+                    gameState.recevoirDegats(degats);
+                    // Tuer l'ennemi
+                    unMechant.mourir();
+                }
             }
         }
     }

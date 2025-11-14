@@ -15,8 +15,6 @@ public class CheminMana {
     // ------------------------------------------------------------------------
     protected List<Vector2> cheminPrincipal;
 
-    // Coordonnées relatives du chemin (ratios de 0.0 à 1.0 par rapport à la map)
-    // Chaque point est défini comme [ratioX, ratioY] où ratioX et ratioY sont entre 0.0 et 1.0
     private static final float[][] CHEMIN_POINTS_RELATIFS = {
         {0.0f, 0.376f},      // Point 0 : début à gauche, 37.6% de la hauteur
         {0.494f, 0.430f},    // Point 1 : 49.4% de la largeur, 43.0% de la hauteur

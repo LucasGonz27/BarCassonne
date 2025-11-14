@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import java.util.List;
-import Epi.BarCassonne.game.Managers.GameState;
 
 /**
  * Classe abstraite représentant un ennemi.
@@ -25,8 +24,7 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
     protected List<Vector2> chemin;                      // Chemin à suivre
     protected int indexActuel = 0;                       // Point actuel du chemin
     protected Animation<TextureRegion> animation;        // Animation
-    protected float stateTime = 0f;                      // Temps pour l'animation
-    protected GameState gameState;
+    protected float stateTime = 0f;                      // Temps pour l'animation  
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -87,11 +85,40 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
     }
 
     /**
-     * Définit le GameState pour cet ennemi.
-     * @param gameState L'état du jeu
+     * Retourne les dégâts infligés au joueur quand cet ennemi atteint la fin du chemin.
+     * @return Les dégâts infligés
      */
-    public void setGameState(GameState gameState) {
-        this.gameState = gameState;
+    public int getDegatsFinChemin() {
+        switch (this.getClass().getSimpleName()) {
+            case "PaysanGoblin":
+                return 1;
+            case "GuerrierGoblin":
+                return 2;
+            case "GoblinGuerrisseur":
+                return 3;
+            case "GoblinBomb":
+                return 4;
+            case "Cochon":
+                return 5;
+            case "Chevalier":
+                return 8;
+            case "BossChevalier":
+                return 10;
+            case "Golem":
+                return 12;
+            case "RoiGoblin":
+                return 20;
+            default:
+                return 1;
+        }
+    }
+    
+    /**
+     * Vérifie si l'ennemi a atteint la fin du chemin.
+     * @return true si l'ennemi a atteint la fin du chemin
+     */
+    public boolean aAtteintFinChemin() {
+        return chemin != null && !chemin.isEmpty() && indexActuel >= chemin.size();
     }
 
     // ------------------------------------------------------------------------
@@ -167,55 +194,14 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
 
         move(deltaTime);
 
-        if (indexActuel >= chemin.size()) {
-            atteindreFinChemin();
-        }
-
         stateTime += deltaTime; // Mise à jour de l'animation
     }
 
     /**
-     * Appelé quand l'ennemi atteint la fin du chemin.
-     * Par défaut, l'ennemi meurt et inflige des dégâts à la vie de la base.
+     * Marque l'ennemi comme mort (appelé quand il atteint la fin du chemin).
      */
-    protected void atteindreFinChemin() {
+    public void mourir() {
         this.PV = 0;
-        if (gameState != null) {
-            int degats = 0;
-            switch (this.getClass().getSimpleName()) {
-                case "PaysanGoblin":
-                    degats = 1;
-                    break;
-                case "GuerrierGoblin":
-                    degats = 2;
-                    break;
-                case "GoblinGuerrisseur":
-                    degats = 3;
-                    break;
-                case "GoblinBomb":
-                    degats = 4;
-                    break;
-                case "Cochon":
-                    degats = 5;
-                    break;
-                case "Chevalier":
-                    degats = 8;
-                    break;
-                case "BossChevalier":
-                    degats = 10;
-                    break;
-                case "Golem":
-                    degats = 12;
-                    break;
-                case "RoiGoblin":
-                    degats = 20;
-                    break;
-                default:
-                    degats = 1;
-                    break;
-            }
-            gameState.setVie(gameState.getVie() - degats);
-        }
     }
 
     // ------------------------------------------------------------------------

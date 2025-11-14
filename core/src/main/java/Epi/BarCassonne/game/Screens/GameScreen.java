@@ -6,27 +6,20 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
-import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
-import Epi.BarCassonne.game.Entities.Towers.Tower;
 import Epi.BarCassonne.game.Managers.AssetMana;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
 import Epi.BarCassonne.game.Managers.CheminMana;
 import Epi.BarCassonne.game.Managers.GameState;
-import Epi.BarCassonne.game.Managers.TextureManager;
 import Epi.BarCassonne.game.Managers.TowerManager;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
 import Epi.BarCassonne.game.Utils.CollisionValid;
-import Epi.BarCassonne.game.Utils.CoordinateConverter;
 import Epi.BarCassonne.game.Utils.Texte;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -67,20 +60,8 @@ public class GameScreen implements Screen {
     private float tempsAffichageMessage;
     private boolean afficherMessageVague;
     // Placement de tour
-    private static final float TAILLE_APERCU_TOUR = 50f;
-    private static final int TYPE_TOUR_ARCHER = 1;
-    private static final int TYPE_TOUR_MAGIE = 2;
     private static final float DELAI_FERMETURE_GAME_OVER = 5.0f;
 
-    private boolean enModePlacement;
-    private int typeTourAPlacer; // TYPE_TOUR_ARCHER ou TYPE_TOUR_MAGIE
-    private Texture tourPreviewTexture;
-    private float tourPreviewX;
-    private float tourPreviewY;
-    private boolean positionValide; // Indique si la position actuelle est valide
-
-    // Mode debug pour définir les zones de collision
-    private java.util.List<Vector2> pointsClic; // Stocke les 4 points cliqués
 
     //musique
     private Sound musiqueJeux;
@@ -174,11 +155,11 @@ public class GameScreen implements Screen {
         //on crée le HUD
         hud = new HUD(gameState);
 
-        //on crée le gestionnaire de tour
-        towerManager = new TowerManager();
-
         //on crée le validateur de collision
         collisionValid = new CollisionValid(mapWidth, mapHeight);
+
+        //on crée le gestionnaire de tour
+        towerManager = new TowerManager(collisionValid, vagueManager);
 
         // Initialiser le game over
         gameOver = false;
@@ -194,11 +175,6 @@ public class GameScreen implements Screen {
             musiqueJeux.loop();
         }
 
-        // Initialiser le mode placement
-        enModePlacement = false;
-        typeTourAPlacer = 0;
-        tourPreviewTexture = null;
-        positionValide = false;
 
     
     }
@@ -281,23 +257,6 @@ public class GameScreen implements Screen {
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
         vagueManager.render(spriteBatch);
         towerManager.render(spriteBatch);
-
-        // Afficher l'aperçu de la tour si on est en mode placement
-        if (enModePlacement && tourPreviewTexture != null) {
-            // Changer la couleur selon si la position est valide
-            if (!positionValide) {
-                spriteBatch.setColor(1f, 0.3f, 0.3f, 0.7f); // Rouge transparent si invalide
-            } else {
-                spriteBatch.setColor(1f, 1f, 1f, 0.7f); // Blanc transparent si valide
-            }
-            spriteBatch.draw(tourPreviewTexture,
-                tourPreviewX - TAILLE_APERCU_TOUR / 2,
-                tourPreviewY - TAILLE_APERCU_TOUR / 2,
-                TAILLE_APERCU_TOUR,
-                TAILLE_APERCU_TOUR);
-            spriteBatch.setColor(1f, 1f, 1f, 1f); // Réinitialiser la couleur
-        }
-
         spriteBatch.end();
 
         // HUD
@@ -363,8 +322,8 @@ public class GameScreen implements Screen {
 
         // Si c'est un clic droit, annuler le placement
         if (Gdx.input.isButtonJustPressed(Input.Buttons.RIGHT)) {
-            if (enModePlacement) {
-                annulerModePlacement();
+            if (towerManager.estEnModePlacement()) {
+                towerManager.annulerModePlacement();
             }
             return;
         }
@@ -382,144 +341,25 @@ public class GameScreen implements Screen {
         // Vérifier si on clique sur un slot de tour dans le HUD
         int slotClic = hud.getSlotClic(screenX, screenY, screenWidth, screenHeight);
         if (slotClic > 0) {
-            activerModePlacement(slotClic);
+            towerManager.activerModePlacement(slotClic);
             return;
         }
 
         // Si on est en mode placement, placer la tour sur le terrain
-        if (enModePlacement) {
-            placerTour(screenX, screenY, screenWidth, screenHeight);
-        } else {
-            
+        if (towerManager.estEnModePlacement()) {
+            towerManager.placerTour(screenX, screenY, screenWidth, screenHeight, mapViewport);
         }
     }
 
- 
 
-    /**
-     * Calcule le rectangle englobant les 4 points et affiche le format prêt à copier-coller.
-     */
-    private void calculerEtAfficherRectangle() {
-        if (pointsClic.size() != 4) {
-            return;
-        }
-
-        // Trouver les valeurs min et max
-        float minX = Float.MAX_VALUE;
-        float minY = Float.MAX_VALUE;
-        float maxX = Float.MIN_VALUE;
-        float maxY = Float.MIN_VALUE;
-
-        for (Vector2 point : pointsClic) {
-            minX = Math.min(minX, point.x);
-            minY = Math.min(minY, point.y);
-            maxX = Math.max(maxX, point.x);
-            maxY = Math.max(maxY, point.y);
-        }
-
-       
-    }
-
-    /**
-     * Active le mode placement pour un type de tour donné.
-     * @param typeTour Le type de tour (1 = TourArcher, 2 = TourMagie)
-     */
-    private void activerModePlacement(int typeTour) {
-        enModePlacement = true;
-        typeTourAPlacer = typeTour;
-        tourPreviewTexture = chargerTextureApercu(typeTour);
-    }
-
-    /**
-     * Charge la texture d'aperçu pour un type de tour.
-     * @param typeTour Le type de tour (TYPE_TOUR_ARCHER ou TYPE_TOUR_MAGIE)
-     * @return La texture d'aperçu, ou null si le type est invalide
-     */
-    private Texture chargerTextureApercu(int typeTour) {
-        switch (typeTour) {
-            case TYPE_TOUR_ARCHER:
-                return TextureManager.chargerTexture("sprites/TourArcherLevel1.png");
-            case TYPE_TOUR_MAGIE:
-                return TextureManager.chargerTexture("sprites/TourMagieLevel1.png");
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * Place une tour sur le terrain à la position du clic.
-     */
-    private void placerTour(float screenX, float screenY, float screenWidth, float screenHeight) {
-        Vector3 worldPos = CoordinateConverter.convertirEcranVersMonde(
-            screenX, screenY, screenWidth, screenHeight, mapViewport);
-
-        if (worldPos == null || !CoordinateConverter.estDansLimitesMap(worldPos.x, worldPos.y, mapViewport)) {
-            return;
-        }
-
-        // Vérifier si la position est valide avant de placer
-        float tourSize = obtenirTailleTour(typeTourAPlacer);
-        if (!collisionValid.estPositionValide(worldPos.x, worldPos.y, tourSize, towerManager.getTours())) {
-            return; // Position invalide, ne pas placer
-        }
-
-        Tower nouvelleTour = creerTour(typeTourAPlacer, worldPos.x, worldPos.y);
-        if (nouvelleTour != null) {
-            towerManager.ajouterTour(nouvelleTour);
-            annulerModePlacement();
-        }
-    }
-
-    /**
-     * Obtient la taille d'une tour selon son type.
-     * @param typeTour Le type de tour
-     * @return La taille de la tour
-     */
-    private float obtenirTailleTour(int typeTour) {
-        switch (typeTour) {
-            case TYPE_TOUR_ARCHER:
-                return 90f;
-            case TYPE_TOUR_MAGIE:
-                return 120f;
-            default:
-                return 90f;
-        }
-    }
-
-    /**
-     * Crée une tour selon son type.
-     * @param typeTour Le type de tour (TYPE_TOUR_ARCHER ou TYPE_TOUR_MAGIE)
-     * @param x Position X en coordonnées monde
-     * @param y Position Y en coordonnées monde
-     * @return La tour créée, ou null si le type est invalide
-     */
-    private Tower creerTour(int typeTour, float x, float y) {
-        switch (typeTour) {
-            case TYPE_TOUR_ARCHER:
-                return new TowerArcher(x, y, 100f);
-            case TYPE_TOUR_MAGIE:
-                return new TowerMagie(x, y,  120f);
-            default:
-                return null;
-        }
-    }
-
-    /**
-     * Annule le mode placement.
-     */
-    private void annulerModePlacement() {
-        enModePlacement = false;
-        typeTourAPlacer = 0;
-        tourPreviewTexture = null;
-    }
 
     /**
      * Gère l'annulation du placement (ESC).
      * Note: Le clic droit est géré dans gererClics().
      */
     private void gererAnnulationPlacement() {
-        if (enModePlacement && Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            annulerModePlacement();
+        if (towerManager.estEnModePlacement() && Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
+            towerManager.annulerModePlacement();
         }
     }
 
@@ -527,7 +367,7 @@ public class GameScreen implements Screen {
      * Met à jour la position de l'aperçu de la tour si on est en mode placement.
      */
     private void mettreAJourApercu() {
-        if (!enModePlacement) {
+        if (!towerManager.estEnModePlacement()) {
             return;
         }
 
@@ -536,19 +376,7 @@ public class GameScreen implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
 
-        Vector3 worldPos = CoordinateConverter.convertirEcranVersMonde(
-            screenX, screenY, screenWidth, screenHeight, mapViewport);
-
-        if (worldPos != null) {
-            tourPreviewX = worldPos.x;
-            tourPreviewY = worldPos.y;
-
-            // Vérifier si la position est valide
-            float tourSize = obtenirTailleTour(typeTourAPlacer);
-            positionValide = collisionValid.estPositionValide(worldPos.x, worldPos.y, tourSize, towerManager.getTours());
-        } else {
-            positionValide = false;
-        }
+        towerManager.mettreAJourApercu(screenX, screenY, screenWidth, screenHeight, mapViewport);
     }
 
     // ------------------------------------------------------------------------
@@ -617,9 +445,6 @@ public class GameScreen implements Screen {
         }
         backgroundManager.dispose();
         hud.dispose();
-        if (tourPreviewTexture != null) {
-            tourPreviewTexture.dispose();
-        }
         if (towerManager != null) {
             towerManager.dispose();
         }

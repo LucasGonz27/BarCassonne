@@ -18,8 +18,6 @@ public class HUD {
     // REGION : CONSTANTES
     // ------------------------------------------------------------------------
    
-    // Ratios relatifs pour les dimensions du HUD 
-
 
     // Largeur du HUD : 20% de la largeur de la width de l'écran 
     private static final float LARGEUR_HUD = 0.2f;
@@ -48,7 +46,8 @@ public class HUD {
     // Position Y de la vague : 90% de la hauteur de l'écran depuis le bas
     private static final float VAGUE_Y = 0.90f;
 
-    // Positions des slots dans le HUD 
+    // Taille des slots : 5.8% de la largeur de l'écran
+    private static final float SLOT_SIZE = 0.058f;
 
     // Position X du premier slot : 86.8% de la largeur de l'écran depuis le début
     private static final float SLOT1_X = 0.868f;
@@ -62,18 +61,21 @@ public class HUD {
     // Position Y du deuxième slot : 44.1% de la hauteur de l'écran depuis le bas
     private static final float SLOT2_Y = 0.441f;
 
-    // Taille des slots : 5.8% de la largeur de l'écran
-    private static final float SLOT_SIZE = 0.058f;
+    // Position X du troisième slot : 87.6% de la largeur de l'écran depuis le début
+    private static final float SLOT3_X = 0.876f;
+
+    // Position Y du troisième slot : 26.1% de la hauteur de l'écran depuis le bas
+    private static final float SLOT3_Y = 0.261f;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
-    private GameState gameState;
-    private Texture barreVieTexture;
-    private Texture hudTexture;
-    private float timerJeu;
-    private Texture tourArcherLevel1Texture;
-    private Texture tourMagieLevel1Texture;
+
+    private GameState gameState;                        // État du jeu  
+    private Texture hudTexture;                         // Texture du HUD
+    private float timerJeu;                             // Temps écoulé depuis le début du jeu
+    private Texture tourArcherLevel1Texture;            // Texture de la tour Archer Level 1
+    private Texture tourMagieLevel1Texture;            // Texture de la tour Magie Level 1
 
 
 
@@ -94,6 +96,7 @@ public class HUD {
     // ------------------------------------------------------------------------
     // REGION : RENDU
     // ------------------------------------------------------------------------
+
     /**
      * Dessine tous les éléments du HUD.
      * @param batch Le SpriteBatch pour le rendu
@@ -107,7 +110,7 @@ public class HUD {
 
         batch.begin();
         dessinerPanneauHUD(batch, hudX, screenHeight, largeurHUD);
-        dessinerTextes(batch, hudX, screenWidth, screenHeight);
+        dessinerTextesHUD(batch, hudX, screenWidth, screenHeight);
         dessinerTours(batch, hudX, screenWidth, screenHeight);
         batch.end();
     }
@@ -126,7 +129,6 @@ public class HUD {
     }
 
 
-
     /**
      * Dessine tous les textes du HUD (lingots, numéro de vague).
      * @param batch Le SpriteBatch pour le rendu
@@ -134,8 +136,8 @@ public class HUD {
      * @param screenWidth Largeur de l'écran
      * @param screenHeight Hauteur de l'écran
      */
-    private void dessinerTextes(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
-        // Convertir les coordonnées relatives en coordonnées réelles
+    private void dessinerTextesHUD(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
+  
         float lingotsX = hudX + (LINGOTS_X * screenWidth);
         float lingotsY = LINGOTS_Y* screenHeight;
         float vagueX = hudX + (VAGUE_X * screenWidth);
@@ -145,46 +147,20 @@ public class HUD {
         timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
 
         String texteVie = "Vie: " + gameState.getVie() + "/" + gameState.getVieMax();
-        // Convertir les coordonnées relatives en coordonnées réelles
+        
         float vieX = VIE_X * screenWidth;
         float vieY = VIE_Y * screenHeight;
         Texte.drawText(batch, texteVie, vieX, vieY, Color.BLACK, 30);
-
         Texte.drawText(batch, Integer.toString((int)timerJeu), timerJeuX, timerJeuY, Color.BLACK, 20);
-
         Texte.drawText(batch, Integer.toString(gameState.getLingots()), lingotsX, lingotsY, Color.BLACK, 20);
         Texte.drawText(batch, Integer.toString(gameState.getNumeroVague()), vagueX, vagueY, Color.BLACK, 50);
     }
 
-    // ------------------------------------------------------------------------
-    // REGION : MÉTHODES STATIQUES
-    // ------------------------------------------------------------------------
-    /**
-     * Obtient la hauteur de la barre de vie en fonction de la hauteur de l'écran.
-     * @param screenHeight Hauteur de l'écran
-     * @return La hauteur de la barre de vie
-     */
-
-
-    /**
-     * Obtient la largeur du HUD en fonction de la largeur de l'écran.
-     * @param screenWidth Largeur de l'écran
-     * @return La largeur du HUD
-     */
-    public static float getLargeurHUD(float screenWidth) {
-        return LARGEUR_HUD * screenWidth;
-    }
-
-    // ------------------------------------------------------------------------
-    // REGION : NETTOYAGE
-    // ------------------------------------------------------------------------
-    /**
-     * Libère toutes les ressources utilisées par le HUD.
-     */
-    /**
+        /**
      * Dessine les tours disponibles dans les slots du HUD.
      */
     private void dessinerTours(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
+        
         // Calculer la taille du slot en fonction de la résolution
         float slotSize = SLOT_SIZE * screenWidth;
 
@@ -206,6 +182,29 @@ public class HUD {
             batch.draw(tourMagieLevel1Texture, slot2X, slot2Y, slotSize, slotSize);
         }
     }
+
+    // ------------------------------------------------------------------------
+    // REGION : MÉTHODES STATIQUES
+    // ------------------------------------------------------------------------
+
+
+
+    /**
+     * Obtient la largeur du HUD en fonction de la largeur de l'écran.
+     * @param screenWidth Largeur de l'écran
+     * @return La largeur du HUD
+     */
+    public static float getLargeurHUD(float screenWidth) {
+        return LARGEUR_HUD * screenWidth;
+    }
+
+    // ------------------------------------------------------------------------
+    // REGION : NETTOYAGE
+    // ------------------------------------------------------------------------
+    /**
+     * Libère toutes les ressources utilisées par le HUD.
+     */
+
 
     /**
      * Vérifie si un clic a été effectué sur un slot de tour dans le HUD.
@@ -256,9 +255,7 @@ public class HUD {
     }
 
     public void dispose() {
-        if (barreVieTexture != null) {
-            barreVieTexture.dispose();
-        }
+        // Libérer les textures
         if (hudTexture != null) {
             hudTexture.dispose();
         }

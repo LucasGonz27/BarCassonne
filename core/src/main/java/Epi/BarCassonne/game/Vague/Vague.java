@@ -4,6 +4,7 @@ import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 import com.badlogic.gdx.utils.Array;
 import java.util.HashMap;
 import java.util.Map;
+import Epi.BarCassonne.Factory.MechantFactory;
 
 /**
  * Représente une vague d'ennemis.
@@ -50,16 +51,18 @@ public class Vague {
     // ------------------------------------------------------------------------
     /**
      * Spawne le prochain ennemi de la vague.
+     * Utilise la MechantFactory pour créer l'ennemi selon son type.
      * @return L'ennemi créé, ou null si tous sont spawnés
      */
-    public Mechant spawnEnnemi() {
+    public Mechant CreerEnnemi() {
         for (Map.Entry<Class<? extends Mechant>, Integer> entry : ennemisParType.entrySet()) {
             if (entry.getValue() > 0) {
                 try {
-                    Mechant ennemi = entry.getKey().getDeclaredConstructor().newInstance();
+                    Mechant ennemi = MechantFactory.creerMechant(entry.getKey().getSimpleName());
                     ennemisParType.put(entry.getKey(), entry.getValue() - 1);
                     return ennemi;
-                } catch (Exception e) {
+                } catch (IllegalArgumentException e) {
+                    System.err.println("Erreur lors de la création de l'ennemi: " + e.getMessage());
                     e.printStackTrace();
                 }
             }
