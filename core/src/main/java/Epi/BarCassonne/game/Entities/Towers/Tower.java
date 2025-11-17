@@ -26,13 +26,19 @@ public abstract class Tower implements Attacker{
     protected int maxLevel;
     
     /** Dégâts infligés par la tour */
-    protected float damage;
+    protected int degats;
     
     /** Portée d'attaque de la tour (distance maximale) */
     protected float portee;
     
     /** Prix d'achat de la tour */
     protected int prix;
+    
+    /** Temps écoulé depuis la dernière attaque */
+    private float tempsDepuisDerniereAttaque;
+    
+    /** Intervalle entre deux attaques (en secondes) */
+    private static final float INTERVALLE_ATTAQUE = 2f;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -47,14 +53,15 @@ public abstract class Tower implements Attacker{
      * @param portee Portée d'attaque de la tour
      * @param prix Prix d'achat de la tour
      */
-    public Tower(float positionX, float positionY, int level, int maxLevel, float damage, float portee, int prix) {
+    public Tower(float positionX, float positionY, int level, int maxLevel, int degats, float portee, int prix) {
         this.positionX = positionX;
         this.positionY = positionY;
         this.level = level;
         this.maxLevel = maxLevel;
-        this.damage = damage;
+        this.degats = degats;
         this.portee = portee;
         this.prix = prix;
+        this.tempsDepuisDerniereAttaque = 0f;
     }
 
     // ------------------------------------------------------------------------
@@ -138,16 +145,16 @@ public abstract class Tower implements Attacker{
     /**
      * @return Les dégâts infligés par la tour
      */
-    public float getDamage() {
-        return damage;
+    public float getDegats() {
+        return degats;
     }
 
     /**
      * Définit les dégâts de la tour.
-     * @param damage Les nouveaux dégâts
+     * @param degats Les nouveaux dégâts
      */
-    public void setDamage(float damage) {
-        this.damage = damage;
+    public void setDegats(int degats) {
+        this.degats = degats;
     }
 
     /**
@@ -168,27 +175,50 @@ public abstract class Tower implements Attacker{
     // ------------------------------------------------------------------------
     // REGION : ATTAQUE
     // ------------------------------------------------------------------------
+
     /**
      * Attaque un ennemi s'il est dans la portée de la tour.
      * Calcule la distance entre la tour et l'ennemi, et inflige des dégâts si
      * l'ennemi est à portée.
      * @param UnMechant L'ennemi à attaquer
      */
+    
     @Override
     public void attacker(Mechant UnMechant) {
-        if (UnMechant == null) return;
-
+        if (UnMechant == null || !peutAttaquer()) {
+            return;
+        }
+        
         // Calculer la distance euclidienne entre la tour et l'ennemi
-        float distance = (float) Math.sqrt(Math.pow(UnMechant.getPositionX() - positionX, 2) + Math.pow(UnMechant.getPositionY() - positionY, 2));
+        float distance = (float) Math.sqrt(
+            Math.pow(UnMechant.getPositionX() - positionX, 2) + 
+            Math.pow(UnMechant.getPositionY() - positionY, 2)
+        );
 
         if (distance <= portee) {
             // L'ennemi est à portée, infliger les dégâts
-            UnMechant.recevoirDegats((int) this.damage);
-            System.out.println(distance + " " + UnMechant.getPositionX() + " " + UnMechant.getPositionY());
+            UnMechant.recevoirDegats(this.degats);
+            tempsDepuisDerniereAttaque = 0f;
+            
+            System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " + 
+                UnMechant.getClass().getSimpleName() + " de " + this.degats + " dégâts. En vie: " + UnMechant.isEnVie());
         }
-        else {
-            System.out.println("Mechant hors de portée");
-        }
+    }
+    
+    /**
+     * Vérifie si la tour peut attaquer (si le cooldown est écoulé).
+     * @return true si la tour peut attaquer, false sinon
+     */
+    public boolean peutAttaquer() {
+        return tempsDepuisDerniereAttaque >= INTERVALLE_ATTAQUE;
+    }
+    
+    /**
+     * Met à jour la tour (appelée à chaque frame).
+     * @param delta Temps écoulé depuis la dernière frame
+     */
+    public void update(float delta) {
+        tempsDepuisDerniereAttaque += delta;
     }
 
     // ------------------------------------------------------------------------
@@ -198,32 +228,10 @@ public abstract class Tower implements Attacker{
      * Améliore la tour en augmentant son niveau, ses dégâts et sa portée.
      * L'amélioration n'est possible que si le niveau actuel est inférieur au niveau maximum.
      */
-    public void upgrade() {
-        if (this.level < this.maxLevel) {
-            this.level++;
-            this.damage = 1.5f;
-            this.portee = 1.5f;
-            System.out.println("La tour a été améliorée");
-        }
-        else {
-            System.out.println("Argent Manquant");
-        }
+    public void upgrade(float deltaTime, int prix) {
+       
     }
 
-    // ------------------------------------------------------------------------
-    // REGION : MÉTHODES ABSTRAITES / À IMPLÉMENTER
-    // ------------------------------------------------------------------------
-    /**
-     * Affiche la tour (méthode à implémenter dans les sous-classes si nécessaire).
-     */
-    public void display() {
-    }
 
-    /**
-     * Met à jour la tour (méthode à implémenter dans les sous-classes si nécessaire).
-     * Appelée à chaque frame pour mettre à jour l'état de la tour.
-     */
-    public void update() {
-    }
  
 }

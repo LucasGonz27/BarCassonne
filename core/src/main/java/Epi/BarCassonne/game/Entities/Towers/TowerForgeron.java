@@ -6,8 +6,9 @@ public class TowerForgeron extends Tower {
 
     protected int ApportLingots;
 
-    public TowerForgeron(float positionX, float positionY, int ApportLingots) {
-        super(positionX, positionY, 1, 4, ApportLingots, 0f, 1000);
+    public TowerForgeron() {
+        super(0f, 0f, 1, 4, 0, 0f, 1000);
+        this.ApportLingots = 200;
     }   
 
 

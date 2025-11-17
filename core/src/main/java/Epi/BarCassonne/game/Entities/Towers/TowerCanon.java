@@ -1,7 +1,7 @@
 package Epi.BarCassonne.game.Entities.Towers;
 
 public class TowerCanon extends Tower {
-    public TowerCanon (float positionX, float positionY) {
-        super(positionX, positionY, 1, 4, 10, 50f, 200);
+    public TowerCanon () {
+        super(0f, 0f, 1, 4, 10, 50f, 200);
     }
 }

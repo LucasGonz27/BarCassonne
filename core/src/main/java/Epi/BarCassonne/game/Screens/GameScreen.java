@@ -189,6 +189,7 @@ public class GameScreen implements Screen {
     @Override
     public void render(float delta) {
 
+      
 
         // Quitter le jeu si la touche ESCAPE est pressée
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
@@ -341,7 +342,8 @@ public class GameScreen implements Screen {
         // Vérifier si on clique sur un slot de tour dans le HUD
         int slotClic = hud.getSlotClic(screenX, screenY, screenWidth, screenHeight);
         if (slotClic > 0) {
-            towerManager.activerModePlacement(slotClic);
+            String towerType = slotClic == 1 ? "TowerArcher" : "TowerMagie";
+            towerManager.activerModePlacement(towerType);
             return;
         }
 

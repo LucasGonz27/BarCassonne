@@ -1,7 +1,7 @@
 package Epi.BarCassonne.game.Entities.Towers;
 
 public class TowerMagie extends Tower {
-    public TowerMagie (float positionX, float positionY) {
-        super(positionX, positionY, 1, 4, 50f, 100, 500);
+    public TowerMagie() {
+        super(0f, 0f, 1, 4, 50, 100f, 500);
     }
 }
