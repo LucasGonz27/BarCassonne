@@ -39,6 +39,9 @@ public abstract class Tower implements Attacker{
     
     /** Intervalle entre deux attaques (en secondes) */
     private static final float INTERVALLE_ATTAQUE = 2f;
+    
+    /** Type de la tour (utilisé pour le système de résistances) */
+    protected final TypeTour typeTour;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -52,8 +55,9 @@ public abstract class Tower implements Attacker{
      * @param degats Dégâts infligés par la tour
      * @param portee Portée d'attaque de la tour
      * @param prix Prix d'achat de la tour
+     * @param typeTour Type de la tour (doit être défini par chaque sous-classe)
      */
-    public Tower(float positionX, float positionY, int level, int maxLevel, int degats, float portee, int prix) {
+    protected Tower(float positionX, float positionY, int level, int maxLevel, int degats, float portee, int prix, TypeTour typeTour) {
         this.positionX = positionX;
         this.positionY = positionY;
         this.level = level;
@@ -62,6 +66,7 @@ public abstract class Tower implements Attacker{
         this.portee = portee;
         this.prix = prix;
         this.tempsDepuisDerniereAttaque = 0f;
+        this.typeTour = typeTour;
     }
 
     // ------------------------------------------------------------------------
@@ -195,8 +200,8 @@ public abstract class Tower implements Attacker{
         );
 
         if (distance <= portee) {
-            // L'ennemi est à portée, infliger les dégâts
-            UnMechant.recevoirDegats(this.degats);
+            // L'ennemi est à portée, infliger les dégâts (en tenant compte des résistances)
+            UnMechant.recevoirDegats(this.degats, this.typeTour);
             tempsDepuisDerniereAttaque = 0f;
             
             System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " + 
@@ -226,10 +231,14 @@ public abstract class Tower implements Attacker{
     /**
      * Améliore la tour en augmentant son niveau, ses dégâts et sa portée.
      * L'amélioration n'est possible que si le niveau actuel est inférieur au niveau maximum.
-     * @param deltaTime Temps écoulé depuis la dernière frame
-     * @param prix Prix de l'amélioration
+     * Implémentation par défaut : augmente seulement le niveau si possible.
+     * Les sous-classes peuvent surcharger cette méthode pour un comportement spécifique.
+     * @param deltaTime Temps écoulé depuis la dernière frame (non utilisé dans l'implémentation par défaut)
+     * @param prix Prix de l'amélioration (non utilisé dans l'implémentation par défaut)
      */
     public void upgrade(float deltaTime, int prix) {
-        // Méthode à implémenter dans les sous-classes si nécessaire
+        if (this.level < this.maxLevel) {
+            this.level++;
+        }
     }
 }

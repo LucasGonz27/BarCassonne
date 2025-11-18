@@ -15,7 +15,7 @@ public class TowerForgeron extends Tower {
      * Initialise la tour avec niveau 1, max niveau 4, prix 1000 et 200 lingots de base.
      */
     public TowerForgeron() {
-        super(0f, 0f, 1, 4, 0, 0f, 1000);
+        super(0f, 0f, 1, 4, 0, 0f, 1000, TypeTour.FORGERON);
         this.ApportLingots = 200;
     }   
 

@@ -1,11 +1,14 @@
 package Epi.BarCassonne.game.Entities.Mechants;
 
+import Epi.BarCassonne.game.Entities.Towers.TypeTour;
 import Epi.BarCassonne.game.Interfaces.Damageable;
 import Epi.BarCassonne.game.Interfaces.Movable;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Classe abstraite représentant un ennemi.
@@ -39,7 +42,14 @@ public abstract class Mechant implements Movable, Damageable {
     protected Animation<TextureRegion> animation;
     
     /** Temps écoulé pour l'animation. */
-    protected float stateTime = 0f;  
+    protected float stateTime = 0f;
+    
+    /** 
+     * Map des résistances par type de tour.
+     * La valeur représente le pourcentage de réduction des dégâts (0.0 = pas de résistance, 1.0 = immunité totale).
+     * Exemple : 0.5 = 50% de résistance (les dégâts sont réduits de moitié).
+     */
+    protected Map<TypeTour, Float> resistances;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -57,6 +67,19 @@ public abstract class Mechant implements Movable, Damageable {
         this.positionX = 0;
         this.positionY = 0;
         this.animation = animation;
+        this.resistances = new HashMap<>();
+        initialiserResistances();
+    }
+    
+    /**
+     * Initialise les résistances du méchant.
+     * Cette méthode doit être surchargée dans les sous-classes pour définir
+     * les résistances spécifiques à chaque type de méchant.
+     * Par défaut, aucune résistance n'est appliquée.
+     */
+    protected void initialiserResistances() {
+        // Par défaut, aucune résistance
+        // Les sous-classes peuvent surcharger cette méthode pour définir leurs résistances
     }
 
     // ------------------------------------------------------------------------
@@ -160,7 +183,24 @@ public abstract class Mechant implements Movable, Damageable {
     // REGION : DOMMAGES
     // ------------------------------------------------------------------------
     /**
-     * Applique des dégâts à l'ennemi.
+     * Applique des dégâts à l'ennemi en tenant compte des résistances.
+     * @param degats Montant des dégâts bruts
+     * @param typeTour Type de tour qui inflige les dégâts
+     */
+    public void recevoirDegats(int degats, TypeTour typeTour) {
+        if (!isEnVie()) return;
+        
+        // Calculer les dégâts réels en tenant compte de la résistance
+        float resistance = getResistance(typeTour);
+        int degatsReels = (int) (degats * (1.0f - resistance));
+        
+        this.PV -= degatsReels;
+        if (this.PV <= 0) this.PV = 0;
+    }
+    
+    /**
+     * Applique des dégâts à l'ennemi (méthode de l'interface Damageable).
+     * Utilisée pour la compatibilité avec l'interface, applique les dégâts sans résistance.
      * @param degats Montant des dégâts
      */
     @Override
@@ -168,6 +208,29 @@ public abstract class Mechant implements Movable, Damageable {
         if (!isEnVie()) return;
         this.PV -= degats;
         if (this.PV <= 0) this.PV = 0;
+    }
+    
+    /**
+     * Retourne le pourcentage de résistance pour un type de tour donné.
+     * @param typeTour Le type de tour
+     * @return Le pourcentage de résistance (0.0 = pas de résistance, 1.0 = immunité totale)
+     */
+    public float getResistance(TypeTour typeTour) {
+        return resistances.getOrDefault(typeTour, 0.0f);
+    }
+    
+    /**
+     * Définit la résistance pour un type de tour donné.
+     * @param typeTour Le type de tour
+     * @param resistance Le pourcentage de résistance 
+     *                   (négatif = vulnérabilité, 0.0 = pas de résistance, 1.0 = immunité totale)
+     *                   Exemple : -0.25 = vulnérable (+25% de dégâts), 0.5 = 50% de résistance
+     */
+    protected void setResistance(TypeTour typeTour, float resistance) {
+        // Limiter la résistance entre -1.0 (double vulnérabilité) et 1.0 (immunité totale)
+        if (resistance < -1.0f) resistance = -1.0f;
+        if (resistance > 1.0f) resistance = 1.0f;
+        resistances.put(typeTour, resistance);
     }
 
     /**

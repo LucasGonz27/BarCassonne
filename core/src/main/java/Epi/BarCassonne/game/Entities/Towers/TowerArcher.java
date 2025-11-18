@@ -11,6 +11,6 @@ public class TowerArcher extends Tower {
      * Initialise la tour avec niveau 1, max niveau 4, 10 dégâts, portée 200f et prix 100.
      */
     public TowerArcher() {
-        super(0f, 0f, 1, 4, 10, 200f, 100);
+        super(0f, 0f, 1, 4, 10, 200f, 100, TypeTour.ARCHER);
     }
 }
