@@ -35,6 +35,8 @@ public class TowerManager {
     private static final float DECALAGE_SAC_CENTRE = 25f;
     private static final float OPACITE_APERCU = 0.7f;
     private static final float DECALAGE_MESSAGE_Y = 80f;
+    private static final int TAILLE_POLICE_MESSAGE_LINGOTS = 30;
+
     
     private final List<Tower> tours;
     private final TowerDataManager towerDataManager;
@@ -97,8 +99,7 @@ public class TowerManager {
         }
     }
     
-    public void mettreAJourApercu(float screenX, float screenY, float screenWidth, 
-                                   float screenHeight, Viewport mapViewport) {
+    public void mettreAJourApercu(float screenX, float screenY, float screenWidth, float screenHeight, Viewport mapViewport) {
         if (!enModePlacement || towerTypeToPlace == null) {
             return;
         }
@@ -178,7 +179,7 @@ public class TowerManager {
             TowerForgeron forgeron = (TowerForgeron) tour;
             int lingots = forgeron.getApportLingots();
             gameState.ajouterLingots(lingots);
-            messageFlottant.creerMessageLingots(tour.getPositionX(), tour.getPositionY() + DECALAGE_MESSAGE_Y, lingots);
+            messageFlottant.creerMessage(tour.getPositionX(), tour.getPositionY() + DECALAGE_MESSAGE_Y, "+" + lingots, Color.YELLOW, TAILLE_POLICE_MESSAGE_LINGOTS, 2f);
             tempsForgeron.put(tour, 0f);
         } else {
             tempsForgeron.put(tour, temps);

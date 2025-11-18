@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import java.util.List;
+import Epi.BarCassonne.game.Utils.MessageFlottant;
+import com.badlogic.gdx.graphics.Color;
 
 /**
  * Classe abstraite représentant un ennemi.
@@ -39,7 +41,12 @@ public abstract class Mechant implements Movable, Damageable {
     protected Animation<TextureRegion> animation;
     
     /** Temps écoulé pour l'animation. */
-    protected float stateTime = 0f;  
+    protected float stateTime = 0f;
+    
+    /** Message flottant pour afficher les dégâts */
+    protected MessageFlottant messageFlottant;
+
+
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -57,6 +64,7 @@ public abstract class Mechant implements Movable, Damageable {
         this.positionX = 0;
         this.positionY = 0;
         this.animation = animation;
+        this.messageFlottant = new MessageFlottant();
     }
 
     // ------------------------------------------------------------------------
@@ -159,15 +167,17 @@ public abstract class Mechant implements Movable, Damageable {
     // ------------------------------------------------------------------------
     // REGION : DOMMAGES
     // ------------------------------------------------------------------------
+ 
+    
     /**
-     * Applique des dégâts à l'ennemi.
+     * Applique des dégâts à l'ennemi avec affichage d'un message flottant.
      * @param degats Montant des dégâts
      */
-    @Override
     public void recevoirDegats(int degats) {
         if (!isEnVie()) return;
         this.PV -= degats;
         if (this.PV <= 0) this.PV = 0;
+        messageFlottant.creerMessage(positionX, positionY + 60f, String.valueOf(degats), Color.RED, 25,0.5f, -60f);
     }
 
     /**
@@ -223,13 +233,16 @@ public abstract class Mechant implements Movable, Damageable {
      * @param deltaTime Temps écoulé depuis la dernière frame
      */
     public void update(float deltaTime) {
+
+        messageFlottant.update(deltaTime);
+        
         if (!isEnVie()) return;
         
         if (chemin == null || chemin.isEmpty()) return;
 
         move(deltaTime);
 
-        stateTime += deltaTime; // Mise à jour de l'animation
+        stateTime += deltaTime;
     }
 
     /**
@@ -249,5 +262,13 @@ public abstract class Mechant implements Movable, Damageable {
     public TextureRegion getFrame() {
         if (animation == null) return null;
         return animation.getKeyFrame(stateTime, true);
+    }
+    
+    /**
+     * Retourne le gestionnaire de messages flottants de l'ennemi.
+     * @return Le MessageFlottant de l'ennemi
+     */
+    public MessageFlottant getMessageFlottant() {
+        return messageFlottant;
     }
 }

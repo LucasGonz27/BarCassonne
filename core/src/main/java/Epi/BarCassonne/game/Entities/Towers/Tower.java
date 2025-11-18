@@ -2,6 +2,8 @@ package Epi.BarCassonne.game.Entities.Towers;
 
 import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 import Epi.BarCassonne.game.Interfaces.Attacker;
+import Epi.BarCassonne.game.Utils.MessageFlottant;
+import com.badlogic.gdx.graphics.Color;
 
 /**
  * Classe abstraite représentant une tour défensive.
@@ -198,7 +200,7 @@ public abstract class Tower implements Attacker{
             // L'ennemi est à portée, infliger les dégâts
             UnMechant.recevoirDegats(this.degats);
             tempsDepuisDerniereAttaque = 0f;
-            
+        
             System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " + 
                 UnMechant.getClass().getSimpleName() + " de " + this.degats + " dégâts. En vie: " + UnMechant.isEnVie());
         }

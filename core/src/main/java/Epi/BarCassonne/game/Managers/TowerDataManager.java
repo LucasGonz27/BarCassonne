@@ -1,135 +1,95 @@
 package Epi.BarCassonne.game.Managers;
 
-import com.badlogic.gdx.graphics.Texture;
-import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
-import Epi.BarCassonne.game.Entities.Towers.TowerForgeron;
-import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
-
 import java.util.HashMap;
 import java.util.Map;
+import com.badlogic.gdx.graphics.Texture;
+import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
+import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
+import Epi.BarCassonne.game.Entities.Towers.TowerForgeron;
 
 /**
- * Gère les données statiques des tours (prix, portée, textures).
- * Utilise les constantes statiques des classes de tours (meilleure pratique).
+ * Gestionnaire des données statiques des tours (textures, prix, portée).
+ * Centralise l'accès aux informations des différents types de tours.
  */
 public class TowerDataManager {
-    private final Map<String, TowerData> towerData;
+
     private final Map<String, Texture> textures;
+    private final TowerMagie towerMagie;
+    private final TowerArcher towerArcher;
+    private final TowerForgeron towerForgeron;
     
     public TowerDataManager() {
-        this.towerData = new HashMap<>();
         this.textures = new HashMap<>();
-        initialiserDonnees();
+        this.towerMagie = new TowerMagie();
+        this.towerArcher = new TowerArcher();
+        this.towerForgeron = new TowerForgeron();
+        
+        initialiserTextures();
     }
     
-    private void initialiserDonnees() {
-        chargerTexture("TowerArcher", "sprites/TourArcherLevel1.png");
-        chargerTexture("TowerMagie", "sprites/TourMagieLevel1.png");
-        chargerTexture("TowerForgeron", "sprites/ForgeronLevel1.png");
-        
+    /**
+     * Initialise les textures pour tous les types de tours.
+     */
+    private void initialiserTextures() {
+        textures.put("TowerArcher", TextureManager.chargerTexture("sprites/TourArcherLevel1.png"));
+        textures.put("TowerMagie", TextureManager.chargerTexture("sprites/TourMagieLevel1.png"));
+        textures.put("TowerForgeron", TextureManager.chargerTexture("sprites/ForgeronLevel1.png"));
+    }
+    
+    /**
+     * Récupère la texture d'un type de tour.
+     * @param towerType Le type de tour (ex: "TowerArcher")
+     * @return La texture de la tour, ou null si le type est inconnu
+     */
+    public Texture getTexture(String towerType) {
+        return textures.get(towerType);
+    }
+    
+    /**
+     * Récupère le prix d'un type de tour.
+     * @param towerType Le type de tour (ex: "TowerArcher")
+     * @return Le prix de la tour, ou -1 si le type est inconnu
+     */
+    public int getPrix(String towerType) {
+        switch (towerType) {
+            case "TowerMagie":
+                return towerMagie.getPrix();
+            case "TowerArcher":
+                return towerArcher.getPrix();
+            case "TowerForgeron":
+                return towerForgeron.getPrix();
+            default:
+                return -1;
+        }
+    }
 
-        TowerArcher tempArcher = new TowerArcher();
-        towerData.put("TowerArcher", new TowerData(
-            tempArcher.getPrix(), 
-            tempArcher.getPortee(), 
-            textures.get("TowerArcher")
-        ));
-        
-        TowerMagie tempMagie = new TowerMagie();
-        towerData.put("TowerMagie", new TowerData(
-            tempMagie.getPrix(), 
-            tempMagie.getPortee(), 
-            textures.get("TowerMagie")
-        ));
-        
-        TowerForgeron tempForgeron = new TowerForgeron();
-        towerData.put("TowerForgeron", new TowerData(
-            tempForgeron.getPrix(), 
-            tempForgeron.getPortee(), 
-            textures.get("TowerForgeron")
-        ));
-    }
-    
-    private void chargerTexture(String typeTour, String chemin) {
-        Texture texture = TextureManager.chargerTexture(chemin);
-        textures.put(typeTour, texture);
-    }
-    
     /**
-     * Retourne les données d'un type de tour.
-     * @param typeTour Le type de tour (ex: "TowerArcher")
-     * @return Les données de la tour, ou null si invalide
+     * Récupère la portée d'un type de tour.
+     * @param towerType Le type de tour (ex: "TowerArcher")
+     * @return La portée de la tour, ou -1 si le type est inconnu
      */
-    public TowerData getTowerData(String typeTour) {
-        return towerData.get(typeTour);
+    public float getPortee(String towerType) {
+        switch (towerType) {
+            case "TowerMagie":
+                return towerMagie.getPortee();
+            case "TowerArcher":
+                return towerArcher.getPortee();
+            case "TowerForgeron":
+                return towerForgeron.getPortee();
+            default:
+                return -1f;
+        }
     }
     
     /**
-     * Retourne la texture d'un type de tour.
-     * @param typeTour Le type de tour (ex: "TowerArcher")
-     * @return La texture, ou null si invalide
-     */
-    public Texture getTexture(String typeTour) {
-        return textures.get(typeTour);
-    }
-    
-    /**
-     * Retourne le prix d'un type de tour.
-     * @param typeTour Le type de tour
-     * @return Le prix, ou -1 si invalide
-     */
-    public int getPrix(String typeTour) {
-        TowerData data = towerData.get(typeTour);
-        return data != null ? data.getPrix() : -1;
-    }
-    
-    /**
-     * Retourne la portée d'un type de tour.
-     * @param typeTour Le type de tour
-     * @return La portée, ou 0f si invalide
-     */
-    public float getPortee(String typeTour) {
-        TowerData data = towerData.get(typeTour);
-        return data != null ? data.getPortee() : 0f;
-    }
-    
-    /**
-     * Libère les ressources utilisées.
+     * Libère toutes les textures chargées.
      */
     public void dispose() {
         for (Texture texture : textures.values()) {
             if (texture != null) {
-                TextureManager.libererTexture(texture);
+                texture.dispose();
             }
         }
         textures.clear();
-        towerData.clear();
-    }
-    
-    /**
-     * Classe interne contenant les données d'un type de tour.
-     */
-    public static class TowerData {
-        private final int prix;
-        private final float portee;
-        private final Texture texture;
-        
-        public TowerData(int prix, float portee, Texture texture) {
-            this.prix = prix;
-            this.portee = portee;
-            this.texture = texture;
-        }
-        
-        public int getPrix() {
-            return prix;
-        }
-        
-        public float getPortee() {
-            return portee;
-        }
-        
-        public Texture getTexture() {
-            return texture;
-        }
     }
 }
