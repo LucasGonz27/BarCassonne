@@ -11,10 +11,10 @@ public class CollisionValid {
 
     /** Distance minimale entre deux tours. */
     private static final float DISTANCE_MIN = 10f;
-    
+
     /** Taille d'une tour d'archer. */
     private static final float TOUR_ARCHER_SIZE = 90f;
-    
+
     /** Taille d'une tour de magie. */
     private static final float TOUR_MAGIE_SIZE = 120f;
 
@@ -38,7 +38,7 @@ public class CollisionValid {
 
     /** Largeur de la carte. */
     private float mapWidth;
-    
+
     /** Hauteur de la carte. */
     private float mapHeight;
 
@@ -77,22 +77,22 @@ public class CollisionValid {
             float minY = zone[1] * mapHeight;
             float maxX = zone[2] * mapWidth;
             float maxY = zone[3] * mapHeight;
-            
+
             if (x >= minX && x <= maxX && y >= minY && y <= maxY) {
                 return false;
             }
         }
-        
+
         // Vérifier la distance avec les autres tours
         if (toursExistantes != null) {
             for (Tower tour : toursExistantes) {
                 float tailleTour = (tour instanceof TowerMagie) ? TOUR_MAGIE_SIZE : TOUR_ARCHER_SIZE;
                 float distance = (float) Math.sqrt(
-                    (x - tour.getPositionX()) * (x - tour.getPositionX()) + 
+                    (x - tour.getPositionX()) * (x - tour.getPositionX()) +
                     (y - tour.getPositionY()) * (y - tour.getPositionY())
                 );
                 float distanceMin = (tourSize + tailleTour) / 2f + DISTANCE_MIN;
-                
+
                 if (distance < distanceMin) {
                     return false;
                 }
@@ -102,18 +102,4 @@ public class CollisionValid {
         return true;
     }
 
-    /**
-     * Retourne les zones non constructibles en coordonnées absolues.
-     * @return Tableau de zones, chaque zone étant {minX, minY, width, height}
-     */
-    public float[][] getZonesNonConstructibles() {
-        float[][] zones = new float[ZONES.length][4];
-        for (int i = 0; i < ZONES.length; i++) {
-            zones[i][0] = ZONES[i][0] * mapWidth;  // minX
-            zones[i][1] = ZONES[i][1] * mapHeight; // minY
-            zones[i][2] = (ZONES[i][2] - ZONES[i][0]) * mapWidth;  // width
-            zones[i][3] = (ZONES[i][3] - ZONES[i][1]) * mapHeight; // height
-        }
-        return zones;
-    }
 }
