@@ -9,37 +9,37 @@ import Epi.BarCassonne.game.Interfaces.Attacker;
  * Implémente l'interface Attacker pour définir le comportement d'attaque.
  */
 public abstract class Tower implements Attacker{
-    
+
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
     /** Position X de la tour en coordonnées monde */
     protected float positionX;
-    
+
     /** Position Y de la tour en coordonnées monde */
     protected float positionY;
-    
+
     /** Niveau actuel de la tour */
     protected int level;
-    
+
     /** Niveau maximum que la tour peut atteindre */
     protected int maxLevel;
-    
+
     /** Dégâts infligés par la tour */
     protected int degats;
-    
+
     /** Portée d'attaque de la tour (distance maximale) */
     protected float portee;
-    
+
     /** Prix d'achat de la tour */
     protected int prix;
-    
+
     /** Temps écoulé depuis la dernière attaque */
     private float tempsDepuisDerniereAttaque;
-    
+
     /** Intervalle entre deux attaques (en secondes) */
     private static final float INTERVALLE_ATTAQUE = 2f;
-    
+
     /** Type de la tour (utilisé pour le système de résistances) */
     protected final TypeTour typeTour;
 
@@ -86,7 +86,7 @@ public abstract class Tower implements Attacker{
     public void setPrix(int prix) {
         this.prix = prix;
     }
-  
+
     /**
      * @return La position X de la tour
      */
@@ -192,10 +192,10 @@ public abstract class Tower implements Attacker{
         if (UnMechant == null || !peutAttaquer()) {
             return;
         }
-        
+
         // Calculer la distance euclidienne entre la tour et l'ennemi
         float distance = (float) Math.sqrt(
-            Math.pow(UnMechant.getPositionX() - positionX, 2) + 
+            Math.pow(UnMechant.getPositionX() - positionX, 2) +
             Math.pow(UnMechant.getPositionY() - positionY, 2)
         );
 
@@ -203,12 +203,12 @@ public abstract class Tower implements Attacker{
             // L'ennemi est à portée, infliger les dégâts (en tenant compte des résistances)
             UnMechant.recevoirDegats(this.degats, this.typeTour);
             tempsDepuisDerniereAttaque = 0f;
-            
-            System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " + 
-                UnMechant.getClass().getSimpleName() + " de " + this.degats + " dégâts. En vie: " + UnMechant.isEnVie());
+
+            System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " +
+                UnMechant.getClass().getSimpleName() + " de " + this.degats + " dégâts. En vie: " + UnMechant.getPV());
         }
     }
-    
+
     /**
      * Vérifie si la tour peut attaquer (si le cooldown est écoulé).
      * @return true si la tour peut attaquer, false sinon
@@ -216,7 +216,7 @@ public abstract class Tower implements Attacker{
     public boolean peutAttaquer() {
         return tempsDepuisDerniereAttaque >= INTERVALLE_ATTAQUE;
     }
-    
+
     /**
      * Met à jour la tour (appelée à chaque frame).
      * @param delta Temps écoulé depuis la dernière frame

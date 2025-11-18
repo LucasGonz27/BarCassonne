@@ -10,7 +10,7 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  * Le roi goblin a des résistances variées grâce à ses pouvoirs magiques.
  */
 public class RoiGoblin extends Mechant {
-    
+
     /**
      * Constructeur par défaut.
      * Initialise les PV à 500, la vitesse à 50f et l'animation.
@@ -18,7 +18,7 @@ public class RoiGoblin extends Mechant {
     public RoiGoblin() {
         super(500, 50f, AssetMana.getAnimation("RoiGoblin"));
     }
-    
+
     /**
      * Initialise les résistances du RoiGoblin.
      * Résistant à la magie grâce à ses pouvoirs, mais vulnérable aux attaques physiques.
