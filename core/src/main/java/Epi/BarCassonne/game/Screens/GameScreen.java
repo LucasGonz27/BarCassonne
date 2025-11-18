@@ -140,7 +140,7 @@ public class GameScreen implements Screen {
      */
     private void initialiserJeu(float mapWidth, float mapHeight) {
         // Créer l'état du jeu
-        gameState = new GameState(500, 5);
+        gameState = new GameState(1500, 5);
 
         // Créer le gestionnaire de chemin
         cheminManager = new CheminMana(mapWidth, mapHeight);

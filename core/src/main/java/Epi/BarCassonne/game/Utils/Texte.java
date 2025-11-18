@@ -60,24 +60,7 @@ public class Texte {
         return font;
     }
 
-    /**
-     * Libère toutes les ressources (à appeler lors de la fermeture du jeu).
-     */
-    public static void dispose() {
-        // Libérer toutes les fonts en cache
-        for (BitmapFont font : fontCache.values()) {
-            font.dispose();
-        }
-        fontCache.clear();
-
-        // Libérer le générateur
-        if (generator != null) {
-            generator.dispose();
-            generator = null;
-        }
-    }
-
-    /**
+        /**
      * Dessine du texte à l'écran avec la police, la couleur et la taille spécifiées.
      * Note: Le SpriteBatch doit déjà être ouvert (batch.begin() appelé avant).
      * @param batch Le SpriteBatch pour le rendu (déjà ouvert)
@@ -92,4 +75,41 @@ public class Texte {
         font.setColor(color);
         font.draw(batch, text, x, y);
     }
+    
+    /**
+     * Dessine du texte avec la police par défaut de LibGDX.
+     * @param batch Le SpriteBatch pour le rendu
+     * @param text Le texte à afficher
+     * @param x Position X
+     * @param y Position Y
+     * @param color La couleur du texte
+     * @param size La taille de la police
+     */
+    public static void drawTextDefault(SpriteBatch batch, String text, float x, float y, Color color, int size) {
+        BitmapFont defaultFont = new BitmapFont();
+        defaultFont.getData().setScale(size / 20f);
+        defaultFont.setColor(color);
+        defaultFont.draw(batch, text, x, y);
+    }
+
+    /**
+     * Libère toutes les ressources (à appeler lors de la fermeture du jeu).
+     */
+    public static void dispose() {
+        // Libérer toutes les fonts en cache
+        for (BitmapFont font : fontCache.values()) {
+            if (font != null) {
+                font.dispose();
+            }
+        }
+        fontCache.clear();
+
+        // Libérer le générateur
+        if (generator != null) {
+            generator.dispose();
+            generator = null;
+        }
+    }
+
+
 }
