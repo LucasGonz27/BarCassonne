@@ -182,7 +182,6 @@ public abstract class Tower implements Attacker{
      * l'ennemi est à portée.
      * @param UnMechant L'ennemi à attaquer
      */
-    
     @Override
     public void attacker(Mechant UnMechant) {
         if (UnMechant == null || !peutAttaquer()) {
@@ -231,9 +230,6 @@ public abstract class Tower implements Attacker{
      * @param prix Prix de l'amélioration
      */
     public void upgrade(float deltaTime, int prix) {
-       
+        // Méthode à implémenter dans les sous-classes si nécessaire
     }
-
-
- 
 }

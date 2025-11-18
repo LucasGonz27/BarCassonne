@@ -107,22 +107,42 @@ public class Vague {
     // ------------------------------------------------------------------------
     // REGION : GETTERS & SETTERS
     // ------------------------------------------------------------------------
+    /**
+     * Retourne le temps écoulé depuis le dernier spawn.
+     * @return Le temps écoulé en secondes
+     */
     public float getTempsDepuisDernierSpawn() {
         return tempsDepuisDernierSpawn;
     }
 
+    /**
+     * Définit le temps écoulé depuis le dernier spawn.
+     * @param temps Le nouveau temps en secondes
+     */
     public void setTempsDepuisDernierSpawn(float temps) {
         this.tempsDepuisDernierSpawn = temps;
     }
 
+    /**
+     * Retourne l'intervalle entre chaque spawn d'ennemi.
+     * @return L'intervalle en secondes
+     */
     public float getIntervalleSpawn() {
         return intervalleSpawn;
     }
 
+    /**
+     * Retourne le numéro de la vague.
+     * @return Le numéro de la vague
+     */
     public int getNumero() {
         return numero;
     }
 
+    /**
+     * Retourne la liste des ennemis actifs de cette vague.
+     * @return La liste des ennemis actifs
+     */
     public Array<Mechant> getEnnemisActifs() {
         return ennemisActifs;
     }

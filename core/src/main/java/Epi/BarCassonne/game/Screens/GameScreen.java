@@ -4,10 +4,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -31,20 +31,28 @@ import Epi.BarCassonne.game.Utils.Texte;
 public class GameScreen implements Screen {
 
     // ------------------------------------------------------------------------
+    // REGION : CONSTRUCTEUR
+    // ------------------------------------------------------------------------
+    /**
+     * Crée un nouvel écran de jeu.
+     * @param game L'instance du jeu pour changer d'écran
+     */
+    public GameScreen(Game game) {
+        this.game = game;
+    }
+
+    // ------------------------------------------------------------------------
     // REGION : CONSTANTES
     // ------------------------------------------------------------------------
-    private static final float DELAI_FERMETURE_GAME_OVER = 5.0f;
     private static final float DUREE_AFFICHAGE_MESSAGE_VAGUE = 2.0f;
     private static final int TAILLE_POLICE_MESSAGE_VAGUE = 120;
-    private static final int TAILLE_POLICE_GAME_OVER = 100;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - RENDU
     // ------------------------------------------------------------------------
     private SpriteBatch spriteBatch;
     private ShapeRenderer shapeRenderer;
-    private OrthographicCamera mapCamera;
-    private OrthographicCamera hudCamera;
+    private OrthographicCamera camera;
     private Viewport mapViewport;
     private Viewport hudViewport;
 
@@ -63,14 +71,17 @@ public class GameScreen implements Screen {
     // REGION : CHAMPS - ÉTAT DU JEU
     // ------------------------------------------------------------------------
     private boolean gameOver;
-    private float tempsGameOver;
     private boolean afficherMessageVague;
     private float tempsAffichageMessage;
+    
+    /** Instance du jeu pour changer d'écran. */
+    private Game game;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - AUDIO
     // ------------------------------------------------------------------------
     private Sound musiqueJeux;
+
     // ------------------------------------------------------------------------
     // REGION : INITIALISATION
     // ------------------------------------------------------------------------
@@ -80,17 +91,9 @@ public class GameScreen implements Screen {
      */
     @Override
     public void show() {
-
-        //taille de l'écran (width)
         float screenWidth = Gdx.graphics.getWidth();
-
-        //taille de l'écran (height)
         float screenHeight = Gdx.graphics.getHeight();
-
-        //taille de la map (width)
         float mapWidth = screenWidth - HUD.getLargeurHUD(screenWidth);
-
-        //taille de la map (height)
         float mapHeight = screenHeight;
 
         initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
@@ -100,25 +103,22 @@ public class GameScreen implements Screen {
 
     /**
      * Initialise les composants de rendu (caméras, viewports, textures).
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     * @param mapWidth Largeur de la map
+     * @param mapHeight Hauteur de la map
      */
     private void initialiserRendu(float screenWidth, float screenHeight, float mapWidth, float mapHeight) {
         spriteBatch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         backgroundManager = new BackgroundManager("backgrounds/map.png");
 
-        // Initialiser la caméra et le viewport pour la map
-        mapCamera = new OrthographicCamera();
-        mapViewport = new StretchViewport(mapWidth, mapHeight, mapCamera);
-        mapViewport.apply();
-        mapCamera.position.set(mapWidth / 2, mapHeight / 2, 0);
-        mapCamera.update();
-
-        // Initialiser la caméra et le viewport pour le HUD
-        hudCamera = new OrthographicCamera(screenWidth, screenHeight);
-        hudViewport = new StretchViewport(screenWidth, screenHeight, hudCamera);
-        hudViewport.apply();
-        hudCamera.position.set(screenWidth / 2, screenHeight / 2, 0);
-        hudCamera.update();
+        // Initialiser la caméra unique (partagée entre map et HUD)
+        camera = new OrthographicCamera();
+        
+        // Initialiser les viewports (ils gèrent la projection de la caméra)
+        mapViewport = new StretchViewport(mapWidth, mapHeight, camera);
+        hudViewport = new StretchViewport(screenWidth, screenHeight, camera);
     }
 
     /**
@@ -130,9 +130,6 @@ public class GameScreen implements Screen {
         AssetMana.loadAnimation("GoblinGuerrisseur");
         AssetMana.loadAnimation("GoblinBomb");
         AssetMana.loadAnimation("Cochon");
-        // AssetMana.loadAnimation("Chevalier");
-        // AssetMana.loadAnimation("BossChevalier");
-        // AssetMana.loadAnimation("Golem");
         AssetMana.loadAnimation("RoiGoblin");
     }
 
@@ -142,45 +139,40 @@ public class GameScreen implements Screen {
      * @param mapHeight Hauteur de la map
      */
     private void initialiserJeu(float mapWidth, float mapHeight) {
+        // Créer l'état du jeu
+        gameState = new GameState(500, 5);
 
-        //on crée l'état du jeu
-        gameState = new GameState(500, 100);
-
-        //on crée le gestionnaire de chemin
+        // Créer le gestionnaire de chemin
         cheminManager = new CheminMana(mapWidth, mapHeight);
 
-        //on crée le gestionnaire de vague
+        // Créer le gestionnaire de vague
         vagueManager = new VagueMana(cheminManager, gameState);
 
-        //on crée le HUD
+        // Créer le HUD
         hud = new HUD(gameState);
 
-        //on crée le validateur de collision
+        // Créer le validateur de collision
         collisionValid = new CollisionValid(mapWidth, mapHeight);
 
-        //on crée le gestionnaire de tour
+        // Créer le gestionnaire de tour
         towerManager = new TowerManager(collisionValid, vagueManager, gameState);
 
-        // Initialiser le game over
+        // Initialiser l'état du game over
         gameOver = false;
-        tempsGameOver = 0f;
 
         // Initialiser le message de vague
-        tempsAffichageMessage = 0f;
         afficherMessageVague = false;
+        tempsAffichageMessage = 0f;
 
         // Initialiser la musique de jeu
         musiqueJeux = Gdx.audio.newSound(Gdx.files.internal("sounds/musiqueDurantJeux.mp3"));
         if (musiqueJeux != null) {
             musiqueJeux.loop();
         }
-
-
-    
     }
 
     // ------------------------------------------------------------------------
-    // REGION : RENDU
+    // REGION : BOUCLE PRINCIPALE
     // ------------------------------------------------------------------------
     /**
      * Méthode principale appelée à chaque frame.
@@ -194,32 +186,14 @@ public class GameScreen implements Screen {
 
         if (gameState.estEnVie()) {
             mettreAJourJeu(delta);
-        } else if (gameOver) {
-            gererGameOver(delta);
         }
 
         dessiner();
     }
 
-    /**
-     * Gère la sortie du jeu avec la touche ESCAPE.
-     */
-    private void gererQuitterJeu() {
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
-            Gdx.app.exit();
-        }
-    }
-
-    /**
-     * Vérifie si le joueur a perdu et initialise le game over.
-     */
-    private void verifierGameOver() {
-        if (!gameState.estEnVie() && !gameOver) {
-            gameOver = true;
-            tempsGameOver = 0f;
-        }
-    }
-
+    // ------------------------------------------------------------------------
+    // REGION : MISE À JOUR DU JEU
+    // ------------------------------------------------------------------------
     /**
      * Met à jour tous les composants du jeu.
      * @param delta Temps écoulé depuis la dernière frame
@@ -260,17 +234,24 @@ public class GameScreen implements Screen {
         }
     }
 
+    // ------------------------------------------------------------------------
+    // REGION : GESTION DU GAME OVER
+    // ------------------------------------------------------------------------
     /**
-     * Gère le game over et ferme le jeu après le délai.
-     * @param delta Temps écoulé depuis la dernière frame
+     * Vérifie si le joueur a perdu et change d'écran vers GameOver.
      */
-    private void gererGameOver(float delta) {
-        tempsGameOver += delta;
-        if (tempsGameOver >= DELAI_FERMETURE_GAME_OVER) {
-            Gdx.app.exit();
+    private void verifierGameOver() {
+        if (!gameState.estEnVie() && !gameOver) {
+            gameOver = true;
+            if (game != null) {
+                game.setScreen(new GameOver(game));
+            }
         }
     }
 
+    // ------------------------------------------------------------------------
+    // REGION : RENDU
+    // ------------------------------------------------------------------------
     /**
      * Dessine tous les éléments à l'écran.
      */
@@ -287,37 +268,39 @@ public class GameScreen implements Screen {
      * Dessine la map avec le fond, les ennemis et les tours.
      */
     private void dessinerMap() {
+        // Configurer la caméra pour la map
+        camera.position.set(mapViewport.getWorldWidth() / 2, mapViewport.getWorldHeight() / 2, 0);
         mapViewport.apply();
-        mapCamera.update();
-        spriteBatch.setProjectionMatrix(mapCamera.combined);
+        camera.update();
+        spriteBatch.setProjectionMatrix(camera.combined);
+        
         spriteBatch.begin();
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
         vagueManager.render(spriteBatch);
         towerManager.render(spriteBatch);
         spriteBatch.end();
         
-        towerManager.renderPortee(shapeRenderer, mapCamera);
+        towerManager.renderPortee(shapeRenderer, camera);
     }
 
     /**
      * Dessine le HUD.
      */
     private void dessinerHUD() {
+        // Configurer la caméra pour le HUD
+        camera.position.set(hudViewport.getWorldWidth() / 2, hudViewport.getWorldHeight() / 2, 0);
         hudViewport.apply();
-        hudCamera.update();
-        spriteBatch.setProjectionMatrix(hudCamera.combined);
+        camera.update();
+        spriteBatch.setProjectionMatrix(camera.combined);
         hud.render(spriteBatch);
     }
 
     /**
-     * Dessine les messages (vague, game over).
+     * Dessine les messages (vague).
      */
     private void dessinerMessages() {
         if (afficherMessageVague && vagueManager.getVagueActuelle() != null) {
             dessinerMessageVague();
-        }
-        if (gameOver) {
-            dessinerMessageGameOver();
         }
     }
 
@@ -330,10 +313,9 @@ public class GameScreen implements Screen {
         float screenHeight = hudViewport.getWorldHeight();
         String message = "Vague " + vagueManager.getVagueActuelle().getNumero();
         
-        BitmapFont font = Texte.getFont(TAILLE_POLICE_MESSAGE_VAGUE);
+        // Calculer la position centrée du texte
         GlyphLayout layout = new GlyphLayout();
-        layout.setText(font, message);
-
+        layout.setText(Texte.getFont(TAILLE_POLICE_MESSAGE_VAGUE), message);
         float texteVaguex = (screenWidth / 2f) - (layout.width / 2f);
         float texteVaguey = (screenHeight / 2f) + (layout.height / 2f);
 
@@ -341,25 +323,19 @@ public class GameScreen implements Screen {
         spriteBatch.end();
     }
 
-    /**
-     * Dessine le message Game Over.
-     */
-    private void dessinerMessageGameOver() {
-        spriteBatch.begin();
-        float screenWidth = hudViewport.getWorldWidth();
-        float screenHeight = hudViewport.getWorldHeight();
-        String message = "GAME OVER";
-        float texteGameOverx = screenWidth / 4;
-        float texteGameOvery = screenHeight / 2;
-        
-        Texte.drawText(spriteBatch, message, texteGameOverx, texteGameOvery, Color.RED, TAILLE_POLICE_GAME_OVER);
-        spriteBatch.end();
-    }
-
 
     // ------------------------------------------------------------------------
     // REGION : GESTION DES ENTRÉES
     // ------------------------------------------------------------------------
+    /**
+     * Gère la sortie du jeu avec la touche ESCAPE.
+     */
+    private void gererQuitterJeu() {
+        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE) && !towerManager.estEnModePlacement()) {
+            Gdx.app.exit();
+        }
+    }
+
     /**
      * Gère les entrées utilisateur (clics, etc.).
      */
@@ -397,8 +373,12 @@ public class GameScreen implements Screen {
             return;
         }
 
-
         if (towerManager.estEnModePlacement()) {
+            // Mettre à jour la caméra pour la map avant le placement
+            camera.position.set(mapViewport.getWorldWidth() / 2, mapViewport.getWorldHeight() / 2, 0);
+            mapViewport.apply();
+            camera.update();
+            
             towerManager.placerTour(screenX, screenY, screenWidth, screenHeight, mapViewport);
         }
     }
@@ -414,7 +394,6 @@ public class GameScreen implements Screen {
 
     /**
      * Gère l'annulation du placement avec la touche ESCAPE.
-     * Note: Le clic droit est géré dans gererClics().
      */
     private void gererAnnulationPlacement() {
         if (towerManager.estEnModePlacement() && Gdx.input.isKeyPressed(Input.Keys.ESCAPE)) {
@@ -429,6 +408,11 @@ public class GameScreen implements Screen {
         if (!towerManager.estEnModePlacement()) {
             return;
         }
+
+        // Mettre à jour la caméra pour la map avant la conversion des coordonnées
+        camera.position.set(mapViewport.getWorldWidth() / 2, mapViewport.getWorldHeight() / 2, 0);
+        mapViewport.apply();
+        camera.update();
 
         float screenX = Gdx.input.getX();
         float screenY = Gdx.input.getY();
@@ -457,29 +441,35 @@ public class GameScreen implements Screen {
     }
 
     /**
-     * Met à jour le viewport et la caméra de la map.
+     * Met à jour le viewport de la map.
+     * @param mapWidth Nouvelle largeur de la map
+     * @param mapHeight Nouvelle hauteur de la map
      */
     private void mettreAJourViewportMap(float mapWidth, float mapHeight) {
         mapViewport.update((int)mapWidth, (int)mapHeight);
-        mapCamera.position.set(mapWidth / 2, mapHeight / 2, 0);
-        mapCamera.update();
     }
 
     /**
-     * Met à jour le viewport et la caméra du HUD.
+     * Met à jour le viewport du HUD.
+     * @param width Nouvelle largeur de l'écran
+     * @param height Nouvelle hauteur de l'écran
      */
     private void mettreAJourViewportHUD(int width, int height) {
         hudViewport.update(width, height);
-        hudCamera.position.set(width / 2, height / 2, 0);
-        hudCamera.update();
     }
 
     /**
      * Met à jour les managers avec les nouvelles dimensions.
+     * @param mapWidth Nouvelle largeur de la map
+     * @param mapHeight Nouvelle hauteur de la map
      */
     private void mettreAJourManagers(float mapWidth, float mapHeight) {
         if (cheminManager != null) {
             cheminManager.mettreAJourChemin(mapWidth, mapHeight);
+            // Mettre à jour le chemin de tous les ennemis actifs après le recalcul du chemin
+            if (vagueManager != null) {
+                vagueManager.mettreAJourCheminEnnemis();
+            }
         }
         if (collisionValid != null) {
             collisionValid.mettreAJourDimensions(mapWidth, mapHeight);
@@ -490,19 +480,25 @@ public class GameScreen implements Screen {
      * Appelé quand l'application est mise en pause.
      */
     @Override
-    public void pause() {}
+    public void pause() {
+        // Pas d'action nécessaire
+    }
 
     /**
      * Appelé quand l'application reprend après une pause.
      */
     @Override
-    public void resume() {}
+    public void resume() {
+        // Pas d'action nécessaire
+    }
 
     /**
      * Appelé quand l'écran n'est plus actif.
      */
     @Override
-    public void hide() {}
+    public void hide() {
+        // Pas d'action nécessaire
+    }
 
     // ------------------------------------------------------------------------
     // REGION : NETTOYAGE

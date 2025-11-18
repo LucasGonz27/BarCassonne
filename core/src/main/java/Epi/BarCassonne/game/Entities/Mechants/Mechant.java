@@ -1,6 +1,5 @@
 package Epi.BarCassonne.game.Entities.Mechants;
 
-import Epi.BarCassonne.game.Interfaces.Affichage;
 import Epi.BarCassonne.game.Interfaces.Damageable;
 import Epi.BarCassonne.game.Interfaces.Movable;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -12,7 +11,7 @@ import java.util.List;
  * Classe abstraite représentant un ennemi.
  * Gère les PV, le mouvement, le chemin et l'animation.
  */
-public abstract class Mechant implements Movable, Affichage, Damageable {
+public abstract class Mechant implements Movable, Damageable {
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
@@ -63,22 +62,42 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
     // ------------------------------------------------------------------------
     // REGION : GETTERS & SETTERS
     // ------------------------------------------------------------------------
+    /**
+     * Retourne les points de vie de l'ennemi.
+     * @return Les points de vie actuels
+     */
     public int getPV() {
         return PV;
     }
 
+    /**
+     * Retourne la position X de l'ennemi.
+     * @return La position X en coordonnées monde
+     */
     public float getPositionX() {
         return positionX;
     }
 
+    /**
+     * Retourne la position Y de l'ennemi.
+     * @return La position Y en coordonnées monde
+     */
     public float getPositionY() {
         return positionY;
     }
 
+    /**
+     * Définit la position X de l'ennemi.
+     * @param positionX La nouvelle position X en coordonnées monde
+     */
     public void setPositionX(float positionX) {
         this.positionX = positionX;
     }
 
+    /**
+     * Définit la position Y de l'ennemi.
+     * @param positionY La nouvelle position Y en coordonnées monde
+     */
     public void setPositionY(float positionY) {
         this.positionY = positionY;
     }

@@ -68,9 +68,7 @@ public class Button {
         this.couleurTexte = couleurTexte;
         this.taillePolice = taillePolice;
     }
-    
 
-    
     // ------------------------------------------------------------------------
     // REGION : MÉTHODES PUBLIQUES
     // ------------------------------------------------------------------------
@@ -91,7 +89,6 @@ public class Button {
                 action.run();
             }
         }
-    
     }
     
     /**

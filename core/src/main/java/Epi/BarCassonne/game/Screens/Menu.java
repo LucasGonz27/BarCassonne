@@ -13,8 +13,6 @@ import com.badlogic.gdx.Game;
 import Epi.BarCassonne.game.Utils.Texte;
 import com.badlogic.gdx.audio.Sound;
 
-
-
 /**
  * Écran du menu principal du jeu.
  * Gère l'affichage du menu et la navigation vers le jeu.
@@ -72,8 +70,6 @@ public class Menu implements Screen {
         camera.setToOrtho(false, screenWidth, screenHeight);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
-
-       
 
         // Créer le bouton "Jouer"
         float boutonWidthJouer = 400f;
@@ -149,10 +145,7 @@ public class Menu implements Screen {
         boutonJouer.render(batch);
         boutonOptionsMenu.render(batch);
         boutonQuitter.render(batch);
-        
-      
-      
-        
+
         // Dessiner le titre du jeu (centré en haut)
         float titreX = (screenWidth * 0.50f);
         float titreY = screenHeight * 0.71f; 

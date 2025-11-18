@@ -28,7 +28,6 @@ public class Texte {
                 generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/font.ttf"));
             } catch (Exception e) {
                 System.err.println("Erreur lors du chargement de la font: " + e.getMessage());
-                generator = null;
             }
         }
     }
