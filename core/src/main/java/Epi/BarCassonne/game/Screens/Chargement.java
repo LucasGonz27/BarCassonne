@@ -14,11 +14,9 @@ import Epi.BarCassonne.game.Utils.Texte;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
-
-
 /**
- * Écran du menu principal du jeu.
- * Gère l'affichage du menu et la navigation vers le jeu.
+ * Écran de chargement du jeu.
+ * Affiche un écran de chargement avant de lancer le jeu.
  */
 public class Chargement implements Screen {
 
@@ -32,13 +30,12 @@ public class Chargement implements Screen {
     private OrthographicCamera camera;
     private Button boutonCommencer;
     private float time;
-  
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
     // ------------------------------------------------------------------------
     /**
-     * Crée un nouvel écran de menu.
+     * Crée un nouvel écran de chargement.
      * @param game L'instance du jeu pour changer d'écran
      */
     public Chargement(Game game) {
@@ -74,9 +71,7 @@ public class Chargement implements Screen {
         camera.update();
         batch.setProjectionMatrix(camera.combined);
 
-       
-
-        // Créer le bouton "Jouer"
+        // Créer le bouton "Commencer"
         float boutonWidthJouer = 650f;
         float boutonHeightCommencer = 300f;
         float boutonXCommencer = (screenWidth / 2f - boutonWidthJouer / 2f); 
@@ -88,14 +83,9 @@ public class Chargement implements Screen {
             public void run() {
                 // Arrêter la musique du menu
                 Menu.stopMusic();
-                game.setScreen(new GameScreen());
+                game.setScreen(new GameScreen(game));
             }
         });
-        
-        
-
-   
-     
     }
 
     // ------------------------------------------------------------------------
@@ -117,8 +107,7 @@ public class Chargement implements Screen {
         if (time > 4f) {
             boutonCommencer.update();
         }
-       
-        
+
         // Dessiner le fond, les boutons et le titre
         batch.begin();
         backgroundManager.renderFillScreen(batch, screenWidth, screenHeight);
@@ -198,6 +187,5 @@ public class Chargement implements Screen {
         if (boutonCommencer != null) {
             boutonCommencer.dispose();
         }
-        
     }
 }

@@ -1,4 +1,5 @@
 package Epi.BarCassonne.game.Interfaces;
+
 import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 
 /**
@@ -8,7 +9,7 @@ import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 public interface Attacker {
     /**
      * Attaque un ennemi.
-     * @param UnMechant L'ennemi à attaquer
+     * @param mechant L'ennemi à attaquer
      */
-    void attacker(Mechant UnMechant);
+    void attacker(Mechant mechant);
 }

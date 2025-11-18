@@ -71,12 +71,23 @@ public class HUD {
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
 
-    private GameState gameState;                        // État du jeu  
-    private Texture hudTexture;                         // Texture du HUD
-    private float timerJeu;                             // Temps écoulé depuis le début du jeu
-    private Texture tourArcherLevel1Texture;            // Texture de la tour Archer Level 1
-    private Texture tourMagieLevel1Texture;            // Texture de la tour Magie Level 1
-    private Texture tourForgeronLevel1Texture;          // Texture de la tour Forgeron Level 1
+    /** État du jeu pour afficher les informations (vie, lingots, vague). */
+    private GameState gameState;
+    
+    /** Texture du panneau HUD. */
+    private Texture hudTexture;
+    
+    /** Temps écoulé depuis le début du jeu en secondes. */
+    private float timerJeu;
+    
+    /** Texture de la tour Archer Level 1. */
+    private Texture tourArcherLevel1Texture;
+    
+    /** Texture de la tour Magie Level 1. */
+    private Texture tourMagieLevel1Texture;
+    
+    /** Texture de la tour Forgeron Level 1. */
+    private Texture tourForgeronLevel1Texture;
 
 
 
@@ -149,7 +160,6 @@ public class HUD {
         timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
 
         String texteVie = "Vie: " + gameState.getVie() + "/" + gameState.getVieMax();
-        
         float vieX = VIE_X * screenWidth;
         float vieY = VIE_Y * screenHeight;
         Texte.drawText(batch, texteVie, vieX, vieY, Color.BLACK, 30);
@@ -158,8 +168,12 @@ public class HUD {
         Texte.drawText(batch, Integer.toString(gameState.getNumeroVague()), vagueX, vagueY, Color.BLACK, 50);
     }
 
-        /**
+    /**
      * Dessine les tours disponibles dans les slots du HUD.
+     * @param batch Le SpriteBatch pour le rendu
+     * @param hudX Position X du panneau HUD
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
      */
     private void dessinerTours(SpriteBatch batch, float hudX, float screenWidth, float screenHeight) {
         
@@ -211,21 +225,18 @@ public class HUD {
         return LARGEUR_HUD * screenWidth;
     }
 
-    // ------------------------------------------------------------------------
-    // REGION : NETTOYAGE
-    // ------------------------------------------------------------------------
-    /**
-     * Libère toutes les ressources utilisées par le HUD.
-     */
 
 
+    // ------------------------------------------------------------------------
+    // REGION : INTERACTION
+    // ------------------------------------------------------------------------
     /**
      * Vérifie si un clic a été effectué sur un slot de tour dans le HUD.
      * @param screenX Position X du clic (coordonnées écran)
      * @param screenY Position Y du clic (coordonnées écran)
      * @param screenWidth Largeur de l'écran
      * @param screenHeight Hauteur de l'écran
-     * @return Le numéro du slot cliqué (1 ou 2), ou 0 si aucun slot n'a été cliqué
+     * @return Le numéro du slot cliqué (1 = Archer, 2 = Magie, 3 = Forgeron), ou 0 si aucun slot n'a été cliqué
      */
     public int getSlotClic(float screenX, float screenY, float screenWidth, float screenHeight) {
         // Calculer la taille du slot en fonction de la résolution
@@ -262,7 +273,7 @@ public class HUD {
     }
 
     /**
-     * Vérifie si un clic a été effectué sur la tour dans le HUD.
+     * Vérifie si un clic a été effectué sur une tour dans le HUD.
      * @param screenX Position X du clic (coordonnées écran)
      * @param screenY Position Y du clic (coordonnées écran)
      * @param screenWidth Largeur de l'écran
@@ -275,6 +286,12 @@ public class HUD {
         return getSlotClic(screenX, screenY, screenWidth, screenHeight) > 0;
     }
 
+        // ------------------------------------------------------------------------
+    // REGION : NETTOYAGE
+    // ------------------------------------------------------------------------
+    /**
+     * Libère toutes les ressources utilisées par le HUD.
+     */
     public void dispose() {
         // Libérer les textures
         if (hudTexture != null) {

@@ -1,8 +1,7 @@
 package Epi.BarCassonne.game.Utils;
 
-import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
 import Epi.BarCassonne.game.Entities.Towers.Tower;
-
+import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
 import java.util.List;
 
 /**

@@ -187,6 +187,7 @@ public class VagueMana {
 
     /**
      * Gère le spawn des ennemis selon l'intervalle défini.
+     * @param deltaTime Temps écoulé depuis la dernière frame
      */
     private void spawnEnnemisSuivant(float deltaTime) {
         float temps = vagueActuelle.getTempsDepuisDernierSpawn() + deltaTime;
@@ -205,6 +206,8 @@ public class VagueMana {
 
     /**
      * Initialise un ennemi avec son chemin et sa position de départ.
+     * Place l'ennemi au premier point du chemin et configure son index pour viser le deuxième point.
+     * @param ennemi L'ennemi à initialiser
      */
     private void initialiserEnnemi(Mechant ennemi) {
         if (cheminMana == null || cheminMana.getCheminPrincipal() == null ||
@@ -231,6 +234,8 @@ public class VagueMana {
 
     /**
      * Met à jour tous les ennemis actifs et nettoie les morts.
+     * Vérifie si les ennemis ont atteint la fin du chemin et inflige les dégâts au joueur.
+     * @param deltaTime Temps écoulé depuis la dernière frame
      */
     private void mettreAJourEnnemis(float deltaTime) {
         for (int i = ennemisActifs.size - 1; i >= 0; i--) {
@@ -254,6 +259,7 @@ public class VagueMana {
 
     /**
      * Passe à la vague suivante après un délai.
+     * @param deltaTime Temps écoulé depuis la dernière frame
      */
     private void passerVagueSuivante(float deltaTime) {
         tempsDepuisFinVague += deltaTime;
@@ -273,17 +279,38 @@ public class VagueMana {
     // REGION : GETTERS
     // ------------------------------------------------------------------------
     /**
-     * @return La liste de tous les ennemis actifs
+     * Retourne la liste de tous les ennemis actifs.
+     * @return La liste des ennemis actifs
      */
     public Array<Mechant> getEnnemisActifs() {
         return ennemisActifs;
     }
 
     /**
-     * @return La vague actuellement en cours
+     * Retourne la vague actuellement en cours.
+     * @return La vague actuelle, ou null si toutes les vagues sont terminées
      */
     public Vague getVagueActuelle() {
         return vagueActuelle;
+    }
+
+    /**
+     * Met à jour le chemin de tous les ennemis actifs.
+     * À appeler quand le chemin est recalculé (par exemple lors d'un resize).
+     * Préserve la progression relative de chaque ennemi sur le nouveau chemin.
+     */
+    public void mettreAJourCheminEnnemis() {
+        if (cheminMana == null || cheminMana.getCheminPrincipal() == null ||
+            cheminMana.getCheminPrincipal().isEmpty()) {
+            return;
+        }
+
+        // Mettre à jour le chemin de tous les ennemis actifs
+        for (Mechant ennemi : ennemisActifs) {
+            if (ennemi.isEnVie()) {
+                ennemi.setChemin(cheminMana.getCheminPrincipal());
+            }
+        }
     }
 
     // ------------------------------------------------------------------------

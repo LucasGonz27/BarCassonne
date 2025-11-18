@@ -30,7 +30,6 @@ public class TextureManager {
 
     /**
      * Libère une texture de manière sécurisée.
-     * 
      * @param texture La texture à libérer (peut être null)
      */
     public static void libererTexture(Texture texture) {
@@ -39,4 +38,3 @@ public class TextureManager {
         }
     }
 }
-

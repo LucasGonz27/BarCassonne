@@ -20,7 +20,8 @@ public class TowerForgeron extends Tower {
     }   
 
     /**
-     * @return Le nombre de lingots générés par cette tour
+     * Retourne le nombre de lingots générés par cette tour.
+     * @return Le nombre de lingots générés
      */
     public int getApportLingots() {
         return ApportLingots;
@@ -29,6 +30,7 @@ public class TowerForgeron extends Tower {
     /**
      * Améliore la tour en augmentant son niveau et son apport en lingots.
      * Ajoute 100 lingots supplémentaires par niveau.
+     * L'amélioration n'est possible que si le niveau actuel est inférieur au niveau maximum.
      */
     public void upgrade() {
         if (this.level < this.maxLevel) {
