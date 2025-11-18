@@ -17,14 +17,30 @@ public abstract class Mechant implements Movable, Affichage, Damageable {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
-    protected int PV;                                    // Points de vie
-    protected float Vitesse;                             // Vitesse de déplacement
-    protected float positionX;                           // Position X
-    protected float positionY;                           // Position Y
-    protected List<Vector2> chemin;                      // Chemin à suivre
-    protected int indexActuel = 0;                       // Point actuel du chemin
-    protected Animation<TextureRegion> animation;        // Animation
-    protected float stateTime = 0f;                      // Temps pour l'animation  
+   
+    /** Points de vie de l'ennemi. */
+    protected int PV;
+    
+    /** Vitesse de déplacement de l'ennemi. */
+    protected float Vitesse;
+    
+    /** Position X de l'ennemi sur la carte. */
+    protected float positionX;
+    
+    /** Position Y de l'ennemi sur la carte. */
+    protected float positionY;
+    
+    /** Chemin que l'ennemi doit suivre (liste de points). */
+    protected List<Vector2> chemin;
+    
+    /** Index du point actuel dans le chemin. */
+    protected int indexActuel = 0;
+    
+    /** Animation de l'ennemi. */
+    protected Animation<TextureRegion> animation;
+    
+    /** Temps écoulé pour l'animation. */
+    protected float stateTime = 0f;  
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR

@@ -16,7 +16,10 @@ public class AssetMana {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
+    /** Gestionnaire d'assets LibGDX pour charger les textures. */
     private static AssetManager manager = new AssetManager();
+    
+    /** Map stockant toutes les animations chargées, indexées par leur nom. */
     private static Map<String, Animation<TextureRegion>> animations = new HashMap<>();
 
     // ------------------------------------------------------------------------

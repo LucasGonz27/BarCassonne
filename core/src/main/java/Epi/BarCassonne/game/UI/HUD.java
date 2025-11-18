@@ -61,8 +61,8 @@ public class HUD {
     // Position Y du deuxième slot : 44.1% de la hauteur de l'écran depuis le bas
     private static final float SLOT2_Y = 0.441f;
 
-    // Position X du troisième slot : 87.6% de la largeur de l'écran depuis le début
-    private static final float SLOT3_X = 0.876f;
+    // Position X du troisième slot : 87.2% de la largeur de l'écran depuis le début
+    private static final float SLOT3_X = 0.872f;
 
     // Position Y du troisième slot : 26.1% de la hauteur de l'écran depuis le bas
     private static final float SLOT3_Y = 0.261f;
@@ -76,6 +76,7 @@ public class HUD {
     private float timerJeu;                             // Temps écoulé depuis le début du jeu
     private Texture tourArcherLevel1Texture;            // Texture de la tour Archer Level 1
     private Texture tourMagieLevel1Texture;            // Texture de la tour Magie Level 1
+    private Texture tourForgeronLevel1Texture;          // Texture de la tour Forgeron Level 1
 
 
 
@@ -91,6 +92,7 @@ public class HUD {
         this.hudTexture = TextureManager.chargerTexture("HUD/HUD.png");
         this.tourArcherLevel1Texture = TextureManager.chargerTexture("sprites/TourArcherLevel1.png");
         this.tourMagieLevel1Texture = TextureManager.chargerTexture("sprites/TourMagieLevel1.png");
+        this.tourForgeronLevel1Texture = TextureManager.chargerTexture("sprites/ForgeronLevel1.png");
     }
 
     // ------------------------------------------------------------------------
@@ -181,6 +183,17 @@ public class HUD {
         if (tourMagieLevel1Texture != null) {
             batch.draw(tourMagieLevel1Texture, slot2X, slot2Y, slotSize, slotSize);
         }
+
+        // Calculer la position du premier slot
+        float slot3X = SLOT3_X * screenWidth;
+        float slot3Y = SLOT3_Y * screenHeight;
+
+        // Dessiner la TourForgeronLevel1 dans le troisième slot
+        if (tourForgeronLevel1Texture != null) {
+            batch.draw(tourForgeronLevel1Texture, slot3X, slot3Y, slotSize, slotSize);
+        }
+
+        
     }
 
     // ------------------------------------------------------------------------
@@ -237,6 +250,14 @@ public class HUD {
             return 2;
         }
 
+        // Vérifier le troisième slot (TourForgeron)
+        float slot3X = SLOT3_X * screenWidth;
+        float slot3Y = SLOT3_Y * screenHeight;
+        if (screenX >= slot3X && screenX <= slot3X + slotSize &&
+            yInverse >= slot3Y && yInverse <= slot3Y + slotSize) {
+            return 3;
+        }
+
         return 0; // Aucun slot cliqué
     }
 
@@ -264,6 +285,9 @@ public class HUD {
         }
         if (tourMagieLevel1Texture != null) {
             tourMagieLevel1Texture.dispose();
+        }
+        if (tourForgeronLevel1Texture != null) {
+            tourForgeronLevel1Texture.dispose();
         }
     }
 }

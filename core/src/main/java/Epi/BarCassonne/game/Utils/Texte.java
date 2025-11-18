@@ -13,7 +13,10 @@ import java.util.Map;
  */
 public class Texte {
 
+    /** Générateur de polices FreeType. */
     private static FreeTypeFontGenerator generator = null;
+    
+    /** Cache des polices générées, indexées par leur taille. */
     private static Map<Integer, BitmapFont> fontCache = new HashMap<>();
 
     /**

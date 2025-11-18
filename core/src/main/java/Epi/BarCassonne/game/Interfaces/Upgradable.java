@@ -1,4 +1,8 @@
 package Epi.BarCassonne.game.Interfaces;
 
-public class Upgradable {
+/**
+ * Interface définissant le comportement d'amélioration.
+ * Permet à une entité d'être améliorée.
+ */
+public interface Upgradable {
 }

@@ -49,7 +49,7 @@ public abstract class Tower implements Attacker{
      * @param positionY Position Y initiale en coordonnées monde
      * @param level Niveau initial de la tour
      * @param maxLevel Niveau maximum de la tour
-     * @param damage Dégâts infligés par la tour
+     * @param degats Dégâts infligés par la tour
      * @param portee Portée d'attaque de la tour
      * @param prix Prix d'achat de la tour
      */
@@ -227,6 +227,8 @@ public abstract class Tower implements Attacker{
     /**
      * Améliore la tour en augmentant son niveau, ses dégâts et sa portée.
      * L'amélioration n'est possible que si le niveau actuel est inférieur au niveau maximum.
+     * @param deltaTime Temps écoulé depuis la dernière frame
+     * @param prix Prix de l'amélioration
      */
     public void upgrade(float deltaTime, int prix) {
        

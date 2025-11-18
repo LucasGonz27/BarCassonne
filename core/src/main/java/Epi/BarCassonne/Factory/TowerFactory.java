@@ -10,7 +10,7 @@ public class TowerFactory {
 
     /**
      * Crée un tower selon son type.
-     * @param towerType Le nom du type de tower (ex: "TowerArcher")
+     * @param TowerType Le nom du type de tower (ex: "TowerArcher")
      * @return La Tower créé
      * @throws IllegalArgumentException Si le type de tower est inconnu
      */

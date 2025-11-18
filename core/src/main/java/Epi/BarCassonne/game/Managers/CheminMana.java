@@ -13,8 +13,10 @@ public class CheminMana {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
+    /** Liste des points du chemin principal que suivent les ennemis. */
     protected List<Vector2> cheminPrincipal;
 
+    /** Points du chemin en coordonnées relatives (0.0 à 1.0). */
     private static final float[][] CHEMIN_POINTS_RELATIFS = {
         {0.0f, 0.376f},      // Point 0 : début à gauche, 37.6% de la hauteur
         {0.494f, 0.430f},    // Point 1 : 49.4% de la largeur, 43.0% de la hauteur

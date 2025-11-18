@@ -15,13 +15,28 @@ public class VagueMana {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
+    /** Liste de toutes les vagues du jeu. */
     private Array<Vague> vagues;
+    
+    /** Index de la vague actuellement en cours. */
     private int indexVagueActuelle;
+    
+    /** La vague actuellement en cours. */
     private Vague vagueActuelle;
+    
+    /** Liste de tous les ennemis actuellement actifs sur le terrain. */
     private Array<Mechant> ennemisActifs;
+    
+    /** Délai en secondes entre la fin d'une vague et le début de la suivante. */
     private float delaiEntreVagues = 5f;
+    
+    /** Temps écoulé depuis la fin de la vague précédente. */
     private float tempsDepuisFinVague = 0f;
+    
+    /** Gestionnaire du chemin que suivent les ennemis. */
     private CheminMana cheminMana;
+    
+    /** État du jeu (ressources, vie, etc.). */
     private GameState gameState;
 
     // ------------------------------------------------------------------------
@@ -51,7 +66,6 @@ public class VagueMana {
     private void creerVagues() {
         // Vague 1
         Vague v1 = new Vague(1);
-        v1.ajouterEnnemi(Cochon.class, 10);
         v1.ajouterEnnemi(PaysanGoblin.class, 8);
         vagues.add(v1);
 

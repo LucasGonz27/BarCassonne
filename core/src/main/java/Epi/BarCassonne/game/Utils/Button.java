@@ -17,11 +17,31 @@ public class Button {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
-    private float x, y, width, height;
+    /** Position X du bouton. */
+    private float x;
+    
+    /** Position Y du bouton. */
+    private float y;
+    
+    /** Largeur du bouton. */
+    private float width;
+    
+    /** Hauteur du bouton. */
+    private float height;
+    
+    /** Texte affiché sur le bouton. */
     private String texte;
+    
+    /** Texture du bouton. */
     private Texture texture;
+    
+    /** Couleur du texte. */
     private Color couleurTexte;
+    
+    /** Taille de la police du texte. */
     private int taillePolice;
+    
+    /** Action à exécuter lors du clic sur le bouton. */
     private Runnable action;
     
     // ------------------------------------------------------------------------

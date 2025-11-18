@@ -10,11 +10,16 @@ import java.util.List;
  */
 public class CollisionValid {
 
+    /** Distance minimale entre deux tours. */
     private static final float DISTANCE_MIN = 10f;
+    
+    /** Taille d'une tour d'archer. */
     private static final float TOUR_ARCHER_SIZE = 90f;
+    
+    /** Taille d'une tour de magie. */
     private static final float TOUR_MAGIE_SIZE = 120f;
 
-    // Zones non constructibles en ratios (0.0 à 1.0) : {minX, minY, maxX, maxY}
+    /** Zones non constructibles en ratios (0.0 à 1.0) : {minX, minY, maxX, maxY}. */
     private static final float[][] ZONES = {
         {0.3355f, 0.6161f, 0.4954f, 0.8151f}, // Arbre milieu gauche
         {0.0f, 0.3720f, 0.6066f, 0.5237f},   // Route début
@@ -32,19 +37,40 @@ public class CollisionValid {
         {0.0f, 0.5538f, 0.0691f, 0.5871f},
     };
 
+    /** Largeur de la carte. */
     private float mapWidth;
+    
+    /** Hauteur de la carte. */
     private float mapHeight;
 
+    /**
+     * Crée un validateur de collision pour une carte de dimensions données.
+     * @param mapWidth Largeur de la carte
+     * @param mapHeight Hauteur de la carte
+     */
     public CollisionValid(float mapWidth, float mapHeight) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
     }
 
+    /**
+     * Met à jour les dimensions de la carte.
+     * @param mapWidth Nouvelle largeur de la carte
+     * @param mapHeight Nouvelle hauteur de la carte
+     */
     public void mettreAJourDimensions(float mapWidth, float mapHeight) {
         this.mapWidth = mapWidth;
         this.mapHeight = mapHeight;
     }
 
+    /**
+     * Vérifie si une position est valide pour placer une tour.
+     * @param x Position X de la tour
+     * @param y Position Y de la tour
+     * @param tourSize Taille de la tour à placer
+     * @param toursExistantes Liste des tours déjà placées
+     * @return true si la position est valide, false sinon
+     */
     public boolean estPositionValide(float x, float y, float tourSize, List<Tower> toursExistantes) {
         // Vérifier les zones interdites
         for (float[] zone : ZONES) {
@@ -77,6 +103,10 @@ public class CollisionValid {
         return true;
     }
 
+    /**
+     * Retourne les zones non constructibles en coordonnées absolues.
+     * @return Tableau de zones, chaque zone étant {minX, minY, width, height}
+     */
     public float[][] getZonesNonConstructibles() {
         float[][] zones = new float[ZONES.length][4];
         for (int i = 0; i < ZONES.length; i++) {

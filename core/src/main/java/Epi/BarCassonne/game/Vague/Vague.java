@@ -15,10 +15,19 @@ public class Vague {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
+    /** Map associant chaque type d'ennemi à sa quantité restante à spawner. */
     private Map<Class<? extends Mechant>, Integer> ennemisParType;
+    
+    /** Numéro de la vague. */
     private int numero;
+    
+    /** Intervalle en secondes entre chaque spawn d'ennemi. */
     private float intervalleSpawn = 2f;
+    
+    /** Temps écoulé depuis le dernier spawn. */
     private float tempsDepuisDernierSpawn = 0f;
+    
+    /** Liste des ennemis actuellement actifs de cette vague. */
     private Array<Mechant> ennemisActifs;
 
     // ------------------------------------------------------------------------

@@ -9,9 +9,16 @@ public class GameState {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
+    /** Nombre de lingots (monnaie) du joueur. */
     private int lingots;
+    
+    /** Points de vie actuels du joueur. */
     private int vie;
+    
+    /** Points de vie maximum du joueur. */
     private int vieMax;
+    
+    /** Numéro de la vague actuelle. */
     private int numeroVague;
 
     // ------------------------------------------------------------------------
