@@ -47,16 +47,22 @@ public class HUD {
     // Position Y de la vague : 90% de la hauteur de l'écran depuis le bas
     private static final float VAGUE_Y = 0.90f;
 
+    // Position X du prix de la tour Archer : 10.3% de la largeur de l'écran depuis le début du HUD
     private static final float PrixTourArcher_X = 0.103f;
 
+    // Position Y du prix de la tour Archer : 59.4% de la hauteur de l'écran depuis le bas
     private static final float PrixTourArcher_Y = 0.594f;
 
+    // Position X du prix de la tour Magie : 10.3% de la largeur de l'écran depuis le début du HUD
     private static final float PrixTourMagie_X = 0.103f;
 
+    // Position Y du prix de la tour Magie : 41.8% de la hauteur de l'écran depuis le bas
     private static final float PrixTourMagie_Y = 0.418f;
 
+    // Position X du prix de la tour Forgeron : 10.3% de la largeur de l'écran depuis le début du HUD
     private static final float PrixTourForgeron_X = 0.103f;
 
+    // Position Y du prix de la tour Forgeron : 23.7% de la hauteur de l'écran depuis le bas
     private static final float PrixTourForgeron_Y = 0.237f;
 
     // Taille des slots : 5.8% de la largeur de l'écran
