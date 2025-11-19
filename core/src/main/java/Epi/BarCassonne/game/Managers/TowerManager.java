@@ -45,9 +45,11 @@ public class TowerManager {
     private final CollisionValid collisionValid;
     private final VagueMana vagueManager;
     private final GameState gameState;
-    
+    private final ProjectileManager projectileManager;
+
     private Texture textureSacPlein;
     private Texture textureSacVide;
+    private Texture textureProjectile;
     
     private boolean enModePlacement;
     private String towerTypeToPlace;
@@ -57,17 +59,19 @@ public class TowerManager {
     private float tourPreviewPortee;
     private boolean positionValide;
     
-    public TowerManager(CollisionValid collisionValid, VagueMana vagueManager, GameState gameState) {
+    public TowerManager(CollisionValid collisionValid, VagueMana vagueManager, GameState gameState, ProjectileManager projectileManager) {
         this.tours = new ArrayList<>();
         this.collisionValid = collisionValid;
         this.vagueManager = vagueManager;
         this.gameState = gameState;
+        this.projectileManager = projectileManager;
         this.tempsForgeron = new HashMap<>();
         this.towerDataManager = new TowerDataManager();
         this.messageFlottant = new MessageFlottant();
-        
+
         textureSacPlein = TextureManager.chargerTexture("sprites/SacPleins.png");
         textureSacVide = TextureManager.chargerTexture("sprites/SacVide.png");
+        textureProjectile = TextureManager.chargerTexture("sprites/fleche.png");
     }
     
     public List<Tower> getTours() {
@@ -161,10 +165,10 @@ public class TowerManager {
         if (vagueManager == null || vagueManager.getEnnemisActifs() == null) {
             return;
         }
-        
+
         for (Mechant ennemi : vagueManager.getEnnemisActifs()) {
             if (ennemi != null && ennemi.isEnVie()) {
-                tour.attacker(ennemi);
+                tour.attacker(ennemi, projectileManager, textureProjectile);
             }
         }
     }
@@ -278,6 +282,9 @@ public class TowerManager {
         }
         if (textureSacVide != null) {
             TextureManager.libererTexture(textureSacVide);
+        }
+        if (textureProjectile != null) {
+            TextureManager.libererTexture(textureProjectile);
         }
     }
 }

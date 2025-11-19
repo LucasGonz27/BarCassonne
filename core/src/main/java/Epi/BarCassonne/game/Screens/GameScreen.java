@@ -18,6 +18,7 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
 import Epi.BarCassonne.game.Managers.CheminMana;
 import Epi.BarCassonne.game.Managers.GameState;
+import Epi.BarCassonne.game.Managers.ProjectileManager;
 import Epi.BarCassonne.game.Managers.TowerManager;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
@@ -65,6 +66,7 @@ public class GameScreen implements Screen {
     private GameState gameState;
     private HUD hud;
     private TowerManager towerManager;
+    private ProjectileManager projectileManager;
     private CollisionValid collisionValid;
 
     // ------------------------------------------------------------------------
@@ -154,8 +156,11 @@ public class GameScreen implements Screen {
         // Créer le validateur de collision
         collisionValid = new CollisionValid(mapWidth, mapHeight);
 
+        // Créer le gestionnaire de projectiles
+        projectileManager = new ProjectileManager();
+
         // Créer le gestionnaire de tour
-        towerManager = new TowerManager(collisionValid, vagueManager, gameState);
+        towerManager = new TowerManager(collisionValid, vagueManager, gameState, projectileManager);
 
         // Initialiser l'état du game over
         gameOver = false;
@@ -201,6 +206,7 @@ public class GameScreen implements Screen {
     private void mettreAJourJeu(float delta) {
         vagueManager.update(delta);
         towerManager.update(delta);
+        projectileManager.update(delta);
         mettreAJourVague();
         mettreAJourMessageVague(delta);
     }
@@ -278,9 +284,14 @@ public class GameScreen implements Screen {
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
         vagueManager.render(spriteBatch);
         towerManager.render(spriteBatch);
+        projectileManager.render(spriteBatch);
         spriteBatch.end();
-        
+
         towerManager.renderPortee(shapeRenderer, camera);
+
+        // Dessiner les hitboxes des méchants (décommenter pour debug)
+        // shapeRenderer.setProjectionMatrix(camera.combined);
+        // vagueManager.renderHitboxes(shapeRenderer);
     }
 
     /**

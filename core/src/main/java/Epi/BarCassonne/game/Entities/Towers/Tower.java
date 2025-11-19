@@ -1,7 +1,10 @@
 package Epi.BarCassonne.game.Entities.Towers;
 
 import Epi.BarCassonne.game.Entities.Mechants.Mechant;
+import Epi.BarCassonne.game.Entities.Projectiles.Projectile;
 import Epi.BarCassonne.game.Interfaces.Attacker;
+import Epi.BarCassonne.game.Managers.ProjectileManager;
+import com.badlogic.gdx.graphics.Texture;
 
 /**
  * Classe abstraite représentant une tour défensive.
@@ -189,6 +192,12 @@ public abstract class Tower implements Attacker{
      */
     @Override
     public void attacker(Mechant UnMechant) {
+        attacker(UnMechant, null, null);
+    }
+
+    /**
+     * Attaque un ennemi s'il est dans la portée de la tour en créant un projectile.*/
+    public void attacker(Mechant UnMechant, ProjectileManager projectileManager, Texture projectileTexture) {
         if (UnMechant == null || !peutAttaquer()) {
             return;
         }
@@ -200,12 +209,24 @@ public abstract class Tower implements Attacker{
         );
 
         if (distance <= portee) {
-            // L'ennemi est à portée, infliger les dégâts (en tenant compte des résistances)
-            UnMechant.recevoirDegats(this.degats, this.typeTour);
+            // Si on a un projectileManager et une texture, créer un projectile
+            if (projectileManager != null && projectileTexture != null) {
+                Projectile projectile = new Projectile(
+                    positionX, positionY,
+                    UnMechant,
+                    degats,
+                    typeTour,
+                    projectileTexture
+                );
+                projectileManager.ajouterProjectile(projectile);
+            } else {
+                // Sinon, infliger les dégâts directement (ancien comportement)
+                UnMechant.recevoirDegats(this.degats, this.typeTour);
+            }
+
             tempsDepuisDerniereAttaque = 0f;
-        
-            System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " + 
-                UnMechant.getClass().getSimpleName() + " de " + this.degats + " dégâts. En vie: " + UnMechant.isEnVie());
+            System.out.println("la tour " + this.getClass().getSimpleName() + " a tiré sur l'ennemi " +
+                UnMechant.getClass().getSimpleName());
         }
     }
 
@@ -218,9 +239,7 @@ public abstract class Tower implements Attacker{
     }
 
     /**
-     * Met à jour la tour (appelée à chaque frame).
-     * @param delta Temps écoulé depuis la dernière frame
-     */
+     * Met à jour la tour (appelée à chaque frame).*/
     public void update(float delta) {
         tempsDepuisDerniereAttaque += delta;
     }
@@ -229,10 +248,7 @@ public abstract class Tower implements Attacker{
     // REGION : AMÉLIORATION
     // ------------------------------------------------------------------------
     /**
-     * Améliore la tour en augmentant son niveau, ses dégâts et sa portée.
-     * @param deltaTime Temps écoulé depuis la dernière frame (non utilisé dans l'implémentation par défaut)
-     * @param prix Prix de l'amélioration (non utilisé dans l'implémentation par défaut)
-     */
+     * Améliore la tour en augmentant son niveau, ses dégâts et sa portée.*/
     public void upgrade(float deltaTime, int prix) {
         if (this.level < this.maxLevel) {
             this.level++;

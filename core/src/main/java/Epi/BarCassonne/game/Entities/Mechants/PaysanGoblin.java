@@ -11,9 +11,9 @@ public class PaysanGoblin extends Mechant {
      * Constructeur par défaut.
      */
     public PaysanGoblin() {
-        super(50, 80f, AssetMana.getAnimation("PaysanGoblin"));
+        super(50, 40f, AssetMana.getAnimation("PaysanGoblin"));
     }
-    
+
     /**
      * Initialise les résistances du PaysanGoblin.
      */

@@ -336,4 +336,26 @@ public abstract class Mechant implements Movable, Damageable {
     public MessageFlottant getMessageFlottant() {
         return messageFlottant;
     }
+
+    /**
+     * Retourne la position X du centre de la hitbox du méchant.
+     * @return La position X du centre
+     */
+    public float getCentreX() {
+        if (animation == null || getFrame() == null) {
+            return positionX;
+        }
+        return positionX + getFrame().getRegionWidth() / 2f;
+    }
+
+    /**
+     * Retourne la position Y du centre de la hitbox du méchant.
+     * @return La position Y du centre
+     */
+    public float getCentreY() {
+        if (animation == null || getFrame() == null) {
+            return positionY;
+        }
+        return positionY + getFrame().getRegionHeight() / 2f;
+    }
 }
