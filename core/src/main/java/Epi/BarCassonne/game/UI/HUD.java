@@ -185,7 +185,6 @@ public class HUD {
         timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
 
         String texteVie = "Vie: " + gameState.getVie() + "/" + gameState.getVieMax();
-      
         Texte.drawText(batch, texteVie, vieX, vieY, Color.BLACK, 30);
         Texte.drawText(batch, Integer.toString((int)timerJeu), timerJeuX, timerJeuY, Color.BLACK, 20);
         Texte.drawText(batch, Integer.toString(gameState.getLingots()), lingotsX, lingotsY, Color.BLACK, 20);
