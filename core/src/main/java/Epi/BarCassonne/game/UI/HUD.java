@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.Color;
 import Epi.BarCassonne.game.Managers.GameState;
 import Epi.BarCassonne.game.Managers.TextureManager;
+import Epi.BarCassonne.game.Managers.TowerDataManager;
 
 /**
  * Affiche l'interface du jeu (barre de vie, lingots, vie, vague).
@@ -45,6 +46,18 @@ public class HUD {
 
     // Position Y de la vague : 90% de la hauteur de l'écran depuis le bas
     private static final float VAGUE_Y = 0.90f;
+
+    private static final float PrixTourArcher_X = 0.103f;
+
+    private static final float PrixTourArcher_Y = 0.594f;
+
+    private static final float PrixTourMagie_X = 0.103f;
+
+    private static final float PrixTourMagie_Y = 0.418f;
+
+    private static final float PrixTourForgeron_X = 0.103f;
+
+    private static final float PrixTourForgeron_Y = 0.237f;
 
     // Taille des slots : 5.8% de la largeur de l'écran
     private static final float SLOT_SIZE = 0.058f;
@@ -89,6 +102,9 @@ public class HUD {
     /** Texture de la tour Forgeron Level 1. */
     private Texture tourForgeronLevel1Texture;
 
+    /** Gestionnaire des données des tours. */
+    private TowerDataManager towerDataManager;
+
 
 
     // ------------------------------------------------------------------------
@@ -100,6 +116,7 @@ public class HUD {
      */
     public HUD(GameState gameState) {
         this.gameState = gameState;
+        this.towerDataManager = new TowerDataManager();
         this.hudTexture = TextureManager.chargerTexture("HUD/HUD.png");
         this.tourArcherLevel1Texture = TextureManager.chargerTexture("sprites/TourArcherLevel1.png");
         this.tourMagieLevel1Texture = TextureManager.chargerTexture("sprites/TourMagieLevel1.png");
@@ -157,15 +174,25 @@ public class HUD {
         float vagueY = VAGUE_Y * screenHeight;
         float timerJeuX = hudX + (TIMER_JEU_X * screenWidth);
         float timerJeuY = TIMER_JEU_Y * screenHeight;
+        float prixTourArcherX = hudX + (PrixTourArcher_X * screenWidth);
+        float prixTourArcherY = PrixTourArcher_Y * screenHeight;
+        float prixTourMagieX = hudX + (PrixTourMagie_X * screenWidth);
+        float prixTourMagieY = PrixTourMagie_Y * screenHeight;
+        float prixTourForgeronX = hudX + (PrixTourForgeron_X * screenWidth);
+        float prixTourForgeronY = PrixTourForgeron_Y * screenHeight;
+        float vieX = VIE_X * screenWidth;
+        float vieY = VIE_Y * screenHeight;
         timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
 
         String texteVie = "Vie: " + gameState.getVie() + "/" + gameState.getVieMax();
-        float vieX = VIE_X * screenWidth;
-        float vieY = VIE_Y * screenHeight;
+      
         Texte.drawText(batch, texteVie, vieX, vieY, Color.BLACK, 30);
         Texte.drawText(batch, Integer.toString((int)timerJeu), timerJeuX, timerJeuY, Color.BLACK, 20);
         Texte.drawText(batch, Integer.toString(gameState.getLingots()), lingotsX, lingotsY, Color.BLACK, 20);
-        Texte.drawText(batch, Integer.toString(gameState.getNumeroVague()), vagueX, vagueY, Color.BLACK, 50);
+        Texte.drawText(batch, Integer.toString(gameState.getNumeroVague()), vagueX, vagueY, Color.BLACK, 50);;
+        Texte.drawText(batch, Integer.toString(towerDataManager.getPrix("TowerArcher")), prixTourArcherX, prixTourArcherY, Color.BLACK, 22);
+        Texte.drawText(batch, Integer.toString(towerDataManager.getPrix("TowerMagie")), prixTourMagieX, prixTourMagieY, Color.BLACK, 22);
+        Texte.drawText(batch, Integer.toString(towerDataManager.getPrix("TowerForgeron")), prixTourForgeronX, prixTourForgeronY, Color.BLACK, 22);
     }
 
     /**
