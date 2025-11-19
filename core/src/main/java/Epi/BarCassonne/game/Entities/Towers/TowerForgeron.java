@@ -2,8 +2,6 @@ package Epi.BarCassonne.game.Entities.Towers;
 
 /**
  * Classe représentant une tour forgeron.
- * Tour économique qui génère des lingots au lieu d'attaquer.
- * Prix de 1000, génère 200 lingots par niveau.
  */
 public class TowerForgeron extends Tower {
 
@@ -12,7 +10,6 @@ public class TowerForgeron extends Tower {
 
     /**
      * Constructeur par défaut.
-     * Initialise la tour avec niveau 1, max niveau 4, prix 1000 et 200 lingots de base.
      */
     public TowerForgeron() {
         super(0f, 0f, 1, 4, 0, 0f, 1000, TypeTour.FORGERON);
@@ -30,7 +27,6 @@ public class TowerForgeron extends Tower {
     /**
      * Améliore la tour en augmentant son niveau et son apport en lingots.
      * Ajoute 100 lingots supplémentaires par niveau.
-     * L'amélioration n'est possible que si le niveau actuel est inférieur au niveau maximum.
      */
     public void upgrade() {
         if (this.level < this.maxLevel) {

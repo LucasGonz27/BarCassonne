@@ -55,6 +55,7 @@ public abstract class Mechant implements Movable, Damageable {
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
     // ------------------------------------------------------------------------
+
     /**
      * Crée un nouvel ennemi.
      * La position sera définie lors du spawn par VagueMana.
@@ -182,6 +183,7 @@ public abstract class Mechant implements Movable, Damageable {
     // ------------------------------------------------------------------------
     // REGION : DOMMAGES
     // ------------------------------------------------------------------------
+    
     /**
      * Applique des dégâts à l'ennemi en tenant compte des résistances.
      * @param degats Montant des dégâts bruts
