@@ -325,6 +325,8 @@ public class VagueMana {
             if (mechant.isEnVie() && mechant.getFrame() != null) {
                 batch.draw(mechant.getFrame(), mechant.getPositionX(), mechant.getPositionY());
             }
+            // Rendre les messages flottants de l'ennemi (même s'il est mort, pour afficher les derniers dégâts)
+            mechant.getMessageFlottant().render(batch);
         }
     }
 }

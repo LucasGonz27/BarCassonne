@@ -9,6 +9,8 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import Epi.BarCassonne.game.Utils.MessageFlottant;
+import com.badlogic.gdx.graphics.Color;
 
 /**
  * Classe abstraite représentant un ennemi.
@@ -51,6 +53,9 @@ public abstract class Mechant implements Movable, Damageable {
      * Ou -0.2 = 20% de vulnérabilité, donc 120% de dégâts.
      */
     protected Map<TypeTour, Float> resistances;
+    
+    /** Message flottant pour afficher les dégâts */
+    protected MessageFlottant messageFlottant;
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -70,6 +75,7 @@ public abstract class Mechant implements Movable, Damageable {
         this.positionY = 0;
         this.animation = animation;
         this.resistances = new HashMap<>();
+        this.messageFlottant = new MessageFlottant();
         initialiserResistances();
     }
     
@@ -198,6 +204,9 @@ public abstract class Mechant implements Movable, Damageable {
         
         this.PV -= degatsReels;
         if (this.PV <= 0) this.PV = 0;
+        
+        // Afficher un message flottant avec les dégâts réels
+        messageFlottant.creerMessage(positionX, positionY + 60f, String.valueOf(degatsReels), Color.RED, 25, 0.5f, -60f);
     }
     
     /**
@@ -210,6 +219,7 @@ public abstract class Mechant implements Movable, Damageable {
         if (!isEnVie()) return;
         this.PV -= degats;
         if (this.PV <= 0) this.PV = 0;
+        messageFlottant.creerMessage(positionX, positionY + 60f, String.valueOf(degats), Color.RED, 25, 0.5f, -60f);
     }
     
     /**
@@ -288,13 +298,16 @@ public abstract class Mechant implements Movable, Damageable {
      * @param deltaTime Temps écoulé depuis la dernière frame
      */
     public void update(float deltaTime) {
+
+        messageFlottant.update(deltaTime);
+        
         if (!isEnVie()) return;
         
         if (chemin == null || chemin.isEmpty()) return;
 
         move(deltaTime);
 
-        stateTime += deltaTime; // Mise à jour de l'animation
+        stateTime += deltaTime;
     }
 
     /**
@@ -314,5 +327,13 @@ public abstract class Mechant implements Movable, Damageable {
     public TextureRegion getFrame() {
         if (animation == null) return null;
         return animation.getKeyFrame(stateTime, true);
+    }
+    
+    /**
+     * Retourne le gestionnaire de messages flottants de l'ennemi.
+     * @return Le MessageFlottant de l'ennemi
+     */
+    public MessageFlottant getMessageFlottant() {
+        return messageFlottant;
     }
 }

@@ -4,11 +4,15 @@ package Epi.BarCassonne.game.Entities.Towers;
  * Classe représentant une tour canon.
  */
 public class TowerCanon extends Tower {
+
+    protected static final int PRIX = 1000;
+    protected static final float PORTEE = 0f;
+    protected static final int DEGATS = 10;
     
     /**
      * Constructeur par défaut.
      */
     public TowerCanon() {
-        super(0f, 0f, 1, 4, 10, 50f, 200, TypeTour.CANON);
+        super(0f, 0f, 1, 4, DEGATS, PORTEE, PRIX, TypeTour.CANON);
     }
 }

@@ -203,9 +203,9 @@ public abstract class Tower implements Attacker{
             // L'ennemi est à portée, infliger les dégâts (en tenant compte des résistances)
             UnMechant.recevoirDegats(this.degats, this.typeTour);
             tempsDepuisDerniereAttaque = 0f;
-
-            System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " +
-                UnMechant.getClass().getSimpleName() + " de " + this.degats + " dégâts. En vie: " + UnMechant.getPV());
+        
+            System.out.println("la tour " + this.getClass().getSimpleName() + " a attaqué l'ennemi " + 
+                UnMechant.getClass().getSimpleName() + " de " + this.degats + " dégâts. En vie: " + UnMechant.isEnVie());
         }
     }
 
@@ -230,9 +230,6 @@ public abstract class Tower implements Attacker{
     // ------------------------------------------------------------------------
     /**
      * Améliore la tour en augmentant son niveau, ses dégâts et sa portée.
-     * L'amélioration n'est possible que si le niveau actuel est inférieur au niveau maximum.
-     * Implémentation par défaut : augmente seulement le niveau si possible.
-     * Les sous-classes peuvent surcharger cette méthode pour un comportement spécifique.
      * @param deltaTime Temps écoulé depuis la dernière frame (non utilisé dans l'implémentation par défaut)
      * @param prix Prix de l'amélioration (non utilisé dans l'implémentation par défaut)
      */
