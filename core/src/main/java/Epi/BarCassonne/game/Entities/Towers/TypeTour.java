@@ -5,6 +5,7 @@ package Epi.BarCassonne.game.Entities.Towers;
  * Utilisé pour le système de résistances des méchants.
  */
 public enum TypeTour {
+    
     /** Tour d'archer, attaque physique à distance */
     ARCHER,
 

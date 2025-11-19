@@ -46,8 +46,9 @@ public abstract class Mechant implements Movable, Damageable {
     
     /** 
      * Map des résistances par type de tour.
-     * La valeur représente le pourcentage de réduction des dégâts (0.0 = pas de résistance, 1.0 = immunité totale).
-     * Exemple : 0.5 = 50% de résistance (les dégâts sont réduits de moitié).
+     * La valeur représente le pourcentage de réduction des dégâts.
+     * Donc par exemple 0.3 = 30% de résistance, donc 70% de dégâts.
+     * Ou -0.2 = 20% de vulnérabilité, donc 120% de dégâts.
      */
     protected Map<TypeTour, Float> resistances;
 
@@ -73,13 +74,12 @@ public abstract class Mechant implements Movable, Damageable {
     
     /**
      * Initialise les résistances du méchant.
-     * Cette méthode doit être surchargée dans les sous-classes pour définir
-     * les résistances spécifiques à chaque type de méchant.
-     * Par défaut, aucune résistance n'est appliquée.
+     * Par défaut, 0% de résistance pour chaque type de tour.
      */
     protected void initialiserResistances() {
-        // Par défaut, aucune résistance
-        // Les sous-classes peuvent surcharger cette méthode pour définir leurs résistances
+        setResistance(TypeTour.ARCHER, 0.0f);
+        setResistance(TypeTour.MAGIE, 0.0f);
+        setResistance(TypeTour.CANON, 0.0f);
     }
 
     // ------------------------------------------------------------------------
@@ -213,7 +213,7 @@ public abstract class Mechant implements Movable, Damageable {
     /**
      * Retourne le pourcentage de résistance pour un type de tour donné.
      * @param typeTour Le type de tour
-     * @return Le pourcentage de résistance (0.0 = pas de résistance, 1.0 = immunité totale)
+     * @return Le pourcentage de résistance 
      */
     public float getResistance(TypeTour typeTour) {
         return resistances.getOrDefault(typeTour, 0.0f);

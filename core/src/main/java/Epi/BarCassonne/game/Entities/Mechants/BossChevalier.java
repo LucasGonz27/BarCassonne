@@ -5,9 +5,6 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 
 /**
  * Classe représentant le BossChevalier.
- * C'est un ennemi boss avec 300 PV et une vitesse de 0.9.
- * Il utilise une animation provenant d'AssetMana.
- * Très résistant aux flèches et partiellement à la magie grâce à son armure de boss.
  */
 public class BossChevalier extends Mechant {
     
@@ -21,11 +18,10 @@ public class BossChevalier extends Mechant {
     
     /**
      * Initialise les résistances du BossChevalier.
-     * Très résistant aux flèches et partiellement à la magie grâce à son armure de boss.
      */
     @Override
     protected void initialiserResistances() {
-        setResistance(TypeTour.ARCHER, 0.6f);  // 60% de résistance aux flèches (armure de boss)
-        setResistance(TypeTour.MAGIE, 0.2f);   // 20% de résistance à la magie
+        setResistance(TypeTour.ARCHER, 1.0f);  // donc les flèches ne font pas de dégâts
+        setResistance(TypeTour.MAGIE, -0.2f);   // -20% de résistance à la magie donc 120% de dégâts
     }
 }
