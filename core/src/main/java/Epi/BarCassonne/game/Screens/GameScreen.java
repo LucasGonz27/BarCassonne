@@ -100,6 +100,7 @@ public class GameScreen implements Screen {
 
         initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
         chargerAssets();
+        GameState.resetInstance();
         initialiserJeu(mapWidth, mapHeight);
     }
 
@@ -142,7 +143,7 @@ public class GameScreen implements Screen {
      */
     private void initialiserJeu(float mapWidth, float mapHeight) {
         // Créer l'état du jeu
-        gameState = new GameState(1500, 5);
+        gameState = GameState.getInstance();
 
         // Créer le gestionnaire de chemin
         cheminManager = new CheminMana(mapWidth, mapHeight);
