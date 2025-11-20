@@ -8,11 +8,17 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  */
 public class RoiGoblin extends Mechant {
 
+    /** Points de vie du RoiGoblin. */
+    private static final int PV = 500;
+
+    /** Vitesse de déplacement du RoiGoblin. */
+    private static final float VITESSE = 50f;
+
     /**
      * Constructeur par défaut.
      */
     public RoiGoblin() {
-        super(500, 50f, AssetMana.getAnimation("RoiGoblin"));
+        super(PV, VITESSE, AssetMana.getAnimation("RoiGoblin"));
     }
 
     /**

@@ -23,42 +23,122 @@ import java.util.Map;
 
 /**
  * Gestionnaire des tours placées sur le terrain.
+ * Responsable de la création, mise à jour, rendu et gestion des tours.
+
  */
 public class TowerManager {
     
+    // ========================================================================
+    // CONSTANTES
+    // ========================================================================
+
+    /** Taille de l'aperçu de tour lors du placement */
     private static final float TAILLE_APERCU = 70f;
+
+    /** Taille d'une tour sur le terrain */
     private static final float TOWER_SIZE = 100f;
+
+    /** Intervalle de génération de lingots pour les forgerons (en secondes) */
     private static final float INTERVALLE_GENERATION_LINGOTS = 11f;
+
+    /** Seuil de temps pour afficher le sac plein (en secondes) */
     private static final float SEUIL_SAC_PLEIN = 10f;
+
+    /** Décalage X du sac par rapport à la tour */
     private static final float DECALAGE_SAC_X = 60f;
+
+    /** Taille du sac affiché */
     private static final float TAILLE_SAC = 50f;
+
+    /** Décalage pour centrer le sac */
     private static final float DECALAGE_SAC_CENTRE = 25f;
+
+    /** Opacité de l'aperçu de tour */
     private static final float OPACITE_APERCU = 0.7f;
+
+    /** Décalage Y du message de lingots */
     private static final float DECALAGE_MESSAGE_Y = 80f;
+
+    /** Taille de la police du message de lingots */
     private static final int TAILLE_POLICE_MESSAGE_LINGOTS = 30;
 
+    /** Revenu par lingot généré */
+    private static final int REVENUE_LINGOT = 100;
+
+    /** Temps avant la génération des lingots (en secondes) */
+    private static final float TEMPS_AVANT_GENERATION_LINGOTS = 20f;
+
+    // ========================================================================
+    // CHAMPS
+    // ========================================================================
     
+    /** Liste de toutes les tours placées sur le terrain */
     private final List<Tower> tours;
+
+    /** Gestionnaire des données des tours (textures, prix, portée) */
     private final TowerDataManager towerDataManager;
+
+    /** Gestionnaire des messages flottants */
     private final MessageFlottant messageFlottant;
+
+    /** Map associant chaque forgeron à son temps écoulé depuis la dernière génération */
     private final Map<Tower, Float> tempsForgeron;
+
+    /** Temps écoulé depuis la dernière génération de lingots automatique */
+    private float tempsEcouleGenererLingots;
+
+    /** Validateur de collisions pour le placement des tours */
     private final CollisionValid collisionValid;
+
+    /** Gestionnaire des vagues d'ennemis */
     private final VagueMana vagueManager;
+
+    /** État du jeu (pour gérer les lingots) */
     private final GameState gameState;
+
+    /** Gestionnaire des projectiles */
     private final ProjectileManager projectileManager;
 
+    /** Texture du sac plein */
     private Texture textureSacPlein;
+
+    /** Texture du sac vide */
     private Texture textureSacVide;
-    private Texture textureProjectile;
     
+    // État du mode placement
+    /** Indique si on est en mode placement de tour */
     private boolean enModePlacement;
+
+    /** Type de tour à placer */
     private String towerTypeToPlace;
+
+    /** Texture de l'aperçu de tour */
     private Texture tourPreviewTexture;
+
+    /** Position X de l'aperçu de tour */
     private float tourPreviewX;
+
+    /** Position Y de l'aperçu de tour */
     private float tourPreviewY;
+
+    /** Portée de l'aperçu de tour */
     private float tourPreviewPortee;
+
+    /** Indique si la position de l'aperçu est valide */
     private boolean positionValide;
     
+    // ========================================================================
+    // CONSTRUCTEUR
+    // ========================================================================
+
+    /**
+     * Crée un nouveau gestionnaire de tours.
+     * 
+     * @param collisionValid Validateur de collisions
+     * @param vagueManager Gestionnaire des vagues d'ennemis
+     * @param gameState État du jeu
+     * @param projectileManager Gestionnaire des projectiles
+     */
     public TowerManager(CollisionValid collisionValid, VagueMana vagueManager, GameState gameState, ProjectileManager projectileManager) {
         this.tours = new ArrayList<>();
         this.collisionValid = collisionValid;
@@ -68,41 +148,173 @@ public class TowerManager {
         this.tempsForgeron = new HashMap<>();
         this.towerDataManager = new TowerDataManager();
         this.messageFlottant = new MessageFlottant();
+        this.tempsEcouleGenererLingots = 0f;
 
+        chargerTextures();
+    }
+
+    /**
+     * Charge les textures nécessaires.
+     */
+    private void chargerTextures() {
         textureSacPlein = TextureManager.chargerTexture("sprites/SacPleins.png");
         textureSacVide = TextureManager.chargerTexture("sprites/SacVide.png");
-        textureProjectile = TextureManager.chargerTexture("sprites/fleche.png");
     }
-    
-    public List<Tower> getTours() {
-        return tours;
+
+    // ========================================================================
+    // MISE À JOUR
+    // ========================================================================
+
+    /**
+     * Met à jour toutes les tours et leurs états.
+     * 
+     * @param delta Temps écoulé depuis la dernière frame (en secondes)
+     */
+    public void update(float delta) {
+        for (Tower tour : tours) {
+            tour.update(delta);
+            attaquerEnnemis(tour);
+            mettreAJourForgeron(tour, delta);
+        }
+        genererLingots(delta);
+        messageFlottant.update(delta);
     }
-    
-    public boolean estEnModePlacement() {
-        return enModePlacement;
+
+    /**
+     * Fait attaquer une tour sur tous les ennemis actifs.
+     * 
+     * @param tour La tour qui attaque
+     */
+    private void attaquerEnnemis(Tower tour) {
+        if (vagueManager == null || vagueManager.getEnnemisActifs() == null) {
+            return;
+        }
+
+        for (Mechant ennemi : vagueManager.getEnnemisActifs()) {
+            if (ennemi != null && ennemi.isEnVie()) {
+                tour.attacker(ennemi, projectileManager);
+            }
+        }
     }
-    
+
+    /**
+     * Met à jour le système de génération de lingots pour un forgeron.
+     * 
+     * @param tour La tour à mettre à jour
+     * @param delta Temps écoulé depuis la dernière frame
+     */
+    private void mettreAJourForgeron(Tower tour, float delta) {
+        if (!(tour instanceof TowerForgeron)) {
+            return;
+        }
+
+        float temps = tempsForgeron.getOrDefault(tour, 0f) + delta;
+        if (temps >= INTERVALLE_GENERATION_LINGOTS) {
+            genererLingots((TowerForgeron) tour);
+            tempsForgeron.put(tour, 0f);
+        } else {
+            tempsForgeron.put(tour, temps);
+        }
+    }
+
+    /**
+     * Génère les lingots pour un forgeron et affiche un message.
+     * 
+     * @param forgeron Le forgeron qui génère les lingots
+     */
+    private void genererLingots(TowerForgeron forgeron) {
+        int lingots = forgeron.getApportLingots();
+        gameState.ajouterLingots(lingots);
+        afficherMessageLingots(forgeron, lingots);
+    }
+
+    /**
+     * Génère les lingots automatiquement toutes les 20 secondes.
+     * 
+     * @param delta Temps écoulé depuis la dernière frame (en secondes)
+     */
+    private void genererLingots(float delta) {
+        tempsEcouleGenererLingots += delta;
+        
+        if (tempsEcouleGenererLingots >= TEMPS_AVANT_GENERATION_LINGOTS) {
+            gameState.ajouterLingots(REVENUE_LINGOT);
+            tempsEcouleGenererLingots = 0f;
+        }
+    }
+
+  
+
+    /**
+     * Affiche un message flottant indiquant les lingots générés.
+     * 
+     * @param tour La tour qui génère les lingots
+     * @param lingots Le nombre de lingots générés
+     */
+    private void afficherMessageLingots(Tower tour, int lingots) {
+        float x = tour.getPositionX();
+        float y = tour.getPositionY() + DECALAGE_MESSAGE_Y;
+        String message = "+" + lingots;
+        messageFlottant.creerMessage(x, y, message, Color.YELLOW, TAILLE_POLICE_MESSAGE_LINGOTS, 2f);
+    }
+
+    // ========================================================================
+    // PLACEMENT DE TOURS
+    // ========================================================================
+
+    /**
+     * Active le mode placement pour un type de tour donné.
+     * 
+     * @param slot Le slot de la tour (1: Archer, 2: Magie, 3: Forgeron)
+     */
     public void activerModePlacement(int slot) {
         String towerType = convertirSlotEnTypeTour(slot);
         if (towerType == null) {
             return;
         }
         
+        initialiserModePlacement(towerType);
+    }
+
+    /**
+     * Initialise le mode placement avec un type de tour.
+     * 
+     * @param towerType Le type de tour à placer
+     */
+    private void initialiserModePlacement(String towerType) {
         towerTypeToPlace = towerType;
         enModePlacement = true;
         tourPreviewTexture = towerDataManager.getTexture(towerType);
         tourPreviewPortee = towerDataManager.getPortee(towerType);
     }
     
+    /**
+     * Convertit un slot en type de tour.
+     * 
+     * @param slot Le slot (1, 2 ou 3)
+     * @return Le type de tour correspondant, ou null si le slot est invalide
+     */
     private String convertirSlotEnTypeTour(int slot) {
         switch (slot) {
-            case 1: return "TowerArcher";
-            case 2: return "TowerMagie";
-            case 3: return "TowerForgeron";
-            default: return null;
+            case 1:
+                return "TowerArcher";
+            case 2:
+                return "TowerMagie";
+            case 3:
+                return "TowerForgeron";
+            default:
+                return null;
         }
     }
-    
+
+    /**
+     * Met à jour la position de l'aperçu de tour lors du placement.
+     * 
+     * @param screenX Position X de l'écran
+     * @param screenY Position Y de l'écran
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     * @param mapViewport Viewport de la carte
+     */
     public void mettreAJourApercu(float screenX, float screenY, float screenWidth, float screenHeight, Viewport mapViewport) {
         if (!enModePlacement || towerTypeToPlace == null) {
             return;
@@ -119,19 +331,33 @@ public class TowerManager {
         positionValide = collisionValid.estPositionValide(worldPos.x, worldPos.y, TOWER_SIZE, tours);
     }
     
-    public boolean placerTour(float screenX, float screenY, float screenWidth, 
-                               float screenHeight, Viewport mapViewport) {
+    /**
+     * Place une tour à la position donnée si les conditions sont remplies.
+     * 
+     * @param screenX Position X de l'écran
+     * @param screenY Position Y de l'écran
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     * @param mapViewport Viewport de la carte
+     * @return true si la tour a été placée, false sinon
+     */
+    public boolean placerTour(float screenX, float screenY, float screenWidth, float screenHeight, Viewport mapViewport) {
         if (!enModePlacement || towerTypeToPlace == null) {
             return false;
         }
 
         Vector3 worldPos = convertirEcranVersMonde(screenX, screenY, screenWidth, screenHeight, mapViewport);
-        if (worldPos == null || !collisionValid.estPositionValide(worldPos.x, worldPos.y, TOWER_SIZE, tours)) {
+        if (!estPositionValidePourPlacement(worldPos)) {
             return false;
         }
 
-        int prix = towerDataManager.getPrix(towerTypeToPlace);
-        if (prix == -1 || !gameState.retirerLingots(prix)) {
+        // Vérifier si on a assez d'argent avant d'essayer d'acheter
+        if (!aAssezDArgent()) {
+            afficherMessageArgentInsuffisant(worldPos.x, worldPos.y);
+            return false;
+        }
+
+        if (!peutAcheterTour()) {
             return false;
         }
 
@@ -145,6 +371,50 @@ public class TowerManager {
         return true;
     }
     
+    /**
+     * Vérifie si une position est valide pour placer une tour.
+     * 
+     * @param worldPos Position dans le monde
+     * @return true si la position est valide, false sinon
+     */
+    private boolean estPositionValidePourPlacement(Vector3 worldPos) {
+        return worldPos != null && collisionValid.estPositionValide(worldPos.x, worldPos.y, TOWER_SIZE, tours);
+    }
+
+    /**
+     * Vérifie si le joueur a assez d'argent pour acheter la tour.
+     * 
+     * @return true si le joueur a assez d'argent, false sinon
+     */
+    private boolean aAssezDArgent() {
+        Integer prix = towerDataManager.getPrix(towerTypeToPlace);
+        return prix != null && gameState.getLingots() >= prix;
+    }
+
+    /**
+     * Vérifie si le joueur peut acheter la tour et retire les lingots.
+     * 
+     * @return true si le joueur peut acheter la tour, false sinon
+     */
+    private boolean peutAcheterTour() {
+        Integer prix = towerDataManager.getPrix(towerTypeToPlace);
+        return prix != null && gameState.retirerLingots(prix);
+    }
+
+    /**
+     * Affiche un message indiquant que le joueur n'a pas assez d'argent.
+     * 
+     * @param x Position X dans le monde
+     * @param y Position Y dans le monde
+     */
+    private void afficherMessageArgentInsuffisant(float x, float y) {
+        String message = "Argent insuffisant !";
+        messageFlottant.creerMessage(x, y + DECALAGE_MESSAGE_Y, message, Color.RED, TAILLE_POLICE_MESSAGE_LINGOTS, 2f);
+    }
+
+    /**
+     * Annule le mode placement et réinitialise les variables d'aperçu.
+     */
     public void annulerModePlacement() {
         enModePlacement = false;
         towerTypeToPlace = null;
@@ -152,44 +422,15 @@ public class TowerManager {
         tourPreviewPortee = 0f;
     }
     
-    public void update(float delta) {
-        for (Tower tour : tours) {
-            tour.update(delta);
-            attaquerEnnemis(tour);
-            mettreAJourForgeron(tour, delta);
-        }
-        messageFlottant.update(delta);
-    }
-    
-    private void attaquerEnnemis(Tower tour) {
-        if (vagueManager == null || vagueManager.getEnnemisActifs() == null) {
-            return;
-        }
+    // ========================================================================
+    // RENDU
+    // ========================================================================
 
-        for (Mechant ennemi : vagueManager.getEnnemisActifs()) {
-            if (ennemi != null && ennemi.isEnVie()) {
-                tour.attacker(ennemi, projectileManager, textureProjectile);
-            }
-        }
-    }
-    
-    private void mettreAJourForgeron(Tower tour, float delta) {
-        if (!(tour instanceof TowerForgeron)) {
-            return;
-        }
-        
-        float temps = tempsForgeron.getOrDefault(tour, 0f) + delta;
-        if (temps >= INTERVALLE_GENERATION_LINGOTS) {
-            TowerForgeron forgeron = (TowerForgeron) tour;
-            int lingots = forgeron.getApportLingots();
-            gameState.ajouterLingots(lingots);
-            messageFlottant.creerMessage(tour.getPositionX(), tour.getPositionY() + DECALAGE_MESSAGE_Y, "+" + lingots, Color.YELLOW, TAILLE_POLICE_MESSAGE_LINGOTS, 2f);
-            tempsForgeron.put(tour, 0f);
-        } else {
-            tempsForgeron.put(tour, temps);
-        }
-    }
-    
+    /**
+     * Dessine toutes les tours et les éléments visuels associés.
+     * 
+     * @param batch SpriteBatch pour le rendu
+     */
     public void render(SpriteBatch batch) {
         dessinerTours(batch);
         dessinerApercu(batch);
@@ -197,6 +438,11 @@ public class TowerManager {
         messageFlottant.render(batch);
     }
     
+    /**
+     * Dessine toutes les tours placées sur le terrain.
+     * 
+     * @param batch SpriteBatch pour le rendu
+     */
     private void dessinerTours(SpriteBatch batch) {
         for (Tower tour : tours) {
             Texture texture = towerDataManager.getTexture(tour.getClass().getSimpleName());
@@ -208,6 +454,11 @@ public class TowerManager {
         }
     }
     
+    /**
+     * Dessine l'aperçu de tour lors du placement.
+     * 
+     * @param batch SpriteBatch pour le rendu
+     */
     private void dessinerApercu(SpriteBatch batch) {
         if (!enModePlacement || tourPreviewTexture == null) {
             return;
@@ -215,25 +466,48 @@ public class TowerManager {
         
         Color couleur = positionValide ? Color.WHITE : Color.RED;
         batch.setColor(couleur.r, couleur.g, couleur.b, OPACITE_APERCU);
-        batch.draw(tourPreviewTexture, tourPreviewX - TAILLE_APERCU / 2, tourPreviewY - TAILLE_APERCU / 2, 
-                   TAILLE_APERCU, TAILLE_APERCU);
+        float x = tourPreviewX - TAILLE_APERCU / 2;
+        float y = tourPreviewY - TAILLE_APERCU / 2;
+        batch.draw(tourPreviewTexture, x, y, TAILLE_APERCU, TAILLE_APERCU);
         batch.setColor(Color.WHITE);
     }
     
+    /**
+     * Dessine les sacs des forgerons pour indiquer leur état.
+     * 
+     * @param batch SpriteBatch pour le rendu
+     */
     private void dessinerSacs(SpriteBatch batch) {
         for (Tower tour : tours) {
             if (tour instanceof TowerForgeron) {
-                float temps = tempsForgeron.getOrDefault(tour, 0f);
-                float x = tour.getPositionX() + DECALAGE_SAC_X - DECALAGE_SAC_CENTRE;
-                float y = tour.getPositionY() - DECALAGE_SAC_CENTRE;
-                Texture textureSac = (temps >= SEUIL_SAC_PLEIN) ? textureSacPlein : textureSacVide;
-                if (textureSac != null) {
-                    batch.draw(textureSac, x, y, TAILLE_SAC, TAILLE_SAC);
-                }
+                dessinerSacForgeron(batch, tour);
             }
         }
     }
-    
+
+    /**
+     * Dessine le sac d'un forgeron.
+     * 
+     * @param batch SpriteBatch pour le rendu
+     * @param tour La tour forgeron
+     */
+    private void dessinerSacForgeron(SpriteBatch batch, Tower tour) {
+        float temps = tempsForgeron.getOrDefault(tour, 0f);
+        Texture textureSac = (temps >= SEUIL_SAC_PLEIN) ? textureSacPlein : textureSacVide;
+        
+        if (textureSac != null) {
+            float x = tour.getPositionX() + DECALAGE_SAC_X - DECALAGE_SAC_CENTRE;
+            float y = tour.getPositionY() - DECALAGE_SAC_CENTRE;
+            batch.draw(textureSac, x, y, TAILLE_SAC, TAILLE_SAC);
+        }
+    }
+
+    /**
+     * Dessine la portée de l'aperçu de tour lors du placement.
+     * 
+     * @param shapeRenderer ShapeRenderer pour dessiner les formes
+     * @param camera Caméra orthographique
+     */
     public void renderPortee(ShapeRenderer shapeRenderer, OrthographicCamera camera) {
         if (!enModePlacement || tourPreviewPortee <= 0) {
             return;
@@ -241,12 +515,26 @@ public class TowerManager {
         
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        
         Color couleur = positionValide ? Color.WHITE : Color.RED;
         shapeRenderer.setColor(couleur.r, couleur.g, couleur.b, OPACITE_APERCU);
         shapeRenderer.circle(tourPreviewX, tourPreviewY, tourPreviewPortee);
+        
         shapeRenderer.end();
     }
     
+    // ========================================================================
+    // UTILITAIRES
+    // ========================================================================
+
+    /**
+     * Crée une nouvelle tour à la position donnée.
+     * 
+     * @param towerType Le type de tour à créer
+     * @param x Position X dans le monde
+     * @param y Position Y dans le monde
+     * @return La tour créée, ou null en cas d'erreur
+     */
     private Tower creerTour(String towerType, float x, float y) {
         try {
             Tower tour = TowerFactory.creerTower(towerType);
@@ -254,10 +542,21 @@ public class TowerManager {
             tour.setPositionY(y);
             return tour;
         } catch (IllegalArgumentException e) {
+            System.err.println("Erreur lors de la création de la tour: " + e.getMessage());
             return null;
         }
     }
     
+    /**
+     * Convertit les coordonnées écran en coordonnées monde.
+     * 
+     * @param screenX Position X de l'écran
+     * @param screenY Position Y de l'écran
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     * @param mapViewport Viewport de la carte
+     * @return Les coordonnées monde, ou null si la position est invalide
+     */
     private Vector3 convertirEcranVersMonde(float screenX, float screenY, float screenWidth, float screenHeight, Viewport mapViewport) {
         float largeurHUD = HUD.getLargeurHUD(screenWidth);
         if (screenX >= screenWidth - largeurHUD) {
@@ -267,24 +566,63 @@ public class TowerManager {
         mapViewport.apply();
         Vector3 worldPos = mapViewport.unproject(new Vector3(screenX, screenY, 0));
 
-        if (worldPos.x < 0 || worldPos.x > mapViewport.getWorldWidth() || 
-            worldPos.y < 0 || worldPos.y > mapViewport.getWorldHeight()) {
+        if (estHorsLimites(worldPos, mapViewport)) {
             return null;
         }
 
         return worldPos;
     }
     
+    /**
+     * Vérifie si une position est hors des limites du viewport.
+     * 
+     * @param worldPos Position dans le monde
+     * @param mapViewport Viewport de la carte
+     * @return true si la position est hors limites, false sinon
+     */
+    private boolean estHorsLimites(Vector3 worldPos, Viewport mapViewport) {
+        return worldPos.x < 0 || worldPos.x > mapViewport.getWorldWidth() || worldPos.y < 0 || worldPos.y > mapViewport.getWorldHeight();
+    }
+
+    // ========================================================================
+    // GETTERS
+    // ========================================================================
+
+    /**
+     * @return La liste de toutes les tours placées
+     */
+    public List<Tower> getTours() {
+        return tours;
+    }
+
+    /**
+     * @return true si on est en mode placement, false sinon
+     */
+    public boolean estEnModePlacement() {
+        return enModePlacement;
+    }
+
+    // ========================================================================
+    // NETTOYAGE
+    // ========================================================================
+
+    /**
+     * Libère toutes les ressources utilisées par le gestionnaire.
+     */
     public void dispose() {
         towerDataManager.dispose();
+        libererTextures();
+    }
+
+    /**
+     * Libère les textures chargées.
+     */
+    private void libererTextures() {
         if (textureSacPlein != null) {
             TextureManager.libererTexture(textureSacPlein);
         }
         if (textureSacVide != null) {
             TextureManager.libererTexture(textureSacVide);
-        }
-        if (textureProjectile != null) {
-            TextureManager.libererTexture(textureProjectile);
         }
     }
 }

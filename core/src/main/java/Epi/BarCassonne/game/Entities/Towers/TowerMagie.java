@@ -13,6 +13,6 @@ public class TowerMagie extends Tower {
      * Constructeur par défaut.
      */
     public TowerMagie() {
-        super(0f, 0f, 1, 4, DEGATS, PORTEE, PRIX, TypeTour.MAGIE);
+        super(0f, 0f, 1, 4, PORTEE, PRIX, TypeTour.MAGIE);
     }
 }

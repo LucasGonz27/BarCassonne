@@ -16,7 +16,7 @@ public class TowerForgeron extends Tower {
      * Constructeur par défaut.
      */
     public TowerForgeron() {
-        super(0f, 0f, 1, 4, 0, PORTEE, PRIX, TypeTour.FORGERON);
+        super(0f, 0f, 1, 4, PORTEE, PRIX, TypeTour.FORGERON);
         this.ApportLingots = APPORT_LINGOTS;
     }   
 

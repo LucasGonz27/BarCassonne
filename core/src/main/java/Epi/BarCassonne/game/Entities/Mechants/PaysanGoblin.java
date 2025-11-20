@@ -7,11 +7,17 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  */
 public class PaysanGoblin extends Mechant {
 
+    /** Points de vie du PaysanGoblin. */
+    private static final int PV = 50;
+
+    /** Vitesse de déplacement du PaysanGoblin. */
+    private static final float VITESSE = 40f;
+
     /**
      * Constructeur par défaut.
      */
     public PaysanGoblin() {
-        super(50, 40f, AssetMana.getAnimation("PaysanGoblin"));
+        super(PV, VITESSE, AssetMana.getAnimation("PaysanGoblin"));
     }
 
     /**

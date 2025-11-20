@@ -6,12 +6,18 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  * Classe représentant le GuerrierGoblin.
  */
 public class GuerrierGoblin extends Mechant {
-    
+
+
+    /** Points de vie du GuerrierGoblin. */
+    private static final int PV = 65;
+
+    /** Vitesse de déplacement du GuerrierGoblin. */
+    private static final float VITESSE = 60f;
     /**
      * Constructeur par défaut.
      */
     public GuerrierGoblin() {
-        super(65, 60f, AssetMana.getAnimation("GuerrierGoblin"));
+        super(PV, VITESSE, AssetMana.getAnimation("GuerrierGoblin"));
     }
 
     /**

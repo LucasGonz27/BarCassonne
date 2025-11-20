@@ -331,31 +331,4 @@ public class VagueMana {
             mechant.getMessageFlottant().render(batch);
         }
     }
-
-    /**
-     * Dessine les rectangles de hitbox autour des méchants pour le debug.
-     * @param shapeRenderer Le ShapeRenderer pour dessiner les formes
-     */
-    public void renderHitboxes(ShapeRenderer shapeRenderer) {
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.RED);
-
-        for (Mechant mechant : ennemisActifs) {
-            if (mechant.isEnVie() && mechant.getFrame() != null) {
-                // Récupérer la taille réelle du sprite
-                float spriteWidth = mechant.getFrame().getRegionWidth();
-                float spriteHeight = mechant.getFrame().getRegionHeight();
-
-                // Dessiner le rectangle à partir du coin bas-gauche (comme le sprite)
-                shapeRenderer.rect(
-                    mechant.getPositionX(),
-                    mechant.getPositionY(),
-                    spriteWidth,
-                    spriteHeight
-                );
-            }
-        }
-
-        shapeRenderer.end();
-    }
 }

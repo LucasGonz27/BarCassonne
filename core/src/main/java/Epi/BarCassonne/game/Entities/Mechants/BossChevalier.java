@@ -7,13 +7,19 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  * Classe représentant le BossChevalier.
  */
 public class BossChevalier extends Mechant {
+
+    /** Points de vie du BossChevalier. */
+    private static final int PV = 300;
+
+    /** Vitesse de déplacement du BossChevalier. */
+    private static final float VITESSE = 0.9f;
     
     /**
      * Constructeur par défaut.
      * Initialise les PV à 300, la vitesse à 0.9f et l'animation.
      */
     public BossChevalier() {
-        super(300, 0.9f, AssetMana.getAnimation("BossChevalier"));
+        super(PV, VITESSE, AssetMana.getAnimation("BossChevalier"));
     }
     
     /**

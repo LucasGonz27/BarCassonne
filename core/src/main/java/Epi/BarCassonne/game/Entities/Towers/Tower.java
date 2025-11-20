@@ -4,18 +4,28 @@ import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 import Epi.BarCassonne.game.Entities.Projectiles.Projectile;
 import Epi.BarCassonne.game.Interfaces.Attacker;
 import Epi.BarCassonne.game.Managers.ProjectileManager;
-import com.badlogic.gdx.graphics.Texture;
+import Epi.BarCassonne.Factory.ProjectileFactory;
 
 /**
  * Classe abstraite représentant une tour défensive.
- * Les tours peuvent attaquer les ennemis dans leur portée.
+ * Les tours peuvent attaquer les ennemis dans leur portée (range).
  * Implémente l'interface Attacker pour définir le comportement d'attaque.
+ * 
+ * @author Epi
  */
-public abstract class Tower implements Attacker{
+public abstract class Tower implements Attacker {
 
-    // ------------------------------------------------------------------------
-    // REGION : CHAMPS
-    // ------------------------------------------------------------------------
+    // ========================================================================
+    // CONSTANTES
+    // ========================================================================
+
+    /** Intervalle entre deux attaques (en secondes) */
+    private static final float INTERVALLE_ATTAQUE = 2f;
+
+    // ========================================================================
+    // CHAMPS
+    // ========================================================================
+
     /** Position X de la tour en coordonnées monde */
     protected float positionX;
 
@@ -28,81 +38,197 @@ public abstract class Tower implements Attacker{
     /** Niveau maximum que la tour peut atteindre */
     protected int maxLevel;
 
-    /** Dégâts infligés par la tour */
-    protected int degats;
-
-    /** Portée d'attaque de la tour (distance maximale) */
+    /** Portée d'attaque de la tour (distance maximale en pixels) */
     protected float portee;
 
     /** Prix d'achat de la tour */
     protected int prix;
 
-    /** Temps écoulé depuis la dernière attaque */
+    /** Temps écoulé depuis la dernière attaque (en secondes) */
     private float tempsDepuisDerniereAttaque;
-
-    /** Intervalle entre deux attaques (en secondes) */
-    private static final float INTERVALLE_ATTAQUE = 2f;
 
     /** Type de la tour (utilisé pour le système de résistances) */
     protected final TypeTour typeTour;
 
-    // ------------------------------------------------------------------------
-    // REGION : CONSTRUCTEUR
-    // ------------------------------------------------------------------------
+    // ========================================================================
+    // CONSTRUCTEUR
+    // ========================================================================
+
     /**
      * Crée une nouvelle tour.
+     * 
      * @param positionX Position X initiale en coordonnées monde
      * @param positionY Position Y initiale en coordonnées monde
      * @param level Niveau initial de la tour
      * @param maxLevel Niveau maximum de la tour
-     * @param degats Dégâts infligés par la tour
-     * @param portee Portée d'attaque de la tour
+     * @param portee Portée d'attaque de la tour (distance maximale)
      * @param prix Prix d'achat de la tour
      * @param typeTour Type de la tour (doit être défini par chaque sous-classe)
      */
-    protected Tower(float positionX, float positionY, int level, int maxLevel, int degats, float portee, int prix, TypeTour typeTour) {
+    protected Tower(float positionX, float positionY, int level, int maxLevel, float portee, int prix, TypeTour typeTour) {
         this.positionX = positionX;
         this.positionY = positionY;
         this.level = level;
         this.maxLevel = maxLevel;
-        this.degats = degats;
         this.portee = portee;
         this.prix = prix;
-        this.tempsDepuisDerniereAttaque = 0f;
         this.typeTour = typeTour;
+        this.tempsDepuisDerniereAttaque = 0f;
     }
 
-    // ------------------------------------------------------------------------
-    // REGION : GETTERS & SETTERS
-    // ------------------------------------------------------------------------
+    // ========================================================================
+    // MISE À JOUR
+    // ========================================================================
+
     /**
-     * @return Le prix d'achat de la tour
+     * Met à jour l'état de la tour.
+     * Incrémente le temps depuis la dernière attaque.
+     * 
+     * @param delta Temps écoulé depuis la dernière frame (en secondes)
      */
-    public int getPrix() {
-        return prix;
+    public void update(float delta) {
+        tempsDepuisDerniereAttaque += delta;
+    }
+
+    // ========================================================================
+    // ATTAQUE
+    // ========================================================================
+
+    /**
+     * Attaque un ennemi s'il est dans la portée de la tour en créant un projectile.
+     * 
+     * @param ennemi L'ennemi à attaquer
+     * @param projectileManager Le gestionnaire de projectiles
+     */
+    public void attacker(Mechant ennemi, ProjectileManager projectileManager) {
+        // Vérifier les préconditions
+        if (!peutAttaquer(ennemi, projectileManager)) {
+            return;
+        }
+
+        // Vérifier si l'ennemi est dans la portée
+        if (!estDansPortee(ennemi)) {
+            return;
+        }
+
+        // Créer et lancer le projectile
+        creerEtLancerProjectile(ennemi, projectileManager);
+        
+        // Réinitialiser le cooldown d'attaque
+        reinitialiserCooldown();
     }
 
     /**
-     * Définit le prix de la tour.
-     * @param prix Le nouveau prix
+     * Vérifie si la tour peut attaquer (préconditions).
+     * 
+     * @param ennemi L'ennemi ciblé
+     * @param projectileManager Le gestionnaire de projectiles
+     * @return true si la tour peut attaquer, false sinon
      */
-    public void setPrix(int prix) {
-        this.prix = prix;
+    private boolean peutAttaquer(Mechant ennemi, ProjectileManager projectileManager) {
+        return ennemi != null 
+            && ennemi.isEnVie() 
+            && projectileManager != null 
+            && peutAttaquer();
     }
+
+    /**
+     * Vérifie si le cooldown d'attaque est écoulé.
+     * 
+     * @return true si la tour peut attaquer, false sinon
+     */
+    public boolean peutAttaquer() {
+        return tempsDepuisDerniereAttaque >= INTERVALLE_ATTAQUE;
+    }
+
+    /**
+     * Vérifie si un ennemi est dans la portée de la tour.
+     * 
+     * @param ennemi L'ennemi à vérifier
+     * @return true si l'ennemi est dans la portée, false sinon
+     */
+    private boolean estDansPortee(Mechant ennemi) {
+        float distance = calculerDistance(ennemi);
+        return distance <= portee;
+    }
+
+    /**
+     * Calcule la distance euclidienne entre la tour et un ennemi.
+     * 
+     * @param ennemi L'ennemi ciblé
+     * @return La distance entre la tour et l'ennemi
+     */
+    private float calculerDistance(Mechant ennemi) {
+        float deltaX = ennemi.getPositionX() - positionX;
+        float deltaY = ennemi.getPositionY() - positionY;
+        return (float) Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    }
+
+    /**
+     * Crée un projectile et le lance vers l'ennemi.
+     * 
+     * @param ennemi L'ennemi ciblé
+     * @param projectileManager Le gestionnaire de projectiles
+     */
+    private void creerEtLancerProjectile(Mechant ennemi, ProjectileManager projectileManager) {
+        try {
+            // Créer le projectile via la factory
+            String towerType = this.getClass().getSimpleName();
+            Projectile projectile = ProjectileFactory.creerProjectile(towerType);
+            
+            // Initialiser le projectile
+            initialiserProjectile(projectile, ennemi);
+            
+            // Ajouter le projectile au gestionnaire
+            projectileManager.ajouterProjectile(projectile);
+        } catch (IllegalArgumentException e) {
+            System.err.println("Erreur lors de la création du projectile: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Initialise un projectile avec les valeurs de la tour.
+     * 
+     * @param projectile Le projectile à initialiser
+     * @param ennemi L'ennemi ciblé
+     */
+    private void initialiserProjectile(Projectile projectile, Mechant ennemi) {
+        projectile.setPositionX(positionX);
+        projectile.setPositionY(positionY);
+        projectile.setCible(ennemi);
+        projectile.setTypeTour(typeTour);
+    }
+
+    /**
+     * Réinitialise le cooldown d'attaque.
+     */
+    private void reinitialiserCooldown() {
+        tempsDepuisDerniereAttaque = 0f;
+    }
+
+    // ========================================================================
+    // AMÉLIORATION
+    // ========================================================================
+
+    /**
+     * Améliore la tour en augmentant son niveau.
+     * Les sous-classes peuvent surcharger cette méthode pour ajouter des effets spécifiques.
+     */
+    public void upgrade() {
+        if (this.level < this.maxLevel) {
+            this.level++;
+        }
+    }
+
+    // ========================================================================
+    // GETTERS
+    // ========================================================================
 
     /**
      * @return La position X de la tour
      */
     public float getPositionX() {
         return positionX;
-    }
-
-    /**
-     * Définit la position X de la tour.
-     * @param positionX La nouvelle position X
-     */
-    public void setPositionX(float positionX) {
-        this.positionX = positionX;
     }
 
     /**
@@ -113,26 +239,10 @@ public abstract class Tower implements Attacker{
     }
 
     /**
-     * Définit la position Y de la tour.
-     * @param positionY La nouvelle position Y
-     */
-    public void setPositionY(float positionY) {
-        this.positionY = positionY;
-    }
-
-    /**
      * @return Le niveau actuel de la tour
      */
     public int getLevel() {
         return level;
-    }
-
-    /**
-     * Définit le niveau de la tour.
-     * @param level Le nouveau niveau
-     */
-    public void setLevel(int level) {
-        this.level = level;
     }
 
     /**
@@ -143,7 +253,60 @@ public abstract class Tower implements Attacker{
     }
 
     /**
+     * @return La portée d'attaque de la tour (distance maximale)
+     */
+    public float getPortee() {
+        return portee;
+    }
+
+    /**
+     * @return Le prix d'achat de la tour
+     */
+    public int getPrix() {
+        return prix;
+    }
+
+    /**
+     * @return Le type de la tour
+     */
+    public TypeTour getTypeTour() {
+        return typeTour;
+    }
+
+    // ========================================================================
+    // SETTERS
+    // ========================================================================
+
+    /**
+     * Définit la position X de la tour.
+     * 
+     * @param positionX La nouvelle position X
+     */
+    public void setPositionX(float positionX) {
+        this.positionX = positionX;
+    }
+
+    /**
+     * Définit la position Y de la tour.
+     * 
+     * @param positionY La nouvelle position Y
+     */
+    public void setPositionY(float positionY) {
+        this.positionY = positionY;
+    }
+
+    /**
+     * Définit le niveau de la tour.
+     * 
+     * @param level Le nouveau niveau
+     */
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    /**
      * Définit le niveau maximum de la tour.
+     * 
      * @param maxLevel Le nouveau niveau maximum
      */
     public void setMaxLevel(int maxLevel) {
@@ -151,107 +314,20 @@ public abstract class Tower implements Attacker{
     }
 
     /**
-     * @return Les dégâts infligés par la tour
-     */
-    public float getDegats() {
-        return degats;
-    }
-
-    /**
-     * Définit les dégâts de la tour.
-     * @param degats Les nouveaux dégâts
-     */
-    public void setDegats(int degats) {
-        this.degats = degats;
-    }
-
-    /**
-     * @return La portée d'attaque de la tour
-     */
-    public float getPortee() {
-        return portee;
-    }
-
-    /**
      * Définit la portée d'attaque de la tour.
+     * 
      * @param portee La nouvelle portée
      */
     public void setPortee(float portee) {
         this.portee = portee;
     }
 
-    // ------------------------------------------------------------------------
-    // REGION : ATTAQUE
-    // ------------------------------------------------------------------------
-
     /**
-     * Attaque un ennemi s'il est dans la portée de la tour.
-     * Calcule la distance entre la tour et l'ennemi, et inflige des dégâts si
-     * l'ennemi est à portée.
-     * @param UnMechant L'ennemi à attaquer
+     * Définit le prix de la tour.
+     * 
+     * @param prix Le nouveau prix
      */
-    @Override
-    public void attacker(Mechant UnMechant) {
-        attacker(UnMechant, null, null);
-    }
-
-    /**
-     * Attaque un ennemi s'il est dans la portée de la tour en créant un projectile.*/
-    public void attacker(Mechant UnMechant, ProjectileManager projectileManager, Texture projectileTexture) {
-        if (UnMechant == null || !peutAttaquer()) {
-            return;
-        }
-
-        // Calculer la distance euclidienne entre la tour et l'ennemi
-        float distance = (float) Math.sqrt(
-            Math.pow(UnMechant.getPositionX() - positionX, 2) +
-            Math.pow(UnMechant.getPositionY() - positionY, 2)
-        );
-
-        if (distance <= portee) {
-            // Si on a un projectileManager et une texture, créer un projectile
-            if (projectileManager != null && projectileTexture != null) {
-                Projectile projectile = new Projectile(
-                    positionX, positionY,
-                    UnMechant,
-                    degats,
-                    typeTour,
-                    projectileTexture
-                );
-                projectileManager.ajouterProjectile(projectile);
-            } else {
-                // Sinon, infliger les dégâts directement (ancien comportement)
-                UnMechant.recevoirDegats(this.degats, this.typeTour);
-            }
-
-            tempsDepuisDerniereAttaque = 0f;
-            System.out.println("la tour " + this.getClass().getSimpleName() + " a tiré sur l'ennemi " +
-                UnMechant.getClass().getSimpleName());
-        }
-    }
-
-    /**
-     * Vérifie si la tour peut attaquer (si le cooldown est écoulé).
-     * @return true si la tour peut attaquer, false sinon
-     */
-    public boolean peutAttaquer() {
-        return tempsDepuisDerniereAttaque >= INTERVALLE_ATTAQUE;
-    }
-
-    /**
-     * Met à jour la tour (appelée à chaque frame).*/
-    public void update(float delta) {
-        tempsDepuisDerniereAttaque += delta;
-    }
-
-    // ------------------------------------------------------------------------
-    // REGION : AMÉLIORATION
-    // ------------------------------------------------------------------------
-    /**
-     * Améliore la tour en augmentant son niveau, ses dégâts et sa portée.*/
-    public void upgrade(float deltaTime, int prix) {
-        if (this.level < this.maxLevel) {
-            this.level++;
-        }
+    public void setPrix(int prix) {
+        this.prix = prix;
     }
 }

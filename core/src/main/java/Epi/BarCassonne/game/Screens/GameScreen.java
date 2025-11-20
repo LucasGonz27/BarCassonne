@@ -288,10 +288,6 @@ public class GameScreen implements Screen {
         spriteBatch.end();
 
         towerManager.renderPortee(shapeRenderer, camera);
-
-        // Dessiner les hitboxes des méchants (décommenter pour debug)
-        // shapeRenderer.setProjectionMatrix(camera.combined);
-        // vagueManager.renderHitboxes(shapeRenderer);
     }
 
     /**

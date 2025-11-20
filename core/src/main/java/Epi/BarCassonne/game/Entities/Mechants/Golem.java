@@ -7,12 +7,19 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  * Classe représentant le Golem
  */
 public class Golem extends Mechant {
+
+    /** Points de vie du Golem. */
+    private static final int PV = 400;
+
+    /** Vitesse de déplacement du Golem. */
+
+    private static final float VITESSE = 20f;
     
     /**
      * Constructeur par défaut.
      */
     public Golem() {
-        super(400, 0.5f, AssetMana.getAnimation("Golem"));
+        super(PV, VITESSE, AssetMana.getAnimation("Golem"));
     }
     
     /**

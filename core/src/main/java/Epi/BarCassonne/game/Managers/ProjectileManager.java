@@ -1,27 +1,39 @@
 package Epi.BarCassonne.game.Managers;
 
 import Epi.BarCassonne.game.Entities.Projectiles.Projectile;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**
- * Gestionnaire de tous les projectiles du jeu.*/
+ * Gestionnaire de tous les projectiles du jeu.
+ * Responsable de la mise à jour, du rendu et de la suppression des projectiles.
+ * 
+ * @author Epi
+ */
 public class ProjectileManager {
 
-
-    /** Liste de tous les projectiles actifs */
+    /** Liste de tous les projectiles actifs dans le jeu */
     private final List<Projectile> projectiles;
 
+    /** Gestionnaire des données des tours*/
+    private final TowerDataManager towerDataManager;
+
     /**
-     * Crée un nouveau gestionnaire de projectiles.*/
+     * Crée un nouveau gestionnaire de projectiles.
+     * Initialise la liste des projectiles et le gestionnaire de données.
+     */
     public ProjectileManager() {
         this.projectiles = new ArrayList<>();
+        this.towerDataManager = new TowerDataManager();
     }
 
     /**
-     * Ajoute un projectile à la liste.*/
+     * Ajoute un projectile à la liste des projectiles actifs.
+     * 
+     * @param projectile Le projectile à ajouter (ignoré si null)
+     */
     public void ajouterProjectile(Projectile projectile) {
         if (projectile != null) {
             projectiles.add(projectile);
@@ -29,38 +41,55 @@ public class ProjectileManager {
     }
 
     /**
-     * Met à jour tous les projectiles.
-     * Supprime les projectiles qui ont atteint leur cible.*/
+     * Met à jour tous les projectiles actifs.
+     * Supprime automatiquement les projectiles qui doivent être supprimés.
+     * 
+     * @param delta Temps écoulé depuis la dernière frame (en secondes)
+     */
     public void update(float delta) {
-        Iterator<Projectile> iterator = projectiles.iterator();
-        while (iterator.hasNext()) {
-            Projectile projectile = iterator.next();
+        // Mettre à jour tous les projectiles
+        for (Projectile projectile : projectiles) {
             projectile.update(delta);
+        }
+        
+        // Filtrer les projectiles actifs (ceux qui ne doivent pas être supprimés)
+        List<Projectile> projectilesActifs = new ArrayList<>();
+        for (Projectile projectile : projectiles) {
+            if (!projectile.doitEtreSupprime()) {
+                projectilesActifs.add(projectile);
+            }
+        }
+        
+        // Remplacer l'ancienne liste par la nouvelle liste filtrée
+        projectiles.clear();
+        projectiles.addAll(projectilesActifs);
+    }
 
-            // Supprimer le projectile s'il a atteint sa cible ou si la cible est morte
-            if (projectile.doitEtreSupprime()) {
-                iterator.remove();
+    /**
+     * Dessine tous les projectiles actifs à l'écran.
+     * Récupère la texture appropriée pour chaque projectile depuis TowerDataManager.
+     * 
+     * @param batch SpriteBatch pour le rendu
+     */
+    public void render(SpriteBatch batch) {
+        for (Projectile projectile : projectiles) {
+            String towerTypeName = projectile.getTowerTypeName();
+            if (towerTypeName != null) {
+                Texture texture = towerDataManager.getTextureProjectile(towerTypeName);
+                if (texture != null) {
+                    projectile.render(batch, texture);
+                }
             }
         }
     }
 
     /**
-     * Dessine tous les projectiles.*/
-    public void render(SpriteBatch batch) {
-        for (Projectile projectile : projectiles) {
-            projectile.render(batch);
-        }
-    }
-
-    /**
-     * Vide la liste de tous les projectiles.*/
+     * Supprime tous les projectiles de la liste.
+     * Utile pour réinitialiser le gestionnaire (ex: nouvelle partie).
+     */
     public void clear() {
         projectiles.clear();
     }
 
-    /**
-     * Retourne le nombre de projectiles actifs.*/
-    public int getNombreProjectiles() {
-        return projectiles.size();
-    }
+
 }
