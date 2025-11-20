@@ -21,6 +21,8 @@ public class GameState {
     /** Numéro de la vague actuelle. */
     private int numeroVague;
 
+    private static GameState instance = null;
+
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
     // ------------------------------------------------------------------------
@@ -29,7 +31,7 @@ public class GameState {
      * @param lingotsInitiaux Nombre de lingots au début du jeu
      * @param vieInitiale Vie initiale du joueur
      */
-    public GameState(int lingotsInitiaux, int vieInitiale) {
+    private GameState(int lingotsInitiaux, int vieInitiale) {
         this.lingots = lingotsInitiaux;
         this.vie = vieInitiale;
         this.vieMax = vieInitiale;
@@ -46,6 +48,18 @@ public class GameState {
     public void setLingots(int lingots) {
         this.lingots = Math.max(0, lingots);
     }
+
+    public static GameState getInstance() {
+        if (instance == null) {
+            instance = new GameState(300, 100);
+        }
+        return instance;
+    }
+
+    public static void resetInstance() {
+        instance = null;
+    }
+
 
     public void ajouterLingots(int montant) {
         this.lingots += montant;
