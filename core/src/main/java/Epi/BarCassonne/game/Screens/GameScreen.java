@@ -134,6 +134,8 @@ public class GameScreen implements Screen {
         AssetMana.loadAnimation("GoblinBomb");
         AssetMana.loadAnimation("Cochon");
         AssetMana.loadAnimation("RoiGoblin");
+        AssetMana.loadAnimation("Chevalier");
+        AssetMana.loadAnimation("Golem");
     }
 
     /**

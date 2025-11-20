@@ -22,7 +22,7 @@ public class Vague {
     private int numero;
     
     /** Intervalle en secondes entre chaque spawn d'ennemi. */
-    private float intervalleSpawn = 2f;
+    private float intervalleSpawn = 3f;
     
     /** Temps écoulé depuis le dernier spawn. */
     private float tempsDepuisDernierSpawn = 0f;

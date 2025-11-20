@@ -13,7 +13,7 @@ public class Chevalier extends Mechant {
     private static final int PV = 250;
 
     /** Vitesse de déplacement du Chevalier. */
-    private static final float VITESSE = 25f;
+    private static final float VITESSE = 150f;
     /**
      * Constructeur par défaut.
      */

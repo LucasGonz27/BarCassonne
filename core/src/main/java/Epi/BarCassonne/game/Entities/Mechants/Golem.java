@@ -13,7 +13,7 @@ public class Golem extends Mechant {
 
     /** Vitesse de déplacement du Golem. */
 
-    private static final float VITESSE = 20f;
+    private static final float VITESSE = 35f;
     
     /**
      * Constructeur par défaut.

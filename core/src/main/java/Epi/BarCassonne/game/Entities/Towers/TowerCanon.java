@@ -5,8 +5,8 @@ package Epi.BarCassonne.game.Entities.Towers;
  */
 public class TowerCanon extends Tower {
 
-    protected static final int PRIX = 1000;
-    protected static final float PORTEE = 0f;
+    protected static final int PRIX = 400;
+    protected static final float PORTEE = 150f;
     protected static final int DEGATS = 10;
     
     /**

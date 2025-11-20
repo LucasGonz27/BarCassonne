@@ -115,6 +115,7 @@ public class VagueMana {
 
         // Vague 9
         Vague v9 = new Vague(9);
+        v9.ajouterEnnemi(GoblinGuerrisseur.class, 10);
         v9.ajouterEnnemi(Chevalier.class, 2);
         vagues.add(v9);
 

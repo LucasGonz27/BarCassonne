@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
 import Epi.BarCassonne.game.Entities.Towers.TowerMagie;
 import Epi.BarCassonne.game.Entities.Towers.TowerForgeron;
+import Epi.BarCassonne.game.Entities.Towers.TowerCanon;
 import Epi.BarCassonne.game.Entities.Projectiles.Fleche;
 import Epi.BarCassonne.game.Entities.Projectiles.Bullet;
 import Epi.BarCassonne.game.Entities.Projectiles.Sort;
@@ -27,6 +28,7 @@ public class TowerDataManager {
     private final TowerArcher towerArcher;
     private final TowerMagie towerMagie;
     private final TowerForgeron towerForgeron;
+    private final TowerCanon towerCanon;
     private final Fleche fleche;
     private final Bullet bullet;
     private final Sort sort;
@@ -47,6 +49,7 @@ public class TowerDataManager {
         this.towerArcher = new TowerArcher();
         this.towerMagie = new TowerMagie();
         this.towerForgeron = new TowerForgeron();
+        this.towerCanon = new TowerCanon();
         this.fleche = new Fleche();
         this.bullet = new Bullet();
         this.sort = new Sort();
@@ -73,6 +76,7 @@ public class TowerDataManager {
     private void initialiserTextures() {
         textures.put("TowerArcher", TextureManager.chargerTexture("sprites/TourArcherLevel1.png"));
         textures.put("TowerMagie", TextureManager.chargerTexture("sprites/TourMagieLevel1.png"));
+        textures.put("TowerCanon", TextureManager.chargerTexture("sprites/CanonLevel1.png"));
         textures.put("TowerForgeron", TextureManager.chargerTexture("sprites/ForgeronLevel1.png"));
     }
 
@@ -81,9 +85,9 @@ public class TowerDataManager {
      * Charge les textures des projectiles depuis les fichiers d'assets.
      */
     private void initialiserTexturesProjectiles() {
-        texturesProjectiles.put("TowerArcher", TextureManager.chargerTexture("sprites/flecheSprite.png"));
-        texturesProjectiles.put("TowerCanon", TextureManager.chargerTexture("sprites/fleche.png"));
-        texturesProjectiles.put("TowerMagie", TextureManager.chargerTexture("sprites/SortElectrique.png"));
+        texturesProjectiles.put("TowerArcher", TextureManager.chargerTexture("sprites/flecheLevel1.png"));
+        texturesProjectiles.put("TowerCanon", TextureManager.chargerTexture("sprites/BulletLevel1.png"));
+        texturesProjectiles.put("TowerMagie", TextureManager.chargerTexture("sprites/SortElectriqueLevel1.png"));
     }
 
     /**
@@ -93,6 +97,7 @@ public class TowerDataManager {
     private void initialiserPrix() {
         prix.put("TowerArcher", towerArcher.getPrix());
         prix.put("TowerMagie", towerMagie.getPrix());
+        prix.put("TowerCanon", towerCanon.getPrix());
         prix.put("TowerForgeron", towerForgeron.getPrix());
     }
 
@@ -103,6 +108,7 @@ public class TowerDataManager {
     private void initialiserPortee() {
         portee.put("TowerArcher", towerArcher.getPortee());
         portee.put("TowerMagie", towerMagie.getPortee());
+        portee.put("TowerCanon", towerCanon.getPortee());
         portee.put("TowerForgeron", towerForgeron.getPortee());
     }
 

@@ -290,7 +290,7 @@ public class TowerManager {
     /**
      * Convertit un slot en type de tour.
      * 
-     * @param slot Le slot (1, 2 ou 3)
+     * @param slot Le slot (1: Archer, 2: Magie, 3: Forgeron, 4: Canon)
      * @return Le type de tour correspondant, ou null si le slot est invalide
      */
     private String convertirSlotEnTypeTour(int slot) {
@@ -301,6 +301,8 @@ public class TowerManager {
                 return "TowerMagie";
             case 3:
                 return "TowerForgeron";
+            case 4:
+                return "TowerCanon";
             default:
                 return null;
         }
