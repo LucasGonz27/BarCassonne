@@ -49,40 +49,12 @@ public class GameState {
         this.lingots = Math.max(0, lingots);
     }
 
-    public static GameState getInstance() {
-        if (instance == null) {
-            instance = new GameState(300, 100);
-        }
-        return instance;
-    }
-
-    public static void resetInstance() {
-        instance = null;
-    }
-
-
-    public void ajouterLingots(int montant) {
-        this.lingots += montant;
-    }
-
-    public boolean retirerLingots(int montant) {
-        if (lingots >= montant) {
-            lingots -= montant;
-            return true;
-        }
-        return false;
-    }
-
     public int getVie() {
         return vie;
     }
 
     public void setVie(int vie) {
         this.vie = Math.max(0, Math.min(vie, vieMax));
-    }
-
-    public void recevoirDegats(int degats) {
-        this.vie = Math.max(0, vie - degats);
     }
 
     public int getVieMax() {
@@ -100,4 +72,52 @@ public class GameState {
     public boolean estEnVie() {
         return vie > 0;
     }
+
+    /**
+     * Retourne l'instance de GameState.
+     * @return L'instance de GameState
+     */
+    public static GameState getInstance() {
+        if (instance == null) {
+            instance = new GameState(300, 100);
+        }
+        return instance;
+    }
+
+    /**
+     * Réinitialise l'instance de GameState.
+     */
+    public static void resetInstance() {
+        instance = null;
+    }
+
+    /**
+     * Ajoute un montant de lingots à l'état du jeu.
+     * @param montant Le montant de lingots à ajouter
+     */
+    public void ajouterLingots(int montant) {
+        this.lingots += montant;
+    }
+
+    /**
+     * Retire un montant de lingots à l'état du jeu.
+     * @param montant Le montant de lingots à retirer
+     * @return true si le montant a été retiré, false sinon
+     */
+    public boolean retirerLingots(int montant) {
+        if (lingots >= montant) {
+            lingots -= montant;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Retire un montant de vie à l'état du jeu.
+     * @param degats Le montant de vie à retirer
+     */
+    public void recevoirDegats(int degats) {
+        this.vie = Math.max(0, vie - degats);
+    }
+
 }
