@@ -5,8 +5,10 @@ package Epi.BarCassonne.game.Entities.Towers;
  */
 public class TowerArcher extends Tower {
     
-    
+    /** Prix de la tour*/
     protected static final int PRIX = 100;
+    
+    /** Portée de la tour*/
     protected static final float PORTEE = 200f;
     
     /**

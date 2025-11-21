@@ -5,9 +5,11 @@ package Epi.BarCassonne.game.Entities.Towers;
  */
 public class TowerMagie extends Tower {
     
+    /** Prix de la tour*/
     protected static final int PRIX = 500;
+    
+    /** Portée de la tour*/
     protected static final float PORTEE = 150f;
-    protected static final int DEGATS = 50;
     
     /**
      * Constructeur par défaut.

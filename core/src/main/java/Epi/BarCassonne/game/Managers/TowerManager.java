@@ -38,7 +38,7 @@ public class TowerManager {
     /** Taille d'une tour sur le terrain */
     private static final float TOWER_SIZE = 100f;
 
-    /** Intervalle de génération de lingots pour les forgerons (en secondes) */
+    /** Intervalle de génération de lingots pour les forgerons*/
     private static final float INTERVALLE_GENERATION_LINGOTS = 11f;
 
     /** Seuil de temps pour afficher le sac plein (en secondes) */
