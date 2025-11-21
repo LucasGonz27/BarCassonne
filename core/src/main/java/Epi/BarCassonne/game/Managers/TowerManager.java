@@ -188,6 +188,7 @@ public class TowerManager {
         }
         genererLingots(delta);
         messageFlottant.update(delta);
+        towerPanelInfo.update(); // Mettre à jour les boutons pour détecter les clics
     }
 
     /**
@@ -665,30 +666,14 @@ public class TowerManager {
             return false;
         }
 
-        // Vérifier si le panneau est visible et si on clique sur un bouton
-        if (towerPanelInfo.estVisible()) {
-            if (towerPanelInfo.clicSurBoutonAmeliorer(worldPos.x, worldPos.y)) {
-                ameliorerTour(towerPanelInfo.getTourSelectionnee());
-                return true;
-            }
-            if (towerPanelInfo.clicSurBoutonSupprimer(worldPos.x, worldPos.y)) {
-                supprimerTour(towerPanelInfo.getTourSelectionnee());
-                return true;
-            }
-            // Si le clic est sur le panneau mais pas sur un bouton, on ne fait rien
-            if (towerPanelInfo.clicSurPanneau(worldPos.x, worldPos.y)) {
-                return true;
-            }
-            // Si le clic est en dehors du panneau, on le ferme
-            towerPanelInfo.masquer();
-            tourSelectionnee = null;
-        }
-
         // Vérifier si on clique sur une tour
         Tower tourCliquee = trouverTourAPosition(worldPos.x, worldPos.y);
         if (tourCliquee != null) {
             tourSelectionnee = tourCliquee;
-            towerPanelInfo.afficher(tourCliquee);
+            // Créer les callbacks pour les boutons
+            Runnable callbackAmeliorer = () -> ameliorerTour(tourCliquee);
+            Runnable callbackSupprimer = () -> supprimerTour(tourCliquee);
+            towerPanelInfo.afficher(tourCliquee, screenWidth, screenHeight, callbackAmeliorer, callbackSupprimer);
             return true;
         }
 

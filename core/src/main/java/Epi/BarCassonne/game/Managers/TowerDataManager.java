@@ -74,17 +74,28 @@ public class TowerDataManager {
      * Charge les textures depuis les fichiers d'assets.
      */
     private void initialiserTextures() {
+
         // Textures Level 1
         textures.put("TowerArcher_1", TextureManager.chargerTexture("sprites/TourArcherLevel1.png"));
         textures.put("TowerMagie_1", TextureManager.chargerTexture("sprites/TourMagieLevel1.png"));
         textures.put("TowerCanon_1", TextureManager.chargerTexture("sprites/CanonLevel1.png"));
 
-        // Textures Level 2 (à créer manuellement par l'utilisateur)
+        // Textures Level 2 
         textures.put("TowerArcher_2", TextureManager.chargerTexture("sprites/TourArcherLevel2.png"));
         textures.put("TowerMagie_2", TextureManager.chargerTexture("sprites/TourMagieLevel2.png"));
         textures.put("TowerCanon_2", TextureManager.chargerTexture("sprites/CanonLevel2.png"));
 
-        // Rétrocompatibilité : garder les clés sans niveau pour le mode placement
+        // Textures Level 3
+        textures.put("TowerArcher_3", TextureManager.chargerTexture("sprites/TourArcherLevel3.png"));
+        textures.put("TowerMagie_3", TextureManager.chargerTexture("sprites/TourMagieLevel3.png"));
+        textures.put("TowerCanon_3", TextureManager.chargerTexture("sprites/CanonLevel3.png"));
+
+        // Textures Level 4
+        textures.put("TowerArcher_4", TextureManager.chargerTexture("sprites/TourArcherLevel4.png"));
+        textures.put("TowerMagie_4", TextureManager.chargerTexture("sprites/TourMagieLevel4.png"));
+        textures.put("TowerCanon_4", TextureManager.chargerTexture("sprites/CanonLevel4.png"));
+
+        //on garder les clés sans niveau pour le mode placement
         textures.put("TowerArcher", TextureManager.chargerTexture("sprites/TourArcherLevel1.png"));
         textures.put("TowerMagie", TextureManager.chargerTexture("sprites/TourMagieLevel1.png"));
         textures.put("TowerCanon", TextureManager.chargerTexture("sprites/CanonLevel1.png"));

@@ -1,15 +1,14 @@
 package Epi.BarCassonne.game.UI;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import Epi.BarCassonne.game.Config.TowerUpgradeConfig;
 import Epi.BarCassonne.game.Entities.Towers.Tower;
 import Epi.BarCassonne.game.Managers.TextureManager;
+import Epi.BarCassonne.game.Managers.TowerDataManager;
+import Epi.BarCassonne.game.Utils.Button;
+import Epi.BarCassonne.game.Utils.Texte;
 
 /**
  * Interface d'amélioration des tours.
@@ -20,51 +19,30 @@ import Epi.BarCassonne.game.Managers.TextureManager;
 public class TowerPanelInfo {
 
     // ========================================================================
-    // CONSTANTES
+    // CONSTANTES - DIMENSIONS DU PANNEAU
     // ========================================================================
-
-    /** Largeur du bouton */
-    private static final float LARGEUR_BOUTON = 200f;
-
-    /** Hauteur du bouton */
-    private static final float HAUTEUR_BOUTON = 60f;
-
-    /** Espacement entre les boutons */
-    private static final float ESPACEMENT_BOUTON = 20f;
-
-    /** Décalage vertical du panneau par rapport à la tour */
-    private static final float DECALAGE_Y = 150f;
 
     /** Largeur du panneau de fond */
-    private static final float LARGEUR_PANNEAU = 250f;
+    private static final float LARGEUR_PANNEAU = 650f;
 
     /** Hauteur du panneau de fond */
-    private static final float HAUTEUR_PANNEAU = 200f;
-
-    /** Taille de la police pour les boutons */
-    private static final int TAILLE_POLICE = 24;
-
-    /** Taille de la police pour les informations */
-    private static final int TAILLE_POLICE_INFO = 20;
+    private static final float HAUTEUR_PANNEAU = 220f;
 
     // ========================================================================
-    // CHAMPS
+    // CHAMPS - ÉTAT
     // ========================================================================
+
+    /** Indique si le panneau est visible */
+    private boolean visible;
 
     /** Tour actuellement sélectionnée */
     private Tower tourSelectionnee;
 
-    /** Texture de fond du panneau */
-    private Texture textureAmelioration;
+    /** Largeur de l'écran */
+    private float screenWidth;
 
-    /** Police pour le texte */
-    private BitmapFont font;
-
-    /** Police pour les informations */
-    private BitmapFont fontInfo;
-
-    /** Layout pour calculer les dimensions du texte */
-    private GlyphLayout layout;
+    /** Hauteur de l'écran */
+    private float screenHeight;
 
     /** Position X du panneau */
     private float panneauX;
@@ -72,8 +50,28 @@ public class TowerPanelInfo {
     /** Position Y du panneau */
     private float panneauY;
 
-    /** Indique si le panneau est visible */
-    private boolean visible;
+    // ========================================================================
+    // CHAMPS - RESSOURCES
+    // ========================================================================
+
+    /** Texture de fond du panneau */
+    private Texture textureAmelioration;
+
+
+    /** Bouton Améliorer */
+    private Button boutonAmeliorer;
+
+    /** Bouton Supprimer */
+    private Button boutonSupprimer;
+
+    /** Callback pour améliorer la tour */
+    private Runnable callbackAmeliorer;
+ 
+    /** Callback pour supprimer la tour */
+    private Runnable callbackSupprimer;
+
+    /** Gestionnaire des données des tours */
+    private final TowerDataManager towerDataManager;
 
     // ========================================================================
     // CONSTRUCTEUR
@@ -84,44 +82,40 @@ public class TowerPanelInfo {
      */
     public TowerPanelInfo() {
         this.visible = false;
-        this.layout = new GlyphLayout();
+        this.towerDataManager = new TowerDataManager();
         chargerRessources();
     }
 
     /**
-     * Charge les ressources nécessaires (textures, polices).
+     * Charge les ressources nécessaires (textures).
      */
     private void chargerRessources() {
         // Charger la texture de fond
-        textureAmelioration = TextureManager.chargerTexture("sprites/Amelioration.png");
-
-        // Créer les polices
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/font.ttf"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
-
-        parameter.size = TAILLE_POLICE;
-        parameter.color = Color.WHITE;
-        font = generator.generateFont(parameter);
-
-        parameter.size = TAILLE_POLICE_INFO;
-        fontInfo = generator.generateFont(parameter);
-
-        generator.dispose();
+        textureAmelioration = TextureManager.chargerTexture("sprites/AmeliorationPanel.png");
     }
 
     // ========================================================================
-    // AFFICHAGE
+    // GESTION DE L'AFFICHAGE
     // ========================================================================
 
     /**
      * Affiche le panneau d'amélioration pour une tour.
      *
      * @param tour La tour sélectionnée
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     * @param callbackAmeliorer Callback à appeler lors du clic sur "Améliorer"
+     * @param callbackSupprimer Callback à appeler lors du clic sur "Supprimer"
      */
-    public void afficher(Tower tour) {
+    public void afficher(Tower tour, float screenWidth, float screenHeight, Runnable callbackAmeliorer, Runnable callbackSupprimer) {
         this.tourSelectionnee = tour;
+        this.screenWidth = screenWidth;
+        this.screenHeight = screenHeight;
+        this.callbackAmeliorer = callbackAmeliorer;
+        this.callbackSupprimer = callbackSupprimer;
         this.visible = true;
-        calculerPositionPanneau();
+        positionnerPanneau();
+        initialiserBoutons();
     }
 
     /**
@@ -130,15 +124,104 @@ public class TowerPanelInfo {
     public void masquer() {
         this.visible = false;
         this.tourSelectionnee = null;
+        this.callbackAmeliorer = null;
+        this.callbackSupprimer = null;
+        libererBoutons();
     }
 
     /**
-     * Calcule la position du panneau en fonction de la tour sélectionnée.
+     * Met à jour les boutons (détection des clics).
+     * Doit être appelé à chaque frame.
      */
-    private void calculerPositionPanneau() {
-        if (tourSelectionnee != null) {
-            panneauX = tourSelectionnee.getPositionX() - LARGEUR_PANNEAU / 2;
-            panneauY = tourSelectionnee.getPositionY() + DECALAGE_Y;
+    public void update() {
+        if (!visible) {
+            return;
+        }
+        if (boutonAmeliorer != null) {
+            boutonAmeliorer.update();
+        }
+        if (boutonSupprimer != null) {
+            boutonSupprimer.update();
+        }
+    }
+
+    /**
+     * Calcule la position du panneau en bas de l'écran, centré horizontalement.
+     */
+    private void positionnerPanneau() {
+        panneauX = screenWidth * 0.465f;
+        panneauY = 0f;
+    }
+
+    // ========================================================================
+    // INITIALISATION DES BOUTONS
+    // ========================================================================
+
+    /**
+     * Initialise les boutons Améliorer et Supprimer.
+     */
+    private void initialiserBoutons() {
+
+        //position du bouton amelioration
+
+        float boutonXAmeliorer = panneauX + 170f;
+        float boutonYAmeliorer = panneauY + 8f;   
+        float largeurBoutonAmeliorer = 350f;
+        float hauteurBoutonAmeliorer = 200f;
+
+        String texteAmeliorer = "Améliorer";
+        Color couleurAmeliorer = Color.GREEN;
+        int taillePoliceAmeliorer = 40;
+        String cheminTextureAmeliorer = "skin/SkinBoutonBois.png";
+
+        if (TowerUpgradeConfig.peutEtreAmelioree(tourSelectionnee.getLevel(), tourSelectionnee.getMaxLevel())) {
+            if (boutonAmeliorer != null) {
+                boutonAmeliorer.dispose();
+            }
+            boutonAmeliorer = new Button(boutonXAmeliorer, boutonYAmeliorer, largeurBoutonAmeliorer, hauteurBoutonAmeliorer, texteAmeliorer, cheminTextureAmeliorer, couleurAmeliorer, taillePoliceAmeliorer);
+            // Définir l'action du bouton Améliorer
+            if (callbackAmeliorer != null) {
+                boutonAmeliorer.setAction(callbackAmeliorer);
+            }
+        } else {
+            if (boutonAmeliorer != null) {
+                boutonAmeliorer.dispose();
+                boutonAmeliorer = null;
+            }
+        }
+
+        //position du bouton supprimer
+        float boutonXSupprimer = panneauX + 170f;
+        float boutonYSupprimer = panneauY - 50f;
+        float largeurBoutonSupprimer = 350f;
+        float hauteurBoutonSupprimer = 200f;
+
+        String texteSupprimer = "Supprimer";
+        Color couleurSupprimer = Color.RED;
+        int taillePoliceSupprimer = 40;
+        String cheminTextureSupprimer = "skin/SkinBoutonBois.png";
+
+        if (boutonSupprimer != null) {
+            boutonSupprimer.dispose();
+        }
+        boutonSupprimer = new Button(boutonXSupprimer, boutonYSupprimer, largeurBoutonSupprimer, hauteurBoutonSupprimer, texteSupprimer, cheminTextureSupprimer, couleurSupprimer, taillePoliceSupprimer);
+        // Définir l'action du bouton Supprimer
+        if (callbackSupprimer != null) {
+            boutonSupprimer.setAction(callbackSupprimer);
+        }
+    }
+
+    /**
+     * Libère les boutons.
+     */
+    private void libererBoutons() {
+        if (boutonAmeliorer != null) {
+            boutonAmeliorer.dispose();
+            boutonAmeliorer = null;
+        }
+        if (boutonSupprimer != null) {
+            boutonSupprimer.dispose();
+            boutonSupprimer = null;
         }
     }
 
@@ -156,16 +239,34 @@ public class TowerPanelInfo {
             return;
         }
 
-        // Dessiner le fond
+        dessinerFond(batch);
+        dessinerInfosTour(batch);
+        dessinerBoutons(batch);
+    }
+
+        /**
+     * Dessine les boutons Améliorer et Supprimer.
+     *
+     * @param batch SpriteBatch pour le rendu
+     */
+        private void dessinerBoutons(SpriteBatch batch) {
+            if (boutonAmeliorer != null) {
+                boutonAmeliorer.render(batch);
+            }
+            if (boutonSupprimer != null) {
+                boutonSupprimer.render(batch);
+            }
+        }
+
+    /**
+     * Dessine le fond du panneau.
+     *
+     * @param batch SpriteBatch pour le rendu
+     */
+    private void dessinerFond(SpriteBatch batch) {
         if (textureAmelioration != null) {
             batch.draw(textureAmelioration, panneauX, panneauY, LARGEUR_PANNEAU, HAUTEUR_PANNEAU);
         }
-
-        // Dessiner les informations de la tour
-        dessinerInformations(batch);
-
-        // Dessiner les boutons
-        dessinerBoutons(batch);
     }
 
     /**
@@ -173,138 +274,36 @@ public class TowerPanelInfo {
      *
      * @param batch SpriteBatch pour le rendu
      */
-    private void dessinerInformations(SpriteBatch batch) {
+    private void dessinerInfosTour(SpriteBatch batch) {
+
+        //on recupere le type
         String towerType = tourSelectionnee.getClass().getSimpleName();
+
+        // Récupérer le niveau
         int niveau = tourSelectionnee.getLevel();
 
-        // Afficher le type et le niveau
-        String info = towerType + " - Niveau " + niveau;
-        layout.setText(fontInfo, info);
-        float infoX = panneauX + (LARGEUR_PANNEAU - layout.width) / 2;
-        float infoY = panneauY + HAUTEUR_PANNEAU - 20f;
-        fontInfo.draw(batch, info, infoX, infoY);
+        // Récupérer l'image de la tour depuis TowerDataManager
+        Texture imageTour = towerDataManager.getTextureWithLevel(towerType, niveau);
+        if (imageTour != null) {
+            batch.draw(imageTour, panneauX + 80f, panneauY + 60f, 100f, 100f);
+        }
 
-        // Afficher le coût d'amélioration si possible
+        // Afficher les dégâts (toujours affichés, même au niveau max)
+        Texte.drawText(batch, "Dégats: ", panneauX + 245f, panneauY + 180f, Color.BLACK, 33);
+        int degats = (int) (towerDataManager.getDegats(towerType) * TowerUpgradeConfig.getMultiplicateurDegats(niveau));
+        Texte.drawText(batch, "" + degats, panneauX + 390f, panneauY + 180f, Color.BLACK, 30);
+
+        // Texte qui affiche le niveau actuel de la tour
         if (TowerUpgradeConfig.peutEtreAmelioree(niveau, tourSelectionnee.getMaxLevel())) {
+            // Afficher le niveau normal si on peut encore améliorer
+            Texte.drawText(batch, "Niveau " + niveau, panneauX + 495f, panneauY + 190f, Color.WHITE, 35);
+            // Afficher le coût d'amélioration
             int coutAmelioration = TowerUpgradeConfig.getCoutAmelioration(towerType, niveau + 1);
-            String coutTexte = "Coût: " + coutAmelioration + " lingots";
-            layout.setText(fontInfo, coutTexte);
-            float coutX = panneauX + (LARGEUR_PANNEAU - layout.width) / 2;
-            float coutY = infoY - 30f;
-            fontInfo.draw(batch, coutTexte, coutX, coutY);
+            Texte.drawText(batch, "(" + coutAmelioration + " lingots)", panneauX + 460f, panneauY + 123f, Color.WHITE, 28);
         } else {
-            String maxTexte = "Niveau MAX";
-            layout.setText(fontInfo, maxTexte);
-            float maxX = panneauX + (LARGEUR_PANNEAU - layout.width) / 2;
-            float maxY = infoY - 30f;
-            fontInfo.setColor(Color.GOLD);
-            fontInfo.draw(batch, maxTexte, maxX, maxY);
-            fontInfo.setColor(Color.WHITE);
+            // Afficher "Niveau MAX" si on est au niveau maximum
+            Texte.drawText(batch, "Niveau MAX", panneauX + 493f, panneauY + 190f, Color.WHITE, 25);
         }
-    }
-
-    /**
-     * Dessine les boutons Améliorer et Supprimer.
-     *
-     * @param batch SpriteBatch pour le rendu
-     */
-    private void dessinerBoutons(SpriteBatch batch) {
-        float boutonY = panneauY + 40f;
-
-        // Bouton Améliorer (si possible)
-        if (TowerUpgradeConfig.peutEtreAmelioree(tourSelectionnee.getLevel(), tourSelectionnee.getMaxLevel())) {
-            dessinerBouton(batch, "Améliorer", panneauX + 25f, boutonY, Color.GREEN);
-        }
-
-        // Bouton Supprimer
-        dessinerBouton(batch, "Supprimer", panneauX + 25f, boutonY - HAUTEUR_BOUTON - ESPACEMENT_BOUTON, Color.RED);
-    }
-
-    /**
-     * Dessine un bouton avec du texte.
-     *
-     * @param batch SpriteBatch pour le rendu
-     * @param texte Texte du bouton
-     * @param x Position X du bouton
-     * @param y Position Y du bouton
-     * @param couleur Couleur du texte
-     */
-    private void dessinerBouton(SpriteBatch batch, String texte, float x, float y, Color couleur) {
-        font.setColor(couleur);
-        layout.setText(font, texte);
-        float textX = x + (LARGEUR_BOUTON - layout.width) / 2;
-        float textY = y + HAUTEUR_BOUTON / 2 + layout.height / 2;
-        font.draw(batch, texte, textX, textY);
-        font.setColor(Color.WHITE);
-    }
-
-    // ========================================================================
-    // DÉTECTION DES CLICS
-    // ========================================================================
-
-    /**
-     * Vérifie si un clic a eu lieu sur le bouton Améliorer.
-     *
-     * @param screenX Position X du clic à l'écran
-     * @param screenY Position Y du clic à l'écran
-     * @return true si le bouton Améliorer a été cliqué
-     */
-    public boolean clicSurBoutonAmeliorer(float screenX, float screenY) {
-        if (!visible || tourSelectionnee == null) {
-            return false;
-        }
-
-        if (!TowerUpgradeConfig.peutEtreAmelioree(tourSelectionnee.getLevel(), tourSelectionnee.getMaxLevel())) {
-            return false;
-        }
-
-        float boutonY = panneauY + 40f;
-        return estDansZone(screenX, screenY, panneauX + 25f, boutonY, LARGEUR_BOUTON, HAUTEUR_BOUTON);
-    }
-
-    /**
-     * Vérifie si un clic a eu lieu sur le bouton Supprimer.
-     *
-     * @param screenX Position X du clic à l'écran
-     * @param screenY Position Y du clic à l'écran
-     * @return true si le bouton Supprimer a été cliqué
-     */
-    public boolean clicSurBoutonSupprimer(float screenX, float screenY) {
-        if (!visible || tourSelectionnee == null) {
-            return false;
-        }
-
-        float boutonY = panneauY + 40f - HAUTEUR_BOUTON - ESPACEMENT_BOUTON;
-        return estDansZone(screenX, screenY, panneauX + 25f, boutonY, LARGEUR_BOUTON, HAUTEUR_BOUTON);
-    }
-
-    /**
-     * Vérifie si un clic a eu lieu sur le panneau.
-     *
-     * @param screenX Position X du clic à l'écran
-     * @param screenY Position Y du clic à l'écran
-     * @return true si le clic est sur le panneau
-     */
-    public boolean clicSurPanneau(float screenX, float screenY) {
-        if (!visible) {
-            return false;
-        }
-        return estDansZone(screenX, screenY, panneauX, panneauY, LARGEUR_PANNEAU, HAUTEUR_PANNEAU);
-    }
-
-    /**
-     * Vérifie si un point est dans une zone rectangulaire.
-     *
-     * @param x Position X du point
-     * @param y Position Y du point
-     * @param zoneX Position X de la zone
-     * @param zoneY Position Y de la zone
-     * @param zoneLargeur Largeur de la zone
-     * @param zoneHauteur Hauteur de la zone
-     * @return true si le point est dans la zone
-     */
-    private boolean estDansZone(float x, float y, float zoneX, float zoneY, float zoneLargeur, float zoneHauteur) {
-        return x >= zoneX && x <= zoneX + zoneLargeur && y >= zoneY && y <= zoneY + zoneHauteur;
     }
 
     // ========================================================================
@@ -336,11 +335,6 @@ public class TowerPanelInfo {
         if (textureAmelioration != null) {
             TextureManager.libererTexture(textureAmelioration);
         }
-        if (font != null) {
-            font.dispose();
-        }
-        if (fontInfo != null) {
-            fontInfo.dispose();
-        }
+        libererBoutons();
     }
 }

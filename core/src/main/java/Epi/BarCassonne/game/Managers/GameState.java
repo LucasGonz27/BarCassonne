@@ -79,7 +79,7 @@ public class GameState {
      */
     public static GameState getInstance() {
         if (instance == null) {
-            instance = new GameState(300, 100);
+            instance = new GameState(100000, 100);
         }
         return instance;
     }
