@@ -63,9 +63,9 @@ public class TowerManager {
     private static final int TAILLE_POLICE_MESSAGE_LINGOTS = 30;
 
     /** Revenu par lingot généré */
-    private static final int REVENUE_LINGOT = 100;
+    private static final int REVENUE_LINGOT = 200;
 
-    /** Temps avant la génération des lingots (en secondes) */
+    /** Temps avant la génération des lingots*/
     private static final float TEMPS_AVANT_GENERATION_LINGOTS = 20f;
 
     // ========================================================================
