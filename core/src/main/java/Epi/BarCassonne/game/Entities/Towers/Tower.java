@@ -10,7 +10,7 @@ import Epi.BarCassonne.Factory.ProjectileFactory;
  * Classe abstraite représentant une tour défensive.
  * Les tours peuvent attaquer les ennemis dans leur portée (range).
  * Implémente l'interface Attacker pour définir le comportement d'attaque.
- * 
+ *
  * @author Epi
  */
 public abstract class Tower implements Attacker {
@@ -56,7 +56,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Crée une nouvelle tour.
-     * 
+     *
      * @param positionX Position X initiale en coordonnées monde
      * @param positionY Position Y initiale en coordonnées monde
      * @param level Niveau initial de la tour
@@ -83,7 +83,7 @@ public abstract class Tower implements Attacker {
     /**
      * Met à jour l'état de la tour.
      * Incrémente le temps depuis la dernière attaque.
-     * 
+     *
      * @param delta Temps écoulé depuis la dernière frame (en secondes)
      */
     public void update(float delta) {
@@ -96,7 +96,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Attaque un ennemi s'il est dans la portée de la tour en créant un projectile.
-     * 
+     *
      * @param ennemi L'ennemi à attaquer
      * @param projectileManager Le gestionnaire de projectiles
      */
@@ -113,28 +113,28 @@ public abstract class Tower implements Attacker {
 
         // Créer et lancer le projectile
         creerEtLancerProjectile(ennemi, projectileManager);
-        
+
         // Réinitialiser le cooldown d'attaque
         reinitialiserCooldown();
     }
 
     /**
      * Vérifie si la tour peut attaquer (préconditions).
-     * 
+     *
      * @param ennemi L'ennemi ciblé
      * @param projectileManager Le gestionnaire de projectiles
      * @return true si la tour peut attaquer, false sinon
      */
     private boolean peutAttaquer(Mechant ennemi, ProjectileManager projectileManager) {
-        return ennemi != null 
-            && ennemi.isEnVie() 
-            && projectileManager != null 
+        return ennemi != null
+            && ennemi.isEnVie()
+            && projectileManager != null
             && peutAttaquer();
     }
 
     /**
      * Vérifie si le cooldown d'attaque est écoulé.
-     * 
+     *
      * @return true si la tour peut attaquer, false sinon
      */
     public boolean peutAttaquer() {
@@ -143,7 +143,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Vérifie si un ennemi est dans la portée de la tour.
-     * 
+     *
      * @param ennemi L'ennemi à vérifier
      * @return true si l'ennemi est dans la portée, false sinon
      */
@@ -154,7 +154,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Calcule la distance euclidienne entre la tour et un ennemi.
-     * 
+     *
      * @param ennemi L'ennemi ciblé
      * @return La distance entre la tour et l'ennemi
      */
@@ -166,7 +166,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Crée un projectile et le lance vers l'ennemi.
-     * 
+     *
      * @param ennemi L'ennemi ciblé
      * @param projectileManager Le gestionnaire de projectiles
      */
@@ -175,10 +175,10 @@ public abstract class Tower implements Attacker {
             // Créer le projectile via la factory
             String towerType = this.getClass().getSimpleName();
             Projectile projectile = ProjectileFactory.creerProjectile(towerType);
-            
+
             // Initialiser le projectile
             initialiserProjectile(projectile, ennemi);
-            
+
             // Ajouter le projectile au gestionnaire
             projectileManager.ajouterProjectile(projectile);
         } catch (IllegalArgumentException e) {
@@ -188,7 +188,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Initialise un projectile avec les valeurs de la tour.
-     * 
+     *
      * @param projectile Le projectile à initialiser
      * @param ennemi L'ennemi ciblé
      */
@@ -197,6 +197,7 @@ public abstract class Tower implements Attacker {
         projectile.setPositionY(positionY);
         projectile.setCible(ennemi);
         projectile.setTypeTour(typeTour);
+        projectile.setNiveauTour(level); // Transmet le niveau de la tour au projectile
     }
 
     /**
@@ -279,7 +280,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Définit la position X de la tour.
-     * 
+     *
      * @param positionX La nouvelle position X
      */
     public void setPositionX(float positionX) {
@@ -288,7 +289,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Définit la position Y de la tour.
-     * 
+     *
      * @param positionY La nouvelle position Y
      */
     public void setPositionY(float positionY) {
@@ -297,7 +298,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Définit le niveau de la tour.
-     * 
+     *
      * @param level Le nouveau niveau
      */
     public void setLevel(int level) {
@@ -306,7 +307,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Définit le niveau maximum de la tour.
-     * 
+     *
      * @param maxLevel Le nouveau niveau maximum
      */
     public void setMaxLevel(int maxLevel) {
@@ -315,7 +316,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Définit la portée d'attaque de la tour.
-     * 
+     *
      * @param portee La nouvelle portée
      */
     public void setPortee(float portee) {
@@ -324,7 +325,7 @@ public abstract class Tower implements Attacker {
 
     /**
      * Définit le prix de la tour.
-     * 
+     *
      * @param prix Le nouveau prix
      */
     public void setPrix(int prix) {

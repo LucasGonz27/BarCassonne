@@ -75,7 +75,7 @@ public class GameScreen implements Screen {
     private boolean gameOver;
     private boolean afficherMessageVague;
     private float tempsAffichageMessage;
-    
+
     /** Instance du jeu pour changer d'écran. */
     private Game game;
 
@@ -118,7 +118,7 @@ public class GameScreen implements Screen {
 
         // Initialiser la caméra unique (partagée entre map et HUD)
         camera = new OrthographicCamera();
-        
+
         // Initialiser les viewports (ils gèrent la projection de la caméra)
         mapViewport = new StretchViewport(mapWidth, mapHeight, camera);
         hudViewport = new StretchViewport(screenWidth, screenHeight, camera);
@@ -282,7 +282,7 @@ public class GameScreen implements Screen {
         mapViewport.apply();
         camera.update();
         spriteBatch.setProjectionMatrix(camera.combined);
-        
+
         spriteBatch.begin();
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
         vagueManager.render(spriteBatch);
@@ -322,7 +322,7 @@ public class GameScreen implements Screen {
         float screenWidth = hudViewport.getWorldWidth();
         float screenHeight = hudViewport.getWorldHeight();
         String message = "Vague " + vagueManager.getVagueActuelle().getNumero();
-        
+
         // Calculer la position centrée du texte
         GlyphLayout layout = new GlyphLayout();
         layout.setText(Texte.getFont(TAILLE_POLICE_MESSAGE_VAGUE), message);
@@ -372,6 +372,7 @@ public class GameScreen implements Screen {
             return;
         }
 
+
         float screenX = Gdx.input.getX();
         float screenY = Gdx.input.getY();
         float screenWidth = Gdx.graphics.getWidth();
@@ -383,12 +384,18 @@ public class GameScreen implements Screen {
             return;
         }
 
+        // Mettre à jour la caméra pour la map avant toute interaction
+        camera.position.set(mapViewport.getWorldWidth() / 2, mapViewport.getWorldHeight() / 2, 0);
+        mapViewport.apply();
+        camera.update();
+
+        // Vérifier d'abord si on clique sur une tour ou l'interface d'amélioration
+        if (towerManager.gererClicTour(screenX, screenY, screenWidth, screenHeight, mapViewport)) {
+            return; // Le clic a été traité par le système d'amélioration
+        }
+
+        // Sinon, gérer le placement de tour si en mode placement
         if (towerManager.estEnModePlacement()) {
-            // Mettre à jour la caméra pour la map avant le placement
-            camera.position.set(mapViewport.getWorldWidth() / 2, mapViewport.getWorldHeight() / 2, 0);
-            mapViewport.apply();
-            camera.update();
-            
             towerManager.placerTour(screenX, screenY, screenWidth, screenHeight, mapViewport);
         }
     }
