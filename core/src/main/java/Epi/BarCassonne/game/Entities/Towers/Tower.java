@@ -19,7 +19,7 @@ public abstract class Tower implements Attacker {
     // CONSTANTES
     // ========================================================================
 
-    /** Intervalle entre deux attaques (en secondes) */
+    /** Intervalle entre deux attaques*/
     private static final float INTERVALLE_ATTAQUE = 2f;
 
     // ========================================================================

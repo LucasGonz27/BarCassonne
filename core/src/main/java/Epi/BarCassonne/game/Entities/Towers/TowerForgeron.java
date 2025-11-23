@@ -7,9 +7,9 @@ import Epi.BarCassonne.game.Config.TowerUpgradeConfig;
  */
 public class TowerForgeron extends Tower {
 
-    protected static final int PRIX = 1000;
+    protected static final int PRIX = 1500;
     protected static final float PORTEE = 0f;
-    protected static final int APPORT_LINGOTS_BASE = 200;
+    protected static final int APPORT_LINGOTS_BASE = 300;
 
     /**
      * Constructeur par défaut.

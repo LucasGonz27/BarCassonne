@@ -7,7 +7,7 @@ package Epi.BarCassonne.game.Entities.Projectiles;
 public class Sort extends Projectile {
 
     /** Dégâts du Sort. */
-    protected static final int DEGATS = 15;
+    protected static final int DEGATS = 20;
 
     /** Vitesse du Sort. */
     protected static final float VITESSE = 350f;

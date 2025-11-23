@@ -156,25 +156,25 @@ public abstract class Mechant implements Movable, Damageable {
     public int getDegatsFinChemin() {
         switch (this.getClass().getSimpleName()) {
             case "PaysanGoblin":
-                return 1;
-            case "GuerrierGoblin":
                 return 2;
-            case "GoblinGuerrisseur":
-                return 3;
-            case "GoblinBomb":
+            case "GuerrierGoblin":
                 return 4;
-            case "Cochon":
-                return 5;
-            case "Chevalier":
+            case "GoblinGuerrisseur":
+                return 6;
+            case "GoblinBomb":
                 return 8;
-            case "BossChevalier":
+            case "Cochon":
                 return 10;
-            case "Golem":
-                return 12;
-            case "RoiGoblin":
+            case "Chevalier":
+                return 16;
+            case "BossChevalier":
                 return 20;
+            case "Golem":
+                return 24;
+            case "RoiGoblin":
+                return 40;
             default:
-                return 1;
+                return 2;
         }
     }
     
