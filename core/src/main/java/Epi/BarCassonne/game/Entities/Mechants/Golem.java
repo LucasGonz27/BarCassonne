@@ -9,11 +9,11 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 public class Golem extends Mechant {
 
     /** Points de vie du Golem. */
-    private static final int PV = 400;
+    private static final int PV = 1000;
 
     /** Vitesse de déplacement du Golem. */
 
-    private static final float VITESSE = 35f;
+    private static final float VITESSE = 40f;
     
     /**
      * Constructeur par défaut.

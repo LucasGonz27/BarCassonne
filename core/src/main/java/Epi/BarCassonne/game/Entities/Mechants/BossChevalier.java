@@ -9,10 +9,10 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 public class BossChevalier extends Mechant {
 
     /** Points de vie du BossChevalier. */
-    private static final int PV = 300;
+    private static final int PV = 750;
 
     /** Vitesse de déplacement du BossChevalier. */
-    private static final float VITESSE = 0.9f;
+    private static final float VITESSE = 50f;
     
     /**
      * Constructeur par défaut.

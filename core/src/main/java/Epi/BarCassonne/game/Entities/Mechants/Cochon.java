@@ -9,10 +9,10 @@ public class Cochon extends Mechant {
 
 
     /** Points de vie du Cochon. */
-    private static final int PV = 100;
+    private static final int PV = 250;
 
     /** Vitesse de déplacement du Cochon. */
-    private static final float VITESSE = 50f;
+    private static final float VITESSE = 60f;
     /**
      * Constructeur par défaut.
      */

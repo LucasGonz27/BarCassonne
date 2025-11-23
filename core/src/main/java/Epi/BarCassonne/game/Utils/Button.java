@@ -77,17 +77,20 @@ public class Button {
      * Doit être appelé à chaque frame.
      */
     public void update() {
+        // Ne traiter que si un clic vient d'être effectué
+        if (!Gdx.input.isButtonJustPressed(com.badlogic.gdx.Input.Buttons.LEFT)) {
+            return;
+        }
+        
         float mouseX = Gdx.input.getX();
         float mouseY = Gdx.graphics.getHeight() - Gdx.input.getY();
         
-        // Vérifier si la souris est dans la zone du bouton
-        boolean estDansBouton = mouseX >= x && mouseX <= x + width && 
-                                mouseY >= y && mouseY <= y + height;
+        // Vérifier précisément si le clic est dans la zone du bouton
+        boolean estDansBouton = mouseX >= x && mouseX < x + width && 
+                                mouseY >= y && mouseY < y + height;
         
-        if (estDansBouton && Gdx.input.isButtonJustPressed(com.badlogic.gdx.Input.Buttons.LEFT)) {
-            if (action != null) {
-                action.run();
-            }
+        if (estDansBouton && action != null) {
+            action.run();
         }
     }
     

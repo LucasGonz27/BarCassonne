@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
 import Epi.BarCassonne.game.Managers.BackgroundManager;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import Epi.BarCassonne.game.Utils.Button;
 import Epi.BarCassonne.game.Utils.Texte;
 
@@ -25,8 +26,8 @@ public class Chargement implements Screen {
     // REGION : CONSTANTES
     // ------------------------------------------------------------------------
     private static final float DELAI_AFFICHAGE_BOUTON = 4f;
-    private static final float LARGEUR_BOUTON = 650f;
-    private static final float HAUTEUR_BOUTON = 350f;
+    private static final float LARGEUR_BOUTON = 450f;
+    private static final float HAUTEUR_BOUTON = 150f;
     private static final float DECALAGE_Y_BOUTON = -100f;
     private static final int TAILLE_POLICE_CHARGEMENT = 155;
     private static final int TAILLE_POLICE_BOUTON = 45;
@@ -69,6 +70,7 @@ public class Chargement implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         initialiserRendu(screenWidth, screenHeight);
+        SoundManager.demarrerMusiqueMenu(0.7f);
     }
 
     /**
@@ -125,7 +127,7 @@ public class Chargement implements Screen {
         );
         
         boutonCommencer.setAction(() -> {
-            Menu.stopMusic();
+            SoundManager.arreterMusiqueMenu();
             game.setScreen(new GameScreen(game));
         });
     }

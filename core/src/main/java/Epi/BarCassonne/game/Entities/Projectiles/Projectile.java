@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 /**
  * Classe abstraite représentant un projectile tiré par une tour.
  * Le projectile suit automatiquement sa cible pour ne jamais la rater.
- * 
+ *
  * @author Epi
  */
 public abstract class Projectile {
@@ -22,7 +22,7 @@ public abstract class Projectile {
     private static final float RAYON_COLLISION = 15f;
 
     /** Taille d'affichage du projectile à l'écran */
-    private static final float TAILLE_RENDU = 15f;
+    private static final float TAILLE_RENDU = 18f;
 
     // ========================================================================
     // CHAMPS
@@ -46,6 +46,9 @@ public abstract class Projectile {
     /** Type de tour qui a tiré ce projectile (pour les résistances) */
     private TypeTour typeTour;
 
+    /** Niveau de la tour qui a tiré ce projectile (pour le multiplicateur de dégâts) */
+    private int niveauTour;
+
     /** Cible que le projectile doit atteindre */
     private Mechant cible;
 
@@ -58,7 +61,7 @@ public abstract class Projectile {
 
     /**
      * Crée un nouveau projectile.
-     * 
+     *
      * @param startX Position X de départ du projectile
      * @param startY Position Y de départ du projectile
      * @param cible Cible à atteindre (peut être null, sera définie via setCible)
@@ -73,6 +76,7 @@ public abstract class Projectile {
         this.vitesse = vitesse;
         this.angle = 0;
         this.aTouche = false;
+        this.niveauTour = 1; // Niveau par défaut
     }
 
     // ========================================================================
@@ -82,7 +86,7 @@ public abstract class Projectile {
     /**
      * Met à jour la position et l'état du projectile.
      * Le projectile suit automatiquement sa cible pour ne jamais la rater.
-     * 
+     *
      * @param delta Temps écoulé depuis la dernière frame (en secondes)
      */
     public void update(float delta) {
@@ -109,7 +113,7 @@ public abstract class Projectile {
 
     /**
      * Vérifie si le projectile doit être arrêté.
-     * 
+     *
      * @return true si le projectile doit être arrêté
      */
     private boolean doitEtreArrete() {
@@ -118,7 +122,7 @@ public abstract class Projectile {
 
     /**
      * Calcule la direction vers la cible et retourne la distance.
-     * 
+     *
      * @return La distance entre le projectile et sa cible
      */
     private float calculerDirectionVersCible() {
@@ -130,7 +134,7 @@ public abstract class Projectile {
 
     /**
      * Vérifie si le projectile entre en collision avec sa cible.
-     * 
+     *
      * @param distance Distance entre le projectile et sa cible
      * @return true si une collision est détectée
      */
@@ -139,17 +143,29 @@ public abstract class Projectile {
     }
 
     /**
-     * Inflige les dégâts à la cible.
+     * Inflige les dégâts à la cible en tenant compte du niveau de la tour.
      */
     private void infligerDegats() {
         if (cible != null && cible.isEnVie()) {
-            cible.recevoirDegats(degats, typeTour);
+            // Calculer les dégâts en fonction du niveau de la tour
+            int degatsFinaux = calculerDegatsAvecNiveau();
+            cible.recevoirDegats(degatsFinaux, typeTour);
         }
     }
 
     /**
+     * Calcule les dégâts finaux en appliquant le multiplicateur du niveau.
+     *
+     * @return Les dégâts finaux après application du multiplicateur
+     */
+    private int calculerDegatsAvecNiveau() {
+        float multiplicateur = Epi.BarCassonne.game.Config.TowerUpgradeConfig.getMultiplicateurDegats(niveauTour);
+        return (int) (degats * multiplicateur);
+    }
+
+    /**
      * Met à jour la position du projectile en fonction de sa direction et de sa vitesse.
-     * 
+     *
      * @param delta Temps écoulé depuis la dernière frame
      */
     private void mettreAJourPosition(float delta) {
@@ -171,7 +187,7 @@ public abstract class Projectile {
 
     /**
      * Dessine le projectile à l'écran.
-     * 
+     *
      * @param batch SpriteBatch pour le rendu
      * @param texture Texture du projectile à dessiner
      */
@@ -196,7 +212,7 @@ public abstract class Projectile {
 
     /**
      * Vérifie si le projectile doit être supprimé.
-     * 
+     *
      * @return true si le projectile doit être supprimé
      */
     public boolean doitEtreSupprime() {
@@ -254,7 +270,7 @@ public abstract class Projectile {
 
     /**
      * Convertit le TypeTour en nom de tour pour récupérer la texture.
-     * 
+     *
      * @return Le nom de la tour (ex: "TowerArcher"), ou null si le type est inconnu
      */
     public String getTowerTypeName() {
@@ -280,7 +296,7 @@ public abstract class Projectile {
 
     /**
      * Définit la position X du projectile.
-     * 
+     *
      * @param positionX Nouvelle position X
      */
     public void setPositionX(float positionX) {
@@ -289,7 +305,7 @@ public abstract class Projectile {
 
     /**
      * Définit la position Y du projectile.
-     * 
+     *
      * @param positionY Nouvelle position Y
      */
     public void setPositionY(float positionY) {
@@ -298,7 +314,7 @@ public abstract class Projectile {
 
     /**
      * Définit la cible du projectile.
-     * 
+     *
      * @param cible La nouvelle cible à atteindre
      */
     public void setCible(Mechant cible) {
@@ -307,10 +323,26 @@ public abstract class Projectile {
 
     /**
      * Définit le type de tour du projectile.
-     * 
+     *
      * @param typeTour Le nouveau type de tour
      */
     public void setTypeTour(TypeTour typeTour) {
         this.typeTour = typeTour;
+    }
+
+    /**
+     * Définit le niveau de la tour qui a tiré ce projectile.
+     *
+     * @param niveauTour Le niveau de la tour
+     */
+    public void setNiveauTour(int niveauTour) {
+        this.niveauTour = niveauTour;
+    }
+
+    /**
+     * @return Le niveau de la tour qui a tiré ce projectile
+     */
+    public int getNiveauTour() {
+        return niveauTour;
     }
 }

@@ -9,10 +9,10 @@ public class GuerrierGoblin extends Mechant {
 
 
     /** Points de vie du GuerrierGoblin. */
-    private static final int PV = 65;
+    private static final int PV = 110;
 
     /** Vitesse de déplacement du GuerrierGoblin. */
-    private static final float VITESSE = 60f;
+    private static final float VITESSE = 70f;
     /**
      * Constructeur par défaut.
      */

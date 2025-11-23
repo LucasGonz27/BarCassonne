@@ -7,7 +7,7 @@ package Epi.BarCassonne.game.Entities.Projectiles;
 public class Bullet extends Projectile {
 
     /** Dégâts de la Bullet. */
-    protected static final int DEGATS = 10;
+    protected static final int DEGATS = 15;
 
     /** Vitesse de la Bullet. */
     protected static final float VITESSE = 400f;

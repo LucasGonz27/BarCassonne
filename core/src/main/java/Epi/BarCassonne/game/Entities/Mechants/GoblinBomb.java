@@ -9,10 +9,10 @@ public class GoblinBomb extends Mechant {
 
 
     /** Points de vie du GoblinBomb. */
-    private static final int PV = 130;
+    private static final int PV = 325;
 
     /** Vitesse de déplacement du GoblinBomb. */
-    private static final float VITESSE = 25f;
+    private static final float VITESSE = 30f;
     /**
      * Constructeur par défaut.
      */

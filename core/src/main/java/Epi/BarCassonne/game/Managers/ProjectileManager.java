@@ -67,7 +67,7 @@ public class ProjectileManager {
 
     /**
      * Dessine tous les projectiles actifs à l'écran.
-     * Récupère la texture appropriée pour chaque projectile depuis TowerDataManager.
+     * Récupère la texture appropriée pour chaque projectile selon son niveau depuis TowerDataManager.
      * 
      * @param batch SpriteBatch pour le rendu
      */
@@ -75,7 +75,9 @@ public class ProjectileManager {
         for (Projectile projectile : projectiles) {
             String towerTypeName = projectile.getTowerTypeName();
             if (towerTypeName != null) {
-                Texture texture = towerDataManager.getTextureProjectile(towerTypeName);
+                // Récupérer la texture selon le niveau de la tour qui a tiré le projectile
+                int niveau = projectile.getNiveauTour();
+                Texture texture = towerDataManager.getTextureProjectileWithLevel(towerTypeName, niveau);
                 if (texture != null) {
                     projectile.render(batch, texture);
                 }
