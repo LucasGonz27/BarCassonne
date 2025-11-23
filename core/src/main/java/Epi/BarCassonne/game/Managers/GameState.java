@@ -80,7 +80,7 @@ public class GameState {
     public static GameState getInstance() {
         if (instance == null) {
             // Mode difficile : moins de lingots et moins de vie
-            instance = new GameState(10000, 100);
+            instance = new GameState(300, 100);
         }
         return instance;
     }
