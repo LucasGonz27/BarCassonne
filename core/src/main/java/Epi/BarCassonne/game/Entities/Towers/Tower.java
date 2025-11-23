@@ -4,6 +4,7 @@ import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 import Epi.BarCassonne.game.Entities.Projectiles.Projectile;
 import Epi.BarCassonne.game.Interfaces.Attacker;
 import Epi.BarCassonne.game.Managers.ProjectileManager;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import Epi.BarCassonne.Factory.ProjectileFactory;
 
 /**
@@ -181,6 +182,10 @@ public abstract class Tower implements Attacker {
 
             // Ajouter le projectile au gestionnaire
             projectileManager.ajouterProjectile(projectile);
+
+            // Jouer le son correspondant au type de tour
+            SoundManager.jouerSonTour(typeTour, 0.5f);
+            
         } catch (IllegalArgumentException e) {
             System.err.println("Erreur lors de la création du projectile: " + e.getMessage());
         }

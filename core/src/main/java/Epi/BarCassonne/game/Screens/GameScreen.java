@@ -3,7 +3,6 @@ package Epi.BarCassonne.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -19,6 +18,7 @@ import Epi.BarCassonne.game.Managers.BackgroundManager;
 import Epi.BarCassonne.game.Managers.CheminMana;
 import Epi.BarCassonne.game.Managers.GameState;
 import Epi.BarCassonne.game.Managers.ProjectileManager;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import Epi.BarCassonne.game.Managers.TowerManager;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
@@ -111,11 +111,6 @@ public class GameScreen implements Screen {
     /** Instance du jeu pour changer d'écran */
     private Game game;
 
-    // ------------------------------------------------------------------------
-    // REGION : CHAMPS - AUDIO
-    // ------------------------------------------------------------------------
-    /** Son de la musique de jeu */
-    private Sound musiqueJeux;
 
     // ------------------------------------------------------------------------
     // REGION : INITIALISATION
@@ -134,6 +129,7 @@ public class GameScreen implements Screen {
         initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
         chargerAssets();
         GameState.resetInstance();
+        SoundManager.initialiser();
         initialiserJeu(mapWidth, mapHeight);
     }
 
@@ -205,11 +201,8 @@ public class GameScreen implements Screen {
         afficherMessageVague = false;
         tempsAffichageMessage = 0f;
 
-        // Initialiser la musique de jeu
-        musiqueJeux = Gdx.audio.newSound(Gdx.files.internal("sounds/musiqueDurantJeux.mp3"));
-        if (musiqueJeux != null) {
-            musiqueJeux.loop();
-        }
+        // Démarrer la musique de jeu via SoundManager
+        SoundManager.demarrerMusiqueJeu(0.7f);
     }
 
     // ------------------------------------------------------------------------
@@ -573,9 +566,7 @@ public class GameScreen implements Screen {
         if (towerManager != null) {
             towerManager.dispose();
         }
-        if (musiqueJeux != null) {
-            musiqueJeux.dispose();
-        }
+        SoundManager.dispose();
         AssetMana.dispose();
     }
 }

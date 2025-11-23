@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Gdx;
 import Epi.BarCassonne.game.Utils.Button;
@@ -54,6 +55,7 @@ public class Chargement implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         initialiserRendu(screenWidth, screenHeight);
+        SoundManager.demarrerMusiqueMenu(0.7f);
     }
 
     /**
@@ -81,8 +83,7 @@ public class Chargement implements Screen {
         boutonCommencer.setAction(new Runnable() {
             @Override
             public void run() {
-                // Arrêter la musique du menu
-                Menu.stopMusic();
+                SoundManager.arreterMusiqueMenu();
                 game.setScreen(new GameScreen(game));
             }
         });

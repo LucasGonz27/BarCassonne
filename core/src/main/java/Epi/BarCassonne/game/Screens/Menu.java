@@ -5,13 +5,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.Gdx;
 import Epi.BarCassonne.game.Utils.Button;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.Game;
 import Epi.BarCassonne.game.Utils.Texte;
-import com.badlogic.gdx.audio.Sound;
+
 
 /**
  * Écran du menu principal du jeu.
@@ -22,15 +23,31 @@ public class Menu implements Screen {
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
+
+    /** L'instance du jeu */
     private Game game;
+
+    /** Le batch pour le rendu */
     private SpriteBatch batch;
+
+    /** Le gestionnaire de fond d'écran */
     private BackgroundManager backgroundManager;
+
+    /** Le viewport pour la zone de la map */
     private Viewport viewport;
+
+    /** La caméra orthographique */
     private OrthographicCamera camera;
+
+    /** Le bouton pour jouer */
     private Button boutonJouer;
+
+    /** Le bouton pour les options */
     private Button boutonOptionsMenu;
+
+    /** Le bouton pour quitter */
     private Button boutonQuitter;
-    private static Sound sound;
+
 
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEUR
@@ -54,6 +71,8 @@ public class Menu implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         initialiserRendu(screenWidth, screenHeight);
+        SoundManager.initialiser();
+        SoundManager.demarrerMusiqueMenu(0.7f);
     }
 
     /**
@@ -62,6 +81,7 @@ public class Menu implements Screen {
      * @param screenHeight Hauteur de l'écran
      */
     public void initialiserRendu(float screenWidth, float screenHeight) {
+
         batch = new SpriteBatch();
         backgroundManager = new BackgroundManager("backgrounds/Menu.png");
         viewport = new StretchViewport(screenWidth, screenHeight);
@@ -81,6 +101,7 @@ public class Menu implements Screen {
         boutonJouer.setAction(new Runnable() {
             @Override
             public void run() {
+                SoundManager.arreterMusiqueMenu();
                 game.setScreen(new Chargement(game));
             }
         });
@@ -112,10 +133,7 @@ public class Menu implements Screen {
             }
         });
 
-        sound = Gdx.audio.newSound(Gdx.files.internal("sounds/musiqueJeux.mp3"));
-        if (sound != null) {
-            sound.loop();
-        }
+       
     }
 
     // ------------------------------------------------------------------------
@@ -197,15 +215,7 @@ public class Menu implements Screen {
         // Pas d'action nécessaire
     }
     
-    /**
-     * Arrête la musique du menu.
-     * Peut être appelée depuis d'autres écrans.
-     */
-    public static void stopMusic() {
-        if (sound != null) {
-            sound.stop();
-        }
-    }
+
 
     // ------------------------------------------------------------------------
     // REGION : NETTOYAGE

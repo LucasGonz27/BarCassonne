@@ -66,7 +66,7 @@ public class TowerManager {
     private static final int TAILLE_POLICE_MESSAGE_LINGOTS = 30;
 
     /** Revenu par lingot généré */
-    private static final int REVENUE_LINGOT = 100;
+    private static final int REVENUE_LINGOT = 200;
 
     /** Temps avant la génération des lingots (en secondes) */
     private static final float TEMPS_AVANT_GENERATION_LINGOTS = 20f;
@@ -607,8 +607,9 @@ public class TowerManager {
         shapeRenderer.setProjectionMatrix(camera.combined);
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
 
+        // Couleur améliorée : bleu clair pour valide, rouge pour invalide
         Color couleur = positionValide ? Color.WHITE : Color.RED;
-        shapeRenderer.setColor(couleur.r, couleur.g, couleur.b, OPACITE_APERCU);
+        shapeRenderer.setColor(couleur.r, couleur.g, couleur.b, couleur.a);
         shapeRenderer.circle(tourPreviewX, tourPreviewY, tourPreviewPortee);
 
         shapeRenderer.end();
