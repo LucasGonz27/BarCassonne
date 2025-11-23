@@ -71,6 +71,12 @@ public class TowerManager {
     /** Temps avant la génération des lingots (en secondes) */
     private static final float TEMPS_AVANT_GENERATION_LINGOTS = 20f;
 
+    /** Taille de l'archer par rapport à la tour (40% de la taille) */
+    private static final float TAILLE_ARCHER_RATIO = 0.4f;
+
+    /** Décalage Y de l'archer par rapport au centre de la tour */
+    private static final float DECALAGE_ARCHER_Y = 0.5f;
+
     // ========================================================================
     // CHAMPS
     // ========================================================================
@@ -191,7 +197,7 @@ public class TowerManager {
             attaquerEnnemis(tour);
             mettreAJourForgeron(tour, delta);
         }
-        genererLingots(delta);
+        genererLingotsAutomatiques(delta);
         messageFlottant.update(delta);
         towerPanelInfo.update(); // Mettre à jour les boutons pour détecter les clics
     }
@@ -213,6 +219,10 @@ public class TowerManager {
         }
     }
 
+    // ========================================================================
+    // GESTION DES FORGERONS
+    // ========================================================================
+
     /**
      * Met à jour le système de génération de lingots pour un forgeron.
      *
@@ -226,7 +236,7 @@ public class TowerManager {
 
         float temps = tempsForgeron.getOrDefault(tour, 0f) + delta;
         if (temps >= INTERVALLE_GENERATION_LINGOTS) {
-            genererLingots((TowerForgeron) tour);
+            genererLingotsForgeron((TowerForgeron) tour);
             tempsForgeron.put(tour, 0f);
         } else {
             tempsForgeron.put(tour, temps);
@@ -238,7 +248,7 @@ public class TowerManager {
      *
      * @param forgeron Le forgeron qui génère les lingots
      */
-    private void genererLingots(TowerForgeron forgeron) {
+    private void genererLingotsForgeron(TowerForgeron forgeron) {
         int lingots = forgeron.getApportLingots();
         gameState.ajouterLingots(lingots);
         afficherMessageLingots(forgeron, lingots);
@@ -249,12 +259,24 @@ public class TowerManager {
      *
      * @param delta Temps écoulé depuis la dernière frame (en secondes)
      */
-    private void genererLingots(float delta) {
+    private void genererLingotsAutomatiques(float delta) {
         tempsEcouleGenererLingots += delta;
 
         if (tempsEcouleGenererLingots >= TEMPS_AVANT_GENERATION_LINGOTS) {
             gameState.ajouterLingots(REVENUE_LINGOT);
             tempsEcouleGenererLingots = 0f;
+        }
+    }
+
+    /**
+     * Libère les textures chargées.
+     */
+    private void libererTextures() {
+        TextureManager.libererTexture(textureSacPlein);
+        TextureManager.libererTexture(textureSacVide);
+        TextureManager.libererTexture(textureArcher);
+        if (towerPanelInfo != null) {
+            towerPanelInfo.dispose();
         }
     }
 
@@ -267,10 +289,7 @@ public class TowerManager {
      * @param lingots Le nombre de lingots générés
      */
     private void afficherMessageLingots(Tower tour, int lingots) {
-        float x = tour.getPositionX();
-        float y = tour.getPositionY() + DECALAGE_MESSAGE_Y;
-        String message = "+" + lingots;
-        messageFlottant.creerMessage(x, y, message, Color.YELLOW, TAILLE_POLICE_MESSAGE_LINGOTS, 2f);
+        afficherMessage(tour, "+" + lingots, Color.YELLOW);
     }
 
     // ========================================================================
@@ -369,16 +388,34 @@ public class TowerManager {
             return false;
         }
 
-        // Vérifier si on a assez d'argent avant d'essayer d'acheter
+        if (!validerAchatTour(worldPos)) {
+            return false;
+        }
+
+        return creerEtAjouterTour(worldPos);
+    }
+
+    /**
+     * Valide l'achat d'une tour (argent suffisant).
+     *
+     * @param worldPos Position dans le monde
+     * @return true si l'achat est valide, false sinon
+     */
+    private boolean validerAchatTour(Vector3 worldPos) {
         if (!aAssezDArgent()) {
             afficherMessageArgentInsuffisant(worldPos.x, worldPos.y);
             return false;
         }
+        return peutAcheterTour();
+    }
 
-        if (!peutAcheterTour()) {
-            return false;
-        }
-
+    /**
+     * Crée et ajoute une tour à la liste.
+     *
+     * @param worldPos Position dans le monde
+     * @return true si la tour a été créée et ajoutée, false sinon
+     */
+    private boolean creerEtAjouterTour(Vector3 worldPos) {
         Tower nouvelleTour = creerTour(towerTypeToPlace, worldPos.x, worldPos.y);
         if (nouvelleTour == null) {
             return false;
@@ -400,12 +437,21 @@ public class TowerManager {
     }
 
     /**
+     * Récupère le prix de la tour à placer.
+     *
+     * @return Le prix de la tour, ou null si le type est invalide
+     */
+    private Integer getPrixTourAPlacer() {
+        return towerDataManager.getPrix(towerTypeToPlace);
+    }
+
+    /**
      * Vérifie si le joueur a assez d'argent pour acheter la tour.
      *
      * @return true si le joueur a assez d'argent, false sinon
      */
     private boolean aAssezDArgent() {
-        Integer prix = towerDataManager.getPrix(towerTypeToPlace);
+        Integer prix = getPrixTourAPlacer();
         return prix != null && gameState.getLingots() >= prix;
     }
 
@@ -415,7 +461,7 @@ public class TowerManager {
      * @return true si le joueur peut acheter la tour, false sinon
      */
     private boolean peutAcheterTour() {
-        Integer prix = towerDataManager.getPrix(towerTypeToPlace);
+        Integer prix = getPrixTourAPlacer();
         return prix != null && gameState.retirerLingots(prix);
     }
 
@@ -426,8 +472,7 @@ public class TowerManager {
      * @param y Position Y dans le monde
      */
     private void afficherMessageArgentInsuffisant(float x, float y) {
-        String message = "Argent insuffisant !";
-        messageFlottant.creerMessage(x, y + DECALAGE_MESSAGE_Y, message, Color.RED, TAILLE_POLICE_MESSAGE_LINGOTS, 2f);
+        messageFlottant.creerMessage(x, y + DECALAGE_MESSAGE_Y, "Argent insuffisant !", Color.RED, TAILLE_POLICE_MESSAGE_LINGOTS, 2f);
     }
 
     /**
@@ -465,21 +510,38 @@ public class TowerManager {
      */
     private void dessinerTours(SpriteBatch batch) {
         for (Tower tour : tours) {
-            // Récupérer la texture selon le niveau de la tour
-            Texture texture = towerDataManager.getTextureWithLevel(tour.getClass().getSimpleName(), tour.getLevel());
-            if (texture != null) {
-                float x = tour.getPositionX() - TOWER_SIZE / 2;
-                float y = tour.getPositionY() - TOWER_SIZE / 2;
-                batch.draw(texture, x, y, TOWER_SIZE, TOWER_SIZE);
-            }
-            
-            // Dessiner l'asset Archer sur les tours Archer
-            if (tour instanceof TowerArcher && textureArcher != null) {
-                float archerSize = TOWER_SIZE * 0.4f; // 60% de la taille de la tour
-                float x = tour.getPositionX() - archerSize / 2;
-                float y = tour.getPositionY() + archerSize * 0.5f;
-                batch.draw(textureArcher, x, y, archerSize, archerSize);
-            }
+            dessinerTour(batch, tour);
+            dessinerArcherSurTour(batch, tour);
+        }
+    }
+
+    /**
+     * Dessine une tour avec sa texture selon son niveau.
+     *
+     * @param batch SpriteBatch pour le rendu
+     * @param tour La tour à dessiner
+     */
+    private void dessinerTour(SpriteBatch batch, Tower tour) {
+        Texture texture = towerDataManager.getTextureWithLevel(tour.getClass().getSimpleName(), tour.getLevel());
+        if (texture != null) {
+            float x = tour.getPositionX() - TOWER_SIZE / 2;
+            float y = tour.getPositionY() - TOWER_SIZE / 2;
+            batch.draw(texture, x, y, TOWER_SIZE, TOWER_SIZE);
+        }
+    }
+
+    /**
+     * Dessine l'archer sur une tour Archer si applicable.
+     *
+     * @param batch SpriteBatch pour le rendu
+     * @param tour La tour à vérifier
+     */
+    private void dessinerArcherSurTour(SpriteBatch batch, Tower tour) {
+        if (tour instanceof TowerArcher && textureArcher != null) {
+            float archerSize = TOWER_SIZE * TAILLE_ARCHER_RATIO;
+            float x = tour.getPositionX() - archerSize / 2;
+            float y = tour.getPositionY() + archerSize * DECALAGE_ARCHER_Y;
+            batch.draw(textureArcher, x, y, archerSize, archerSize);
         }
     }
 
@@ -643,20 +705,6 @@ public class TowerManager {
         libererTextures();
     }
 
-    /**
-     * Libère les textures chargées.
-     */
-    private void libererTextures() {
-        if (textureSacPlein != null) {
-            TextureManager.libererTexture(textureSacPlein);
-        }
-        if (textureSacVide != null) {
-            TextureManager.libererTexture(textureSacVide);
-        }
-        if (towerPanelInfo != null) {
-            towerPanelInfo.dispose();
-        }
-    }
 
     // ========================================================================
     // SYSTÈME D'AMÉLIORATION DES TOURS
@@ -683,7 +731,7 @@ public class TowerManager {
         Tower tourCliquee = trouverTourAPosition(worldPos.x, worldPos.y);
         if (tourCliquee != null) {
             tourSelectionnee = tourCliquee;
-            // Créer les callbacks pour les boutons
+          
             Runnable callbackAmeliorer = () -> ameliorerTour(tourCliquee);
             Runnable callbackSupprimer = () -> supprimerTour(tourCliquee);
             towerPanelInfo.afficher(tourCliquee, screenWidth, screenHeight, callbackAmeliorer, callbackSupprimer);
@@ -739,26 +787,58 @@ public class TowerManager {
         int niveauActuel = tour.getLevel();
         int niveauCible = niveauActuel + 1;
 
-        // Vérifier si la tour peut être améliorée
-        if (!TowerUpgradeConfig.peutEtreAmelioree(niveauActuel, tour.getMaxLevel())) {
-            afficherMessageErreur(tour, "Niveau maximum atteint !");
+        if (!peutAmeliorerTour(tour, niveauActuel)) {
             return;
         }
 
-        // Vérifier si le joueur a assez d'argent
         int coutAmelioration = TowerUpgradeConfig.getCoutAmelioration(towerType, niveauCible);
-        if (gameState.getLingots() < coutAmelioration) {
-            afficherMessageErreur(tour, "Argent insuffisant !");
+        if (!aAssezDArgentPourAmelioration(coutAmelioration, tour)) {
             return;
         }
 
-        // Retirer l'argent et améliorer la tour
         if (gameState.retirerLingots(coutAmelioration)) {
             tour.upgrade();
             afficherMessageSucces(tour, "Tour améliorée !");
-            towerPanelInfo.masquer();
-            tourSelectionnee = null;
+            fermerPanneau();
         }
+    }
+
+    /**
+     * Vérifie si une tour peut être améliorée.
+     *
+     * @param tour La tour à vérifier
+     * @param niveauActuel Le niveau actuel de la tour
+     * @return true si la tour peut être améliorée, false sinon
+     */
+    private boolean peutAmeliorerTour(Tower tour, int niveauActuel) {
+        if (!TowerUpgradeConfig.peutEtreAmelioree(niveauActuel, tour.getMaxLevel())) {
+            afficherMessageErreur(tour, "Niveau maximum atteint !");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Vérifie si le joueur a assez d'argent pour améliorer une tour.
+     *
+     * @param coutAmelioration Le coût de l'amélioration
+     * @param tour La tour concernée
+     * @return true si le joueur a assez d'argent, false sinon
+     */
+    private boolean aAssezDArgentPourAmelioration(int coutAmelioration, Tower tour) {
+        if (gameState.getLingots() < coutAmelioration) {
+            afficherMessageErreur(tour, "Argent insuffisant !");
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * Ferme le panneau d'amélioration et réinitialise la sélection.
+     */
+    private void fermerPanneau() {
+        towerPanelInfo.masquer();
+        tourSelectionnee = null;
     }
 
     /**
@@ -789,8 +869,25 @@ public class TowerManager {
         tempsForgeron.remove(tour);
 
         // Fermer le panneau
-        towerPanelInfo.masquer();
-        tourSelectionnee = null;
+        fermerPanneau();
+    }
+
+    /**
+     * Affiche un message flottant au-dessus d'une tour.
+     *
+     * @param tour La tour concernée
+     * @param message Le message à afficher
+     * @param couleur La couleur du message
+     */
+    private void afficherMessage(Tower tour, String message, Color couleur) {
+        messageFlottant.creerMessage(
+            tour.getPositionX(),
+            tour.getPositionY() + DECALAGE_MESSAGE_Y,
+            message,
+            couleur,
+            TAILLE_POLICE_MESSAGE_LINGOTS,
+            2f
+        );
     }
 
     /**
@@ -800,14 +897,7 @@ public class TowerManager {
      * @param message Le message à afficher
      */
     private void afficherMessageErreur(Tower tour, String message) {
-        messageFlottant.creerMessage(
-            tour.getPositionX(),
-            tour.getPositionY() + DECALAGE_MESSAGE_Y,
-            message,
-            Color.RED,
-            TAILLE_POLICE_MESSAGE_LINGOTS,
-            2f
-        );
+        afficherMessage(tour, message, Color.RED);
     }
 
     /**
@@ -817,13 +907,6 @@ public class TowerManager {
      * @param message Le message à afficher
      */
     private void afficherMessageSucces(Tower tour, String message) {
-        messageFlottant.creerMessage(
-            tour.getPositionX(),
-            tour.getPositionY() + DECALAGE_MESSAGE_Y,
-            message,
-            Color.GREEN,
-            TAILLE_POLICE_MESSAGE_LINGOTS,
-            2f
-        );
+        afficherMessage(tour, message, Color.GREEN);
     }
 }

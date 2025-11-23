@@ -45,43 +45,76 @@ public class GameScreen implements Screen {
     // ------------------------------------------------------------------------
     // REGION : CONSTANTES
     // ------------------------------------------------------------------------
+    /** Durée d'affichage du message de vague en secondes */
     private static final float DUREE_AFFICHAGE_MESSAGE_VAGUE = 2.0f;
+    
+    /** Taille de la police du message de vague */
     private static final int TAILLE_POLICE_MESSAGE_VAGUE = 120;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - RENDU
     // ------------------------------------------------------------------------
+    /** SpriteBatch pour le rendu des textures et sprites */
     private SpriteBatch spriteBatch;
+    
+    /** ShapeRenderer pour le rendu des formes géométriques */
     private ShapeRenderer shapeRenderer;
+    
+    /** Caméra orthographique partagée entre la map et le HUD */
     private OrthographicCamera camera;
+    
+    /** Viewport pour la zone de la map */
     private Viewport mapViewport;
+    
+    /** Viewport pour la zone du HUD */
     private Viewport hudViewport;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - MANAGERS
     // ------------------------------------------------------------------------
+    /** Gestionnaire du fond d'écran */
     private BackgroundManager backgroundManager;
+    
+    /** Gestionnaire du chemin des ennemis */
     private CheminMana cheminManager;
+    
+    /** Gestionnaire des vagues d'ennemis */
     private VagueMana vagueManager;
+    
+    /** État global du jeu (lingots, vie, etc.) */
     private GameState gameState;
+    
+    /** Interface utilisateur (HUD) */
     private HUD hud;
+    
+    /** Gestionnaire des tours */
     private TowerManager towerManager;
+    
+    /** Gestionnaire des projectiles */
     private ProjectileManager projectileManager;
+    
+    /** Validateur de collisions pour le placement des tours */
     private CollisionValid collisionValid;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - ÉTAT DU JEU
     // ------------------------------------------------------------------------
+    /** Indique si le jeu est terminé (game over) */
     private boolean gameOver;
+    
+    /** Indique si le message de vague doit être affiché */
     private boolean afficherMessageVague;
+    
+    /** Temps écoulé depuis le début de l'affichage du message de vague */
     private float tempsAffichageMessage;
 
-    /** Instance du jeu pour changer d'écran. */
+    /** Instance du jeu pour changer d'écran */
     private Game game;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - AUDIO
     // ------------------------------------------------------------------------
+    /** Son de la musique de jeu */
     private Sound musiqueJeux;
 
     // ------------------------------------------------------------------------

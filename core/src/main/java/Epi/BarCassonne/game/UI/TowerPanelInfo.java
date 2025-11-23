@@ -313,6 +313,12 @@ public class TowerPanelInfo {
         }
     }
 
+    public void cliquerEnDehorsPanneau(float screenX, float screenY) {
+        if (screenX < panneauX || screenX > panneauX + LARGEUR_PANNEAU || screenY < panneauY || screenY > panneauY + HAUTEUR_PANNEAU) {
+            masquer();
+        }
+    }
+
     // ========================================================================
     // GETTERS
     // ========================================================================
