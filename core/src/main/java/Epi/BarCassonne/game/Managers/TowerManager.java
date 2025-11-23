@@ -169,6 +169,7 @@ public class TowerManager {
         this.tempsEcouleGenererLingots = 0f;
         this.towerPanelInfo = new TowerPanelInfo();
         this.tourSelectionnee = null;
+        this.enModePlacement = false;
 
         chargerTextures();
     }

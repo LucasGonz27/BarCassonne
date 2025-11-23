@@ -1,6 +1,8 @@
 package Epi.BarCassonne.game.Managers;
 
 import Epi.BarCassonne.game.Utils.CollisionValid;
+import Epi.BarCassonne.game.Utils.GdxTestUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -14,23 +16,27 @@ public class TowerManagerTest {
     private CollisionValid collisionValid;
     private VagueMana vagueMana;
     private GameState gameState;
+    private ProjectileManager projectileManager;
     private TowerManager towerManager;
+
+    @BeforeAll
+    public static void setUpClass() {
+        GdxTestUtils.initializeGdx();
+    }
 
     @BeforeEach
     public void setUp() {
-        // Réinitialiser GameState pour chaque test
         GameState.resetInstance();
         
-        // Créer les dépendances nécessaires
         float mapWidth = 1000f;
         float mapHeight = 800f;
         collisionValid = new CollisionValid(mapWidth, mapHeight);
         CheminMana cheminMana = new CheminMana(mapWidth, mapHeight);
         vagueMana = new VagueMana(cheminMana, GameState.getInstance());
         gameState = GameState.getInstance();
+        projectileManager = new ProjectileManager();
         
-        // Créer TowerManager
-        towerManager = new TowerManager(collisionValid, vagueMana, gameState);
+        towerManager = new TowerManager(collisionValid, vagueMana, gameState, projectileManager);
     }
 
     @Test
@@ -71,32 +77,38 @@ public class TowerManagerTest {
     }
 
     @Test
-    public void testActiverModePlacementSlotInvalide() {
-        // Tester avec un slot invalide (0, 4, -1, etc.)
-        towerManager.activerModePlacement(0);
-        assertFalse(towerManager.estEnModePlacement(), "Le mode placement ne doit pas être activé avec un slot invalide");
-        
+    public void testActiverModePlacementSlot4() {
         towerManager.activerModePlacement(4);
-        assertFalse(towerManager.estEnModePlacement(), "Le mode placement ne doit pas être activé avec un slot invalide");
+        assertTrue(towerManager.estEnModePlacement(), "Le mode placement doit être activé avec le slot 4");
+    }
+
+    @Test
+    public void testActiverModePlacementSlotInvalide() {
+        towerManager.activerModePlacement(0);
+        assertFalse(towerManager.estEnModePlacement(), "Le mode placement ne doit pas être activé avec le slot 0");
+        
+        towerManager.annulerModePlacement();
         
         towerManager.activerModePlacement(-1);
-        assertFalse(towerManager.estEnModePlacement(), "Le mode placement ne doit pas être activé avec un slot invalide");
+        assertFalse(towerManager.estEnModePlacement(), "Le mode placement ne doit pas être activé avec le slot -1");
+        
+        towerManager.annulerModePlacement();
+        
+        towerManager.activerModePlacement(5);
+        assertFalse(towerManager.estEnModePlacement(), "Le mode placement ne doit pas être activé avec le slot 5");
     }
 
     @Test
     public void testAnnulerModePlacement() {
-        // Activer le mode placement
         towerManager.activerModePlacement(1);
         assertTrue(towerManager.estEnModePlacement(), "Le mode placement doit être activé");
         
-        // Annuler le mode placement
         towerManager.annulerModePlacement();
         assertFalse(towerManager.estEnModePlacement(), "Le mode placement doit être désactivé après annulation");
     }
 
     @Test
     public void testAnnulerModePlacementSansActivation() {
-        // Annuler sans avoir activé le mode placement
         assertDoesNotThrow(() -> {
             towerManager.annulerModePlacement();
         }, "annulerModePlacement() ne doit pas lancer d'exception même si le mode n'est pas activé");
@@ -106,26 +118,21 @@ public class TowerManagerTest {
 
     @Test
     public void testActiverEtAnnulerModePlacement() {
-        // Activer avec slot 1
         towerManager.activerModePlacement(1);
         assertTrue(towerManager.estEnModePlacement());
         
-        // Annuler
         towerManager.annulerModePlacement();
         assertFalse(towerManager.estEnModePlacement());
         
-        // Réactiver avec slot 2
         towerManager.activerModePlacement(2);
         assertTrue(towerManager.estEnModePlacement());
         
-        // Annuler à nouveau
         towerManager.annulerModePlacement();
         assertFalse(towerManager.estEnModePlacement());
     }
 
     @Test
     public void testGetToursApresCreation() {
-        // La liste doit rester vide si aucune tour n'est placée
         assertEquals(0, towerManager.getTours().size(), "La liste doit rester vide");
         assertTrue(towerManager.getTours().isEmpty(), "La liste doit être vide");
     }

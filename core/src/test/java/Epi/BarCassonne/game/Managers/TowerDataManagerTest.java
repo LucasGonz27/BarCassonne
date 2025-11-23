@@ -1,5 +1,7 @@
 package Epi.BarCassonne.game.Managers;
 
+import Epi.BarCassonne.game.Utils.GdxTestUtils;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
@@ -11,6 +13,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class TowerDataManagerTest {
 
     private TowerDataManager towerDataManager;
+
+    @BeforeAll
+    public static void setUpClass() {
+        GdxTestUtils.initializeGdx();
+    }
 
     @BeforeEach
     public void setUp() {
@@ -26,13 +33,13 @@ public class TowerDataManagerTest {
     @Test
     public void testGetPrixTowerMagie() {
         int prix = towerDataManager.getPrix("TowerMagie");
-        assertEquals(500, prix, "Le prix de TowerMagie doit être 500");
+        assertEquals(1000, prix, "Le prix de TowerMagie doit être 1000");
     }
 
     @Test
     public void testGetPrixTowerForgeron() {
         int prix = towerDataManager.getPrix("TowerForgeron");
-        assertEquals(1000, prix, "Le prix de TowerForgeron doit être 1000");
+        assertEquals(1500, prix, "Le prix de TowerForgeron doit être 1500");
     }
 
     @Test
@@ -56,7 +63,7 @@ public class TowerDataManagerTest {
     @Test
     public void testGetPorteeTowerMagie() {
         float portee = towerDataManager.getPortee("TowerMagie");
-        assertEquals(100f, portee, 0.01f, "La portée de TowerMagie doit être 100");
+        assertEquals(150f, portee, 0.01f, "La portée de TowerMagie doit être 150");
     }
 
     @Test

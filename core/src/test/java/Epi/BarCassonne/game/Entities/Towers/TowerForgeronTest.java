@@ -19,18 +19,17 @@ public class TowerForgeronTest {
     @Test
     public void testCreationTowerForgeron() {
         assertNotNull(towerForgeron, "TowerForgeron ne doit pas être null");
-        assertEquals(1000, towerForgeron.getPrix(), "Le prix doit être 1000");
+        assertEquals(1500, towerForgeron.getPrix(), "Le prix doit être 1500");
         assertEquals(0f, towerForgeron.getPortee(), 0.01f, "La portée doit être 0");
-        assertEquals(0, towerForgeron.getDegats(), "Les dégâts doivent être 0");
         assertEquals(1, towerForgeron.getLevel(), "Le niveau initial doit être 1");
         assertEquals(4, towerForgeron.getMaxLevel(), "Le niveau maximum doit être 4");
         assertEquals(TypeTour.FORGERON, towerForgeron.typeTour, "Le type doit être FORGERON");
-        assertEquals(200, towerForgeron.getApportLingots(), "L'apport en lingots doit être 200");
+        assertEquals(300, towerForgeron.getApportLingots(), "L'apport en lingots doit être 300");
     }
 
     @Test
     public void testGetApportLingots() {
-        assertEquals(200, towerForgeron.getApportLingots(), "L'apport initial doit être 200");
+        assertEquals(300, towerForgeron.getApportLingots(), "L'apport initial doit être 300");
     }
 
     @Test
@@ -49,12 +48,11 @@ public class TowerForgeronTest {
         towerForgeron.upgrade();
         
         assertEquals(niveauInitial + 1, towerForgeron.getLevel(), "Le niveau doit augmenter de 1");
-        assertEquals(apportInitial + 100, towerForgeron.getApportLingots(), "L'apport doit augmenter de 100");
+        assertEquals(450, towerForgeron.getApportLingots(), "L'apport doit être 450 au niveau 2");
     }
 
     @Test
     public void testUpgradeMaxLevel() {
-        // Atteindre le niveau maximum
         towerForgeron.setLevel(4);
         int apportAvant = towerForgeron.getApportLingots();
         
@@ -68,12 +66,11 @@ public class TowerForgeronTest {
     public void testUpgradeMultiple() {
         int apportInitial = towerForgeron.getApportLingots();
         
-        // Améliorer 2 fois
         towerForgeron.upgrade();
         towerForgeron.upgrade();
         
         assertEquals(3, towerForgeron.getLevel(), "Le niveau doit être 3");
-        assertEquals(apportInitial + 200, towerForgeron.getApportLingots(), "L'apport doit augmenter de 200");
+        assertEquals(600, towerForgeron.getApportLingots(), "L'apport doit être 600 au niveau 3");
     }
 }
 

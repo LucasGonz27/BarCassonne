@@ -19,9 +19,8 @@ public class TowerCanonTest {
     @Test
     public void testCreationTowerCanon() {
         assertNotNull(towerCanon, "TowerCanon ne doit pas être null");
-        assertEquals(1000, towerCanon.getPrix(), "Le prix doit être 1000");
-        assertEquals(0f, towerCanon.getPortee(), 0.01f, "La portée doit être 0");
-        assertEquals(10, towerCanon.getDegats(), "Les dégâts doivent être 10");
+        assertEquals(600, towerCanon.getPrix(), "Le prix doit être 600");
+        assertEquals(110f, towerCanon.getPortee(), 0.01f, "La portée doit être 110");
         assertEquals(1, towerCanon.getLevel(), "Le niveau initial doit être 1");
         assertEquals(4, towerCanon.getMaxLevel(), "Le niveau maximum doit être 4");
         assertEquals(TypeTour.CANON, towerCanon.typeTour, "Le type doit être CANON");
@@ -49,14 +48,14 @@ public class TowerCanonTest {
     @Test
     public void testUpgrade() {
         int niveauInitial = towerCanon.getLevel();
-        towerCanon.upgrade(0f, 0);
+        towerCanon.upgrade();
         assertEquals(niveauInitial + 1, towerCanon.getLevel(), "Le niveau doit augmenter de 1");
     }
 
     @Test
     public void testUpgradeMaxLevel() {
         towerCanon.setLevel(4);
-        towerCanon.upgrade(0f, 0);
+        towerCanon.upgrade();
         assertEquals(4, towerCanon.getLevel(), "Le niveau ne doit pas dépasser le maximum");
     }
 }

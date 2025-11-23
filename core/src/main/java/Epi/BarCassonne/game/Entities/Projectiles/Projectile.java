@@ -216,7 +216,7 @@ public abstract class Projectile {
      * @return true si le projectile doit être supprimé
      */
     public boolean doitEtreSupprime() {
-        return aTouche || (cible != null && !cible.isEnVie());
+        return aTouche || cible == null || !cible.isEnVie();
     }
 
     /**

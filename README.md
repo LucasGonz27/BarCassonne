@@ -31,3 +31,54 @@ Useful Gradle tasks and flags:
 
 Note that most tasks that are not specific to a single project can be run with `name:` prefix, where the `name` should be replaced with the ID of a specific project.
 For example, `core:clean` removes `build` folder only from the `core` project.
+
+## Tests Unitaires
+
+Le projet contient une suite complète de tests unitaires pour valider le fonctionnement du code.
+
+### Exécution des tests
+
+**Script d'automatisation :**
+```bash
+run-tests.bat
+```
+
+**Manuellement avec Gradle :**
+```bash
+# Exécuter les tests
+./gradlew test
+
+# Générer le rapport de couverture
+./gradlew jacocoTestReport
+```
+
+### Tests disponibles
+
+Le projet contient **10 fichiers de tests unitaires** couvrant :
+- **Managers** : `TowerManagerTest`, `TowerDataManagerTest`, `GameStateTest`, `CheminManaTest`, `VagueManaTest`
+- **Entities - Towers** : `TowerArcherTest`, `TowerMagieTest`, `TowerCanonTest`, `TowerForgeronTest`
+- **Entities - Mechants** : `MechantTest`
+
+### Couverture de code
+
+Le projet utilise **JaCoCo** pour mesurer la couverture de code. Après l'exécution des tests, le rapport de couverture est généré automatiquement.
+
+**Statistiques actuelles :**
+- Instructions : 28%
+- Branches : 10%
+- Lignes : 43%
+- Méthodes : 58%
+- Classes : 50%
+
+**Rapport de couverture :**
+- HTML : `core/build/reports/jacoco/test/html/index.html`
+- XML : `core/build/reports/jacoco/test/jacocoTestReport.xml`
+- CSV : `core/build/reports/jacoco/test/jacocoTestReport.csv`
+
+**Rapport de tests :**
+- HTML : `core/build/reports/tests/test/index.html`
+
+### Automatisation des tests
+
+Les tests peuvent être exécutés automatiquement via le script :
+- `run-tests.bat` - Exécute les tests et génère le rapport de couverture

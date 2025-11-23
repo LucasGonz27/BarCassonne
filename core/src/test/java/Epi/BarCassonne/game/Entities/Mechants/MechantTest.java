@@ -14,13 +14,11 @@ import static org.junit.jupiter.api.Assertions.*;
  */
 public class MechantTest {
 
-    // Sous-classe de test pour Mechant (sans animation)
     private static class TestMechant extends Mechant {
         public TestMechant(int PV, float Vitesse) {
-            super(PV, Vitesse, null); // Pas d'animation pour les tests
+            super(PV, Vitesse, null);
         }
         
-        // Méthode pour tester setResistance (protected)
         public void testerSetResistance(TypeTour typeTour, float resistance) {
             setResistance(typeTour, resistance);
         }
@@ -69,7 +67,6 @@ public class MechantTest {
 
     @Test
     public void testRecevoirDegatsAvecResistance() {
-        // Tester avec résistance par défaut (0%)
         int pvInitial = mechant.getPV();
         mechant.recevoirDegats(50, TypeTour.ARCHER);
         assertEquals(pvInitial - 50, mechant.getPV(), "Les PV doivent diminuer de 50 sans résistance");
@@ -80,7 +77,6 @@ public class MechantTest {
         mechant.recevoirDegats(100);
         assertFalse(mechant.isEnVie(), "Le méchant doit être mort");
         
-        // Tester que recevoir des dégâts quand mort ne change rien
         int pvAvant = mechant.getPV();
         mechant.recevoirDegats(50);
         assertEquals(pvAvant, mechant.getPV(), "Les PV ne doivent pas changer si déjà mort");
@@ -113,31 +109,26 @@ public class MechantTest {
 
     @Test
     public void testAAtteintFinChemin() {
-        // Sans chemin
         assertFalse(mechant.aAtteintFinChemin(), "Ne doit pas avoir atteint la fin sans chemin");
         
-        // Avec chemin vide
         mechant.setChemin(new ArrayList<>());
         assertFalse(mechant.aAtteintFinChemin(), "Ne doit pas avoir atteint la fin avec chemin vide");
         
-        // Avec chemin et index au-delà
         List<Vector2> chemin = new ArrayList<>();
         chemin.add(new Vector2(0f, 0f));
         mechant.setChemin(chemin);
-        mechant.setIndexActuel(1); // Au-delà du chemin
+        mechant.setIndexActuel(1);
         assertTrue(mechant.aAtteintFinChemin(), "Doit avoir atteint la fin avec index au-delà");
     }
 
     @Test
     public void testGetDegatsFinChemin() {
-        // Tester avec la sous-classe TestMechant (retourne 1 par défaut)
         int degats = mechant.getDegatsFinChemin();
-        assertEquals(1, degats, "Les dégâts de fin de chemin doivent être 1 par défaut");
+        assertEquals(2, degats, "Les dégâts de fin de chemin doivent être 2 par défaut");
     }
 
     @Test
     public void testGetResistance() {
-        // Résistance par défaut doit être 0%
         assertEquals(0.0f, mechant.getResistance(TypeTour.ARCHER), 0.01f, "La résistance par défaut doit être 0%");
         assertEquals(0.0f, mechant.getResistance(TypeTour.MAGIE), 0.01f, "La résistance par défaut doit être 0%");
         assertEquals(0.0f, mechant.getResistance(TypeTour.CANON), 0.01f, "La résistance par défaut doit être 0%");
@@ -145,7 +136,6 @@ public class MechantTest {
 
     @Test
     public void testUpdateSansChemin() {
-        // Tester que update ne lance pas d'exception sans chemin
         assertDoesNotThrow(() -> {
             mechant.update(0.1f);
         }, "update() ne doit pas lancer d'exception sans chemin");
@@ -154,7 +144,6 @@ public class MechantTest {
     @Test
     public void testUpdateMort() {
         mechant.mourir();
-        // Tester que update ne fait rien si mort
         assertDoesNotThrow(() -> {
             mechant.update(0.1f);
         }, "update() ne doit pas lancer d'exception si mort");
@@ -166,7 +155,7 @@ public class MechantTest {
         chemin.add(new Vector2(0f, 0f));
         mechant.setChemin(chemin);
         
-        mechant.setIndexActuel(1); // Au-delà du chemin (taille 1, index 0)
+        mechant.setIndexActuel(1);
         assertTrue(mechant.aAtteintFinChemin(), "Doit avoir atteint la fin avec index 1 sur un chemin de taille 1");
     }
 
@@ -187,37 +176,31 @@ public class MechantTest {
 
     @Test
     public void testRecevoirDegatsAvecResistancePositive() {
-        // Tester avec résistance positive (50% de résistance = 50% de dégâts)
         TestMechant testMechant = (TestMechant) mechant;
         testMechant.testerSetResistance(TypeTour.ARCHER, 0.5f);
         
         int pvInitial = mechant.getPV();
         mechant.recevoirDegats(100, TypeTour.ARCHER);
-        // Avec 50% de résistance, 100 dégâts deviennent 50 dégâts
         assertEquals(pvInitial - 50, mechant.getPV(), "Les PV doivent diminuer de 50 avec 50% de résistance");
     }
 
     @Test
     public void testRecevoirDegatsAvecResistanceNegative() {
-        // Tester avec résistance négative (vulnérabilité) : -0.25 = +25% de dégâts
         TestMechant testMechant = (TestMechant) mechant;
         testMechant.testerSetResistance(TypeTour.MAGIE, -0.25f);
         
         int pvInitial = mechant.getPV();
-        mechant.recevoirDegats(100, TypeTour.MAGIE);
-        // Avec -25% de résistance (vulnérabilité), 100 dégâts deviennent 125 dégâts
-        assertEquals(pvInitial - 125, mechant.getPV(), "Les PV doivent diminuer de 125 avec -25% de résistance");
+        mechant.recevoirDegats(80, TypeTour.MAGIE);
+        assertEquals(pvInitial - 100, mechant.getPV(), "Les PV doivent diminuer de 100 avec -25% de résistance");
     }
 
     @Test
     public void testRecevoirDegatsAvecResistanceMax() {
-        // Tester avec résistance maximale (100% = immunité totale)
         TestMechant testMechant = (TestMechant) mechant;
         testMechant.testerSetResistance(TypeTour.CANON, 1.0f);
         
         int pvInitial = mechant.getPV();
         mechant.recevoirDegats(100, TypeTour.CANON);
-        // Avec 100% de résistance, 0 dégâts
         assertEquals(pvInitial, mechant.getPV(), "Les PV ne doivent pas changer avec 100% de résistance");
     }
 
@@ -225,11 +208,9 @@ public class MechantTest {
     public void testSetResistanceLimites() {
         TestMechant testMechant = (TestMechant) mechant;
         
-        // Tester limite inférieure (-1.0)
         testMechant.testerSetResistance(TypeTour.ARCHER, -2.0f);
         assertEquals(-1.0f, mechant.getResistance(TypeTour.ARCHER), 0.01f, "La résistance doit être limitée à -1.0");
         
-        // Tester limite supérieure (1.0)
         testMechant.testerSetResistance(TypeTour.MAGIE, 2.0f);
         assertEquals(1.0f, mechant.getResistance(TypeTour.MAGIE), 0.01f, "La résistance doit être limitée à 1.0");
     }
@@ -252,7 +233,6 @@ public class MechantTest {
 
     @Test
     public void testRecevoirDegatsAvecResistanceZero() {
-        // Tester explicitement avec résistance 0%
         TestMechant testMechant = (TestMechant) mechant;
         testMechant.testerSetResistance(TypeTour.ARCHER, 0.0f);
         

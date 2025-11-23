@@ -156,6 +156,7 @@ public class TowerDataManager {
         portee.put("TowerArcher", towerArcher.getPortee());
         portee.put("TowerMagie", towerMagie.getPortee());
         portee.put("TowerCanon", towerCanon.getPortee());
+        portee.put("TowerForgeron", towerForgeron.getPortee());
     }
 
     /**
@@ -241,12 +242,15 @@ public class TowerDataManager {
     /**
      * Récupère le prix d'un type de tour.
      * @param towerType Le type de tour (ex: "TowerArcher")
-     * @return Le prix de la tour, ou null si le type est inconnu
+     * @return Le prix de la tour, ou -1 si le type est inconnu
      */
     public int getPrix(String towerType) {
+        if (towerType == null) {
+            return -1;
+        }
         Integer prixValue = prix.get(towerType);
         if (prixValue == null) {
-            return 0;
+            return -1;
         }
         return prixValue.intValue();
     }
@@ -254,12 +258,15 @@ public class TowerDataManager {
     /**
      * Récupère la portée d'un type de tour.
      * @param towerType Le type de tour (ex: "TowerArcher")
-     * @return La portée de la tour, ou null si le type est inconnu
+     * @return La portée de la tour, ou -1f si le type est inconnu
      */
     public float getPortee(String towerType) {
+        if (towerType == null) {
+            return -1f;
+        }
         Float porteeValue = portee.get(towerType);
         if (porteeValue == null) {
-            return 0f;
+            return -1f;
         }
         return porteeValue.floatValue();
     }

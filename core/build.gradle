@@ -5,9 +5,40 @@ dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
   api "com.badlogicgames.gdx:gdx-freetype:$gdxVersion"
 
+  // Dépendances pour les tests
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+  testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+  
+  testImplementation "com.badlogicgames.gdx:gdx-backend-headless:$gdxVersion"
+  testImplementation "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }
+}
+
+test {
+  useJUnitPlatform()
+}
+
+apply plugin: 'jacoco'
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+tasks.withType(Test) {
+    jacoco {
+        enabled = true
+    }
+}
+
+jacocoTestReport {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(true)
+    }
 }
 
 // Configuration Javadoc

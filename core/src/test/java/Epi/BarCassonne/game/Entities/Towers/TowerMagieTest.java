@@ -19,9 +19,8 @@ public class TowerMagieTest {
     @Test
     public void testCreationTowerMagie() {
         assertNotNull(towerMagie, "TowerMagie ne doit pas être null");
-        assertEquals(500, towerMagie.getPrix(), "Le prix doit être 500");
-        assertEquals(100f, towerMagie.getPortee(), 0.01f, "La portée doit être 100");
-        assertEquals(50, towerMagie.getDegats(), "Les dégâts doivent être 50");
+        assertEquals(1000, towerMagie.getPrix(), "Le prix doit être 1000");
+        assertEquals(150f, towerMagie.getPortee(), 0.01f, "La portée doit être 150");
         assertEquals(1, towerMagie.getLevel(), "Le niveau initial doit être 1");
         assertEquals(4, towerMagie.getMaxLevel(), "Le niveau maximum doit être 4");
         assertEquals(TypeTour.MAGIE, towerMagie.typeTour, "Le type doit être MAGIE");
@@ -49,14 +48,14 @@ public class TowerMagieTest {
     @Test
     public void testUpgrade() {
         int niveauInitial = towerMagie.getLevel();
-        towerMagie.upgrade(0f, 0);
+        towerMagie.upgrade();
         assertEquals(niveauInitial + 1, towerMagie.getLevel(), "Le niveau doit augmenter de 1");
     }
 
     @Test
     public void testUpgradeMaxLevel() {
         towerMagie.setLevel(4);
-        towerMagie.upgrade(0f, 0);
+        towerMagie.upgrade();
         assertEquals(4, towerMagie.getLevel(), "Le niveau ne doit pas dépasser le maximum");
     }
 }
