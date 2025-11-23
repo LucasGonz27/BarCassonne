@@ -72,8 +72,8 @@ public class Chargement implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         // Créer le bouton "Commencer"
-        float boutonWidthJouer = 650f;
-        float boutonHeightCommencer = 300f;
+        float boutonWidthJouer = 300f;
+        float boutonHeightCommencer = 80f;
         float boutonXCommencer = (screenWidth / 2f - boutonWidthJouer / 2f); 
         float boutonYCommencer = (screenHeight / 2f - boutonHeightCommencer / 2f - 200f); 
 

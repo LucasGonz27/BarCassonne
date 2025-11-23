@@ -79,26 +79,31 @@ public class TowerDataManager {
         textures.put("TowerArcher_1", TextureManager.chargerTexture("sprites/TourArcherLevel1.png"));
         textures.put("TowerMagie_1", TextureManager.chargerTexture("sprites/TourMagieLevel1.png"));
         textures.put("TowerCanon_1", TextureManager.chargerTexture("sprites/CanonLevel1.png"));
+        textures.put("TowerForgeron_1", TextureManager.chargerTexture("sprites/ForgeronLevel1.png"));
 
         // Textures Level 2 
         textures.put("TowerArcher_2", TextureManager.chargerTexture("sprites/TourArcherLevel2.png"));
         textures.put("TowerMagie_2", TextureManager.chargerTexture("sprites/TourMagieLevel2.png"));
         textures.put("TowerCanon_2", TextureManager.chargerTexture("sprites/CanonLevel2.png"));
+        textures.put("TowerForgeron_2", TextureManager.chargerTexture("sprites/ForgeronLevel2.png"));
 
         // Textures Level 3
         textures.put("TowerArcher_3", TextureManager.chargerTexture("sprites/TourArcherLevel3.png"));
         textures.put("TowerMagie_3", TextureManager.chargerTexture("sprites/TourMagieLevel3.png"));
         textures.put("TowerCanon_3", TextureManager.chargerTexture("sprites/CanonLevel3.png"));
+        textures.put("TowerForgeron_3", TextureManager.chargerTexture("sprites/ForgeronLevel3.png"));
 
         // Textures Level 4
         textures.put("TowerArcher_4", TextureManager.chargerTexture("sprites/TourArcherLevel4.png"));
         textures.put("TowerMagie_4", TextureManager.chargerTexture("sprites/TourMagieLevel4.png"));
         textures.put("TowerCanon_4", TextureManager.chargerTexture("sprites/CanonLevel4.png"));
+        textures.put("TowerForgeron_4", TextureManager.chargerTexture("sprites/ForgeronLevel4.png"));
 
         //on garder les clés sans niveau pour le mode placement
         textures.put("TowerArcher", TextureManager.chargerTexture("sprites/TourArcherLevel1.png"));
         textures.put("TowerMagie", TextureManager.chargerTexture("sprites/TourMagieLevel1.png"));
         textures.put("TowerCanon", TextureManager.chargerTexture("sprites/CanonLevel1.png"));
+        textures.put("TowerForgeron", TextureManager.chargerTexture("sprites/ForgeronLevel1.png"));
     }
 
     /**
@@ -106,9 +111,30 @@ public class TowerDataManager {
      * Charge les textures des projectiles depuis les fichiers d'assets.
      */
     private void initialiserTexturesProjectiles() {
+        // Textures Level 1
+        texturesProjectiles.put("TowerArcher_1", TextureManager.chargerTexture("sprites/flecheLevel1.png"));
+        texturesProjectiles.put("TowerCanon_1", TextureManager.chargerTexture("sprites/bulletLevel1.png"));
+        texturesProjectiles.put("TowerMagie_1", TextureManager.chargerTexture("sprites/SortLevel1.png"));
+
+        // Textures Level 2 (utiliser Level1 pour l'instant, à remplacer quand les sprites seront disponibles)
+        texturesProjectiles.put("TowerArcher_2", TextureManager.chargerTexture("sprites/flecheLevel1.png"));
+        texturesProjectiles.put("TowerCanon_2", TextureManager.chargerTexture("sprites/bulletLevel2.png"));
+        texturesProjectiles.put("TowerMagie_2", TextureManager.chargerTexture("sprites/SortLevel1.png"));
+
+        // Textures Level 3 (utiliser Level1 pour l'instant, à remplacer quand les sprites seront disponibles)
+        texturesProjectiles.put("TowerArcher_3", TextureManager.chargerTexture("sprites/flecheLevel1.png"));
+        texturesProjectiles.put("TowerCanon_3", TextureManager.chargerTexture("sprites/bulletLevel3.png"));
+        texturesProjectiles.put("TowerMagie_3", TextureManager.chargerTexture("sprites/SortLevel3.png"));
+
+        // Textures Level 4 (utiliser Level1 pour l'instant, à remplacer quand les sprites seront disponibles)
+        texturesProjectiles.put("TowerArcher_4", TextureManager.chargerTexture("sprites/flecheLevel1.png"));
+        texturesProjectiles.put("TowerCanon_4", TextureManager.chargerTexture("sprites/bulletLevel4.png"));
+        texturesProjectiles.put("TowerMagie_4", TextureManager.chargerTexture("sprites/SortLevel4.png"));
+
+        // On garde les clés sans niveau pour compatibilité (utiliser Level1 par défaut)
         texturesProjectiles.put("TowerArcher", TextureManager.chargerTexture("sprites/flecheLevel1.png"));
-        texturesProjectiles.put("TowerCanon", TextureManager.chargerTexture("sprites/BulletLevel1.png"));
-        texturesProjectiles.put("TowerMagie", TextureManager.chargerTexture("sprites/SortElectriqueLevel1.png"));
+        texturesProjectiles.put("TowerCanon", TextureManager.chargerTexture("sprites/bulletLevel1.png"));
+        texturesProjectiles.put("TowerMagie", TextureManager.chargerTexture("sprites/SortLevel1.png"));
     }
 
     /**
@@ -119,7 +145,6 @@ public class TowerDataManager {
         prix.put("TowerArcher", towerArcher.getPrix());
         prix.put("TowerMagie", towerMagie.getPrix());
         prix.put("TowerCanon", towerCanon.getPrix());
-        // Le forgeron n'était pas initialisé ici — assurer sa présence
         prix.put("TowerForgeron", towerForgeron.getPrix());
     }
 
@@ -191,6 +216,29 @@ public class TowerDataManager {
     }
 
     /**
+     * Récupère la texture d'un projectile selon le type de tour et le niveau.
+     * @param towerType Le type de tour (ex: "TowerArcher")
+     * @param level Le niveau de la tour (1, 2, 3 ou 4)
+     * @return La texture du projectile pour ce niveau, ou la texture niveau 1 par défaut
+     */
+    public Texture getTextureProjectileWithLevel(String towerType, int level) {
+        String key = towerType + "_" + level;
+        Texture texture = texturesProjectiles.get(key);
+
+        // Fallback sur la texture level 1 si le niveau demandé n'existe pas
+        if (texture == null) {
+            texture = texturesProjectiles.get(towerType + "_1");
+        }
+
+        // Fallback final sur la texture sans niveau si toujours null
+        if (texture == null) {
+            texture = texturesProjectiles.get(towerType);
+        }
+
+        return texture;
+    }
+
+    /**
      * Récupère le prix d'un type de tour.
      * @param towerType Le type de tour (ex: "TowerArcher")
      * @return Le prix de la tour, ou null si le type est inconnu
@@ -198,7 +246,6 @@ public class TowerDataManager {
     public int getPrix(String towerType) {
         Integer prixValue = prix.get(towerType);
         if (prixValue == null) {
-            System.err.println("Warning: prix non trouvé pour le type de tour '" + towerType + "', valeur par défaut 0 utilisée.");
             return 0;
         }
         return prixValue.intValue();
@@ -212,7 +259,6 @@ public class TowerDataManager {
     public float getPortee(String towerType) {
         Float porteeValue = portee.get(towerType);
         if (porteeValue == null) {
-            System.err.println("Warning: portée non trouvée pour le type de tour '" + towerType + "', valeur par défaut 0.0 utilisée.");
             return 0f;
         }
         return porteeValue.floatValue();
@@ -226,7 +272,6 @@ public class TowerDataManager {
     public int getDegats(String towerType) {
         Integer degatsValue = degats.get(towerType);
         if (degatsValue == null) {
-            System.err.println("Warning: dégâts non trouvés pour le type de tour '" + towerType + "', valeur par défaut 0 utilisée.");
             return 0;
         }
         return degatsValue.intValue();
@@ -240,7 +285,6 @@ public class TowerDataManager {
     public float getVitesse(String towerType) {
         Float vitesseValue = vitesse.get(towerType);
         if (vitesseValue == null) {
-            System.err.println("Warning: vitesse non trouvée pour le type de tour '" + towerType + "', valeur par défaut 0.0 utilisée.");
             return 0f;
         }
         return vitesseValue.floatValue();

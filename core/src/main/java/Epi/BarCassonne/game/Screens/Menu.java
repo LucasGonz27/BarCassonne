@@ -72,10 +72,10 @@ public class Menu implements Screen {
         batch.setProjectionMatrix(camera.combined);
 
         // Créer le bouton "Jouer"
-        float boutonWidthJouer = 400f;
-        float boutonHeightJouer = 300f;
+        float boutonWidthJouer = 300f;
+        float boutonHeightJouer = 80f;
         float boutonXJouer = (screenWidth * 0.65f); 
-        float boutonYJouer = (screenHeight * 0.35f); 
+        float boutonYJouer = (screenHeight * 0.45f); 
         
         boutonJouer = new Button(boutonXJouer, boutonYJouer, boutonWidthJouer, boutonHeightJouer, "Jouer", "skin/SkinBoutonBois.png", Color.WHITE, 45);
         boutonJouer.setAction(new Runnable() {
@@ -86,8 +86,8 @@ public class Menu implements Screen {
         });
 
         // Créer le bouton "Options" (en dessous du bouton Jouer)
-        float boutonWidthOptions = 400f;
-        float boutonHeightOptions = 300f;
+        float boutonWidthOptions = 300f;
+        float boutonHeightOptions = 80f;
         float boutonXOptions = boutonXJouer; 
         float boutonYOptions = boutonYJouer - 100f; 
          boutonOptionsMenu = new Button(boutonXOptions, boutonYOptions, boutonWidthOptions, boutonHeightOptions, "Options", "skin/SkinBoutonBois.png", Color.WHITE, 45);
@@ -99,8 +99,8 @@ public class Menu implements Screen {
          });
 
         // Créer le bouton "Quitter" (en dessous du bouton options)
-        float boutonWidthQuitter = 400f;
-        float boutonHeightQuitter = 300f;
+        float boutonWidthQuitter = 300f;
+        float boutonHeightQuitter = 80;
         float boutonXQuitter = boutonXJouer; 
         float boutonYQuitter = boutonYOptions - 100f; 
         

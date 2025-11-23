@@ -22,7 +22,7 @@ public abstract class Projectile {
     private static final float RAYON_COLLISION = 15f;
 
     /** Taille d'affichage du projectile à l'écran */
-    private static final float TAILLE_RENDU = 15f;
+    private static final float TAILLE_RENDU = 18f;
 
     // ========================================================================
     // CHAMPS

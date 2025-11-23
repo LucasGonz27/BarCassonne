@@ -13,6 +13,7 @@ import Epi.BarCassonne.game.Config.TowerUpgradeConfig;
 import Epi.BarCassonne.game.Entities.Mechants.Mechant;
 import Epi.BarCassonne.game.Entities.Towers.Tower;
 import Epi.BarCassonne.game.Entities.Towers.TowerForgeron;
+import Epi.BarCassonne.game.Entities.Towers.TowerArcher;
 import Epi.BarCassonne.game.UI.HUD;
 import Epi.BarCassonne.game.UI.TowerPanelInfo;
 import Epi.BarCassonne.game.Utils.CollisionValid;
@@ -107,6 +108,9 @@ public class TowerManager {
     /** Texture du sac vide */
     private Texture textureSacVide;
 
+    /** Texture de l'archer à afficher sur les tours Archer */
+    private Texture textureArcher;
+
     /** Interface d'amélioration des tours */
     private TowerPanelInfo towerPanelInfo;
 
@@ -169,6 +173,7 @@ public class TowerManager {
     private void chargerTextures() {
         textureSacPlein = TextureManager.chargerTexture("sprites/SacPleins.png");
         textureSacVide = TextureManager.chargerTexture("sprites/SacVide.png");
+        textureArcher = TextureManager.chargerTexture("sprites/Archer.png");
     }
 
     // ========================================================================
@@ -466,6 +471,14 @@ public class TowerManager {
                 float x = tour.getPositionX() - TOWER_SIZE / 2;
                 float y = tour.getPositionY() - TOWER_SIZE / 2;
                 batch.draw(texture, x, y, TOWER_SIZE, TOWER_SIZE);
+            }
+            
+            // Dessiner l'asset Archer sur les tours Archer
+            if (tour instanceof TowerArcher && textureArcher != null) {
+                float archerSize = TOWER_SIZE * 0.4f; // 60% de la taille de la tour
+                float x = tour.getPositionX() - archerSize / 2;
+                float y = tour.getPositionY() + archerSize * 0.5f;
+                batch.draw(textureArcher, x, y, archerSize, archerSize);
             }
         }
     }

@@ -2,7 +2,6 @@ package Epi.BarCassonne.game.Utils;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -44,9 +43,6 @@ public class Button {
     
     /** Action à exécuter lors du clic sur le bouton. */
     private Runnable action;
-    
-    /** Texture blanche pour dessiner le rectangle de debug */
-    private static Texture textureBlanche;
     
     // ------------------------------------------------------------------------
     // REGION : CONSTRUCTEURS
@@ -108,9 +104,6 @@ public class Button {
             batch.draw(texture, x, y, width, height);
         }
         
-        // Dessiner le rectangle de debug pour la zone cliquable
-        dessinerRectangleDebug(batch);
-        
         // Dessiner le texte centré
         if (texte != null && !texte.isEmpty()) {
             // Calculer la vraie largeur du texte pour un centrage parfait
@@ -126,31 +119,6 @@ public class Button {
             font.setColor(couleurTexte);
             font.draw(batch, texte, texteX, texteY);
         }
-    }
-    
-    /**
-     * Dessine un rectangle pour visualiser la zone cliquable (debug).
-     * @param batch Le SpriteBatch (déjà ouvert avec batch.begin())
-     */
-    private void dessinerRectangleDebug(SpriteBatch batch) {
-        // Créer la texture blanche si elle n'existe pas
-        if (textureBlanche == null) {
-            Pixmap pixmap = new Pixmap(1, 1, Pixmap.Format.RGBA8888);
-            pixmap.setColor(1, 1, 1, 1);
-            pixmap.fill();
-            textureBlanche = new Texture(pixmap);
-            pixmap.dispose();
-        }
-        
-        // Sauvegarder la couleur actuelle
-        Color couleurOriginale = batch.getColor();
-        
-        // Dessiner le rectangle avec une couleur semi-transparente rouge sur la zone cliquable
-        batch.setColor(1, 0, 0, 0.3f); // Rouge semi-transparent
-        batch.draw(textureBlanche, x, y, width, height);
-        
-        // Restaurer la couleur originale
-        batch.setColor(couleurOriginale);
     }
     
     /**

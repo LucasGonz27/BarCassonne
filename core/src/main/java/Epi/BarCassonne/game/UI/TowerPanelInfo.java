@@ -5,10 +5,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import Epi.BarCassonne.game.Config.TowerUpgradeConfig;
 import Epi.BarCassonne.game.Entities.Towers.Tower;
+import Epi.BarCassonne.game.Entities.Towers.TowerForgeron;
 import Epi.BarCassonne.game.Managers.TextureManager;
 import Epi.BarCassonne.game.Managers.TowerDataManager;
 import Epi.BarCassonne.game.Utils.Button;
 import Epi.BarCassonne.game.Utils.Texte;
+
 
 /**
  * Interface d'amélioration des tours.
@@ -91,7 +93,7 @@ public class TowerPanelInfo {
      */
     private void chargerRessources() {
         // Charger la texture de fond
-        textureAmelioration = TextureManager.chargerTexture("sprites/AmeliorationPanel.png");
+        textureAmelioration = TextureManager.chargerTexture("HUD/InterfaceTower.png");
     }
 
     // ========================================================================
@@ -162,12 +164,11 @@ public class TowerPanelInfo {
      */
     private void initialiserBoutons() {
 
-        //position du bouton amelioration
-
-        float boutonXAmeliorer = panneauX + 170f;
-        float boutonYAmeliorer = panneauY + 8f;   
-        float largeurBoutonAmeliorer = 350f;
-        float hauteurBoutonAmeliorer = 200f;
+        //position du bouton amelioration 
+        float boutonXAmeliorer = panneauX + LARGEUR_PANNEAU * 0.37f; 
+        float boutonYAmeliorer = panneauY + HAUTEUR_PANNEAU * 0.36f; 
+        float largeurBoutonAmeliorer = LARGEUR_PANNEAU * 0.28f; 
+        float hauteurBoutonAmeliorer = HAUTEUR_PANNEAU * 0.23f; 
 
         String texteAmeliorer = "Améliorer";
         Color couleurAmeliorer = Color.GREEN;
@@ -190,12 +191,11 @@ public class TowerPanelInfo {
             }
         }
 
-        //position du bouton supprimer
-        float boutonXSupprimer = panneauX + 170f;
-        float boutonYSupprimer = panneauY - 50f;
-        float largeurBoutonSupprimer = 350f;
-        float hauteurBoutonSupprimer = 200f;
-
+        //position du bouton supprimer 
+        float boutonXSupprimer = panneauX + LARGEUR_PANNEAU * 0.37f; 
+        float boutonYSupprimer = panneauY + HAUTEUR_PANNEAU * 0.11f;
+        float largeurBoutonSupprimer = LARGEUR_PANNEAU * 0.28f; 
+        float hauteurBoutonSupprimer = HAUTEUR_PANNEAU * 0.23f; 
         String texteSupprimer = "Supprimer";
         Color couleurSupprimer = Color.RED;
         int taillePoliceSupprimer = 40;
@@ -205,7 +205,7 @@ public class TowerPanelInfo {
             boutonSupprimer.dispose();
         }
         boutonSupprimer = new Button(boutonXSupprimer, boutonYSupprimer, largeurBoutonSupprimer, hauteurBoutonSupprimer, texteSupprimer, cheminTextureSupprimer, couleurSupprimer, taillePoliceSupprimer);
-        // Définir l'action du bouton Supprimer
+       
         if (callbackSupprimer != null) {
             boutonSupprimer.setAction(callbackSupprimer);
         }
@@ -282,27 +282,34 @@ public class TowerPanelInfo {
         // Récupérer le niveau
         int niveau = tourSelectionnee.getLevel();
 
-        // Récupérer l'image de la tour depuis TowerDataManager
+        // Récupérer l'image de la tour depuis TowerDataManager (coordonnées relatives)
         Texture imageTour = towerDataManager.getTextureWithLevel(towerType, niveau);
         if (imageTour != null) {
-            batch.draw(imageTour, panneauX + 80f, panneauY + 60f, 100f, 100f);
+            float imageSize = HAUTEUR_PANNEAU * 0.45f; // ~45% de la hauteur du panneau
+            batch.draw(imageTour, panneauX + LARGEUR_PANNEAU * 0.12f, panneauY + HAUTEUR_PANNEAU * 0.27f, imageSize, imageSize);
         }
 
-        // Afficher les dégâts (toujours affichés, même au niveau max)
-        Texte.drawText(batch, "Dégats: ", panneauX + 245f, panneauY + 180f, Color.BLACK, 33);
-        int degats = (int) (towerDataManager.getDegats(towerType) * TowerUpgradeConfig.getMultiplicateurDegats(niveau));
-        Texte.drawText(batch, "" + degats, panneauX + 390f, panneauY + 180f, Color.BLACK, 30);
-
-        // Texte qui affiche le niveau actuel de la tour
+        if (tourSelectionnee instanceof TowerForgeron) {
+            // Afficher le nombre de lingots générés par la tour
+            int lingots = ((TowerForgeron) tourSelectionnee).getApportLingots();
+            Texte.drawText(batch, "Lingots: " + lingots, panneauX + LARGEUR_PANNEAU * 0.38f, panneauY + HAUTEUR_PANNEAU * 0.82f, Color.BLACK, 33);
+        } else {
+            // Afficher les dégâts (toujours affichés, même au niveau max) - coordonnées relatives
+            Texte.drawText(batch, "Dégats: ", panneauX + LARGEUR_PANNEAU * 0.38f, panneauY + HAUTEUR_PANNEAU * 0.82f, Color.BLACK, 33);
+            int degats = (int) (towerDataManager.getDegats(towerType) * TowerUpgradeConfig.getMultiplicateurDegats(niveau));
+            Texte.drawText(batch, "" + degats, panneauX + LARGEUR_PANNEAU * 0.60f, panneauY + HAUTEUR_PANNEAU * 0.82f, Color.BLACK, 30);
+        }
+        
+        // Texte qui affiche le niveau actuel de la tour - coordonnées relatives
         if (TowerUpgradeConfig.peutEtreAmelioree(niveau, tourSelectionnee.getMaxLevel())) {
             // Afficher le niveau normal si on peut encore améliorer
-            Texte.drawText(batch, "Niveau " + niveau, panneauX + 495f, panneauY + 190f, Color.WHITE, 35);
+            Texte.drawText(batch, "Niveau " + niveau, panneauX + LARGEUR_PANNEAU * 0.76f, panneauY + HAUTEUR_PANNEAU * 0.86f, Color.WHITE, 35);
             // Afficher le coût d'amélioration
             int coutAmelioration = TowerUpgradeConfig.getCoutAmelioration(towerType, niveau + 1);
-            Texte.drawText(batch, "(" + coutAmelioration + " lingots)", panneauX + 460f, panneauY + 123f, Color.WHITE, 28);
+            Texte.drawText(batch, "(" + coutAmelioration + " lingots)", panneauX + LARGEUR_PANNEAU * 0.70f, panneauY + HAUTEUR_PANNEAU * 0.56f, Color.WHITE, 28);
         } else {
             // Afficher "Niveau MAX" si on est au niveau maximum
-            Texte.drawText(batch, "Niveau MAX", panneauX + 493f, panneauY + 190f, Color.WHITE, 25);
+            Texte.drawText(batch, "Niveau MAX", panneauX + LARGEUR_PANNEAU * 0.76f, panneauY + HAUTEUR_PANNEAU * 0.86f, Color.WHITE, 25);
         }
     }
 

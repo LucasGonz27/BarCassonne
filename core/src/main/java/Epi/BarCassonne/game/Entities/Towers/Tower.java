@@ -193,8 +193,17 @@ public abstract class Tower implements Attacker {
      * @param ennemi L'ennemi ciblé
      */
     private void initialiserProjectile(Projectile projectile, Mechant ennemi) {
-        projectile.setPositionX(positionX);
-        projectile.setPositionY(positionY);
+        float projectileX = positionX;
+        float projectileY = positionY;
+        
+        // Pour les tours Archer, le projectile part de la position de l'archer
+        if (typeTour == TypeTour.ARCHER) {
+            float archerSize = 100f * 0.4f; // TOWER_SIZE * 0.4f (même calcul que dans TowerManager)
+            projectileY = positionY + archerSize * 0.8f;
+        }
+        
+        projectile.setPositionX(projectileX);
+        projectile.setPositionY(projectileY);
         projectile.setCible(ennemi);
         projectile.setTypeTour(typeTour);
         projectile.setNiveauTour(level); // Transmet le niveau de la tour au projectile
