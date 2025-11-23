@@ -7,12 +7,18 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  * Classe représentant le Chevalier.
  */
 public class Chevalier extends Mechant {
-    
+
+
+    /** Points de vie du Chevalier. */
+    private static final int PV = 625;
+
+    /** Vitesse de déplacement du Chevalier. */
+    private static final float VITESSE = 170f;
     /**
      * Constructeur par défaut.
      */
     public Chevalier() {
-        super(250, 1.6f, AssetMana.getAnimation("Chevalier"));
+        super(PV, VITESSE, AssetMana.getAnimation("Chevalier"));
     }
     
     /**

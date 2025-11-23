@@ -1,18 +1,20 @@
 package Epi.BarCassonne.game.Screens;
 
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+
 import Epi.BarCassonne.game.Managers.BackgroundManager;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.Gdx;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import Epi.BarCassonne.game.Utils.Button;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.Game;
 import Epi.BarCassonne.game.Utils.Texte;
-import com.badlogic.gdx.graphics.g2d.GlyphLayout;
-import com.badlogic.gdx.graphics.g2d.BitmapFont;
 
 /**
  * Écran de chargement du jeu.
@@ -21,9 +23,23 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 public class Chargement implements Screen {
 
     // ------------------------------------------------------------------------
+    // REGION : CONSTANTES
+    // ------------------------------------------------------------------------
+    private static final float DELAI_AFFICHAGE_BOUTON = 4f;
+    private static final float LARGEUR_BOUTON = 450f;
+    private static final float HAUTEUR_BOUTON = 150f;
+    private static final float DECALAGE_Y_BOUTON = -100f;
+    private static final int TAILLE_POLICE_CHARGEMENT = 155;
+    private static final int TAILLE_POLICE_BOUTON = 45;
+    private static final String TEXTE_CHARGEMENT = "Chargement...";
+    private static final String TEXTE_BOUTON = "Commencer la partie";
+    private static final String CHEMIN_BACKGROUND = "backgrounds/Chargement.png";
+    private static final String CHEMIN_SKIN_BOUTON = "skin/SkinBoutonBois.png";
+
+    // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
-    private Game game;
+    private final Game game;
     private SpriteBatch batch;
     private BackgroundManager backgroundManager;
     private Viewport viewport;
@@ -54,6 +70,7 @@ public class Chargement implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         initialiserRendu(screenWidth, screenHeight);
+        SoundManager.demarrerMusiqueMenu(0.7f);
     }
 
     /**
@@ -61,30 +78,57 @@ public class Chargement implements Screen {
      * @param screenWidth Largeur de l'écran
      * @param screenHeight Hauteur de l'écran
      */
-    public void initialiserRendu(float screenWidth, float screenHeight) {
+    private void initialiserRendu(float screenWidth, float screenHeight) {
+        initialiserCameraEtViewport(screenWidth, screenHeight);
+        initialiserBackground();
+        initialiserBouton(screenWidth, screenHeight);
+    }
+
+    /**
+     * Initialise la caméra et le viewport.
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     */
+    private void initialiserCameraEtViewport(float screenWidth, float screenHeight) {
         batch = new SpriteBatch();
-        backgroundManager = new BackgroundManager("backgrounds/Chargement.png");
         viewport = new StretchViewport(screenWidth, screenHeight);
         viewport.apply();
         camera = new OrthographicCamera();
         camera.setToOrtho(false, screenWidth, screenHeight);
         camera.update();
         batch.setProjectionMatrix(camera.combined);
+    }
 
-        // Créer le bouton "Commencer"
-        float boutonWidthJouer = 650f;
-        float boutonHeightCommencer = 300f;
-        float boutonXCommencer = (screenWidth / 2f - boutonWidthJouer / 2f); 
-        float boutonYCommencer = (screenHeight / 2f - boutonHeightCommencer / 2f - 200f); 
+    /**
+     * Initialise le gestionnaire de fond d'écran.
+     */
+    private void initialiserBackground() {
+        backgroundManager = new BackgroundManager(CHEMIN_BACKGROUND);
+    }
 
-        boutonCommencer = new Button(boutonXCommencer, boutonYCommencer, boutonWidthJouer, boutonHeightCommencer, "Commencer la partie", "skin/SkinBoutonBois.png", Color.WHITE, 45);
-        boutonCommencer.setAction(new Runnable() {
-            @Override
-            public void run() {
-                // Arrêter la musique du menu
-                Menu.stopMusic();
-                game.setScreen(new GameScreen(game));
-            }
+    /**
+     * Initialise le bouton de démarrage.
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     */
+    private void initialiserBouton(float screenWidth, float screenHeight) {
+        float boutonX = (screenWidth / 2f) - (LARGEUR_BOUTON / 2f);
+        float boutonY = (screenHeight / 2f) - (HAUTEUR_BOUTON / 2f) + DECALAGE_Y_BOUTON;
+
+        boutonCommencer = new Button(
+            boutonX, 
+            boutonY, 
+            LARGEUR_BOUTON, 
+            HAUTEUR_BOUTON, 
+            TEXTE_BOUTON, 
+            CHEMIN_SKIN_BOUTON, 
+            Color.WHITE, 
+            TAILLE_POLICE_BOUTON
+        );
+        
+        boutonCommencer.setAction(() -> {
+            SoundManager.arreterMusiqueMenu();
+            game.setScreen(new GameScreen(game));
         });
     }
 
@@ -100,34 +144,85 @@ public class Chargement implements Screen {
         float screenWidth = Gdx.graphics.getWidth();
         float screenHeight = Gdx.graphics.getHeight();
         
-        // Mettre à jour le temps
-        time += delta;
+        mettreAJourTemps(delta);
+        mettreAJourBouton();
         
-        // Mettre à jour les boutons seulement si le temps est écoulé
-        if (time > 4f) {
+        dessinerScene(screenWidth, screenHeight);
+    }
+
+    /**
+     * Met à jour le temps écoulé.
+     * @param delta Temps écoulé depuis la dernière frame
+     */
+    private void mettreAJourTemps(float delta) {
+        time += delta;
+    }
+
+    /**
+     * Met à jour le bouton si le délai est écoulé.
+     */
+    private void mettreAJourBouton() {
+        if (estBoutonVisible()) {
             boutonCommencer.update();
         }
+    }
 
-        // Dessiner le fond, les boutons et le titre
+    /**
+     * Vérifie si le bouton doit être visible.
+     * @return true si le bouton doit être visible
+     */
+    private boolean estBoutonVisible() {
+        return time > DELAI_AFFICHAGE_BOUTON;
+    }
+
+    /**
+     * Dessine tous les éléments de la scène.
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     */
+    private void dessinerScene(float screenWidth, float screenHeight) {
         batch.begin();
-        backgroundManager.renderFillScreen(batch, screenWidth, screenHeight);
+        dessinerBackground(screenWidth, screenHeight);
         
-        if (time > 4f) {
-            boutonCommencer.render(batch);
+        if (estBoutonVisible()) {
+            dessinerBouton();
+        } else {
+            dessinerTexteChargement(screenWidth, screenHeight);
         }
         
-        String texteChargement = "Chargement...";
-        int taillePolice = 155;
-        BitmapFont font = Texte.getFont(taillePolice);
+        batch.end();
+    }
+
+    /**
+     * Dessine le fond d'écran.
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     */
+    private void dessinerBackground(float screenWidth, float screenHeight) {
+        backgroundManager.renderFillScreen(batch, screenWidth, screenHeight);
+    }
+
+    /**
+     * Dessine le bouton de démarrage.
+     */
+    private void dessinerBouton() {
+        boutonCommencer.render(batch);
+    }
+
+    /**
+     * Dessine le texte de chargement.
+     * @param screenWidth Largeur de l'écran
+     * @param screenHeight Hauteur de l'écran
+     */
+    private void dessinerTexteChargement(float screenWidth, float screenHeight) {
+        BitmapFont font = Texte.getFont(TAILLE_POLICE_CHARGEMENT);
         GlyphLayout layout = new GlyphLayout();
-        layout.setText(font, texteChargement);
+        layout.setText(font, TEXTE_CHARGEMENT);
         
         float texteX = (screenWidth / 2f) - (layout.width / 2f);
         float texteY = (screenHeight / 2f) + (layout.height / 2f);
         
-        Texte.drawText(batch, texteChargement, texteX, texteY, Color.WHITE, taillePolice);
-        batch.end();
-        
+        Texte.drawText(batch, TEXTE_CHARGEMENT, texteX, texteY, Color.WHITE, TAILLE_POLICE_CHARGEMENT);
     }
     
     // ------------------------------------------------------------------------

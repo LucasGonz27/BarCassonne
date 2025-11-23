@@ -86,6 +86,18 @@ public class HUD {
     // Position Y du troisième slot : 26.1% de la hauteur de l'écran depuis le bas
     private static final float SLOT3_Y = 0.261f;
 
+    // Position X du quatrième slot : 87.2% de la largeur de l'écran depuis le début
+    private static final float SLOT4_X = 0.872f;
+
+    // Position Y du quatrième slot : 8.1% de la hauteur de l'écran depuis le bas
+    private static final float SLOT4_Y = 0.081f;
+
+    // Position X du prix de la tour Canon : 10.3% de la largeur de l'écran depuis le début du HUD
+    private static final float PrixTourCanon_X = 0.103f;
+
+    // Position Y du prix de la tour Canon : 8.1% de la hauteur de l'écran depuis le bas
+    private static final float PrixTourCanon_Y = 0.050f;
+
     // ------------------------------------------------------------------------
     // REGION : CHAMPS
     // ------------------------------------------------------------------------
@@ -108,6 +120,9 @@ public class HUD {
     /** Texture de la tour Forgeron Level 1. */
     private Texture tourForgeronLevel1Texture;
 
+    /** Texture de la tour Canon Level 1. */
+    private Texture tourCanonLevel1Texture;
+
     /** Gestionnaire des données des tours. */
     private TowerDataManager towerDataManager;
 
@@ -127,6 +142,7 @@ public class HUD {
         this.tourArcherLevel1Texture = TextureManager.chargerTexture("sprites/TourArcherLevel1.png");
         this.tourMagieLevel1Texture = TextureManager.chargerTexture("sprites/TourMagieLevel1.png");
         this.tourForgeronLevel1Texture = TextureManager.chargerTexture("sprites/ForgeronLevel1.png");
+        this.tourCanonLevel1Texture = TextureManager.chargerTexture("sprites/CanonLevel1.png");
     }
 
     // ------------------------------------------------------------------------
@@ -186,6 +202,8 @@ public class HUD {
         float prixTourMagieY = PrixTourMagie_Y * screenHeight;
         float prixTourForgeronX = hudX + (PrixTourForgeron_X * screenWidth);
         float prixTourForgeronY = PrixTourForgeron_Y * screenHeight;
+        float prixTourCanonX = hudX + (PrixTourCanon_X * screenWidth);
+        float prixTourCanonY = PrixTourCanon_Y * screenHeight;
         float vieX = VIE_X * screenWidth;
         float vieY = VIE_Y * screenHeight;
         timerJeu = timerJeu + Gdx.graphics.getDeltaTime();
@@ -198,6 +216,7 @@ public class HUD {
         Texte.drawText(batch, Integer.toString(towerDataManager.getPrix("TowerArcher")), prixTourArcherX, prixTourArcherY, Color.BLACK, 22);
         Texte.drawText(batch, Integer.toString(towerDataManager.getPrix("TowerMagie")), prixTourMagieX, prixTourMagieY, Color.BLACK, 22);
         Texte.drawText(batch, Integer.toString(towerDataManager.getPrix("TowerForgeron")), prixTourForgeronX, prixTourForgeronY, Color.BLACK, 22);
+        Texte.drawText(batch, Integer.toString(towerDataManager.getPrix("TowerCanon")), prixTourCanonX, prixTourCanonY, Color.BLACK, 22);
     }
 
     /**
@@ -237,6 +256,15 @@ public class HUD {
         // Dessiner la TourForgeronLevel1 dans le troisième slot
         if (tourForgeronLevel1Texture != null) {
             batch.draw(tourForgeronLevel1Texture, slot3X, slot3Y, slotSize, slotSize);
+        }
+
+        // Calculer la position du quatrième slot   
+        float slot4X = SLOT4_X * screenWidth;
+        float slot4Y = SLOT4_Y * screenHeight;
+
+        // Dessiner la TourCanonLevel1 dans le quatrième slot
+        if (tourCanonLevel1Texture != null) {
+            batch.draw(tourCanonLevel1Texture, slot4X, slot4Y, slotSize, slotSize);
         }
 
         
@@ -301,6 +329,14 @@ public class HUD {
             return 3;
         }
 
+        // Vérifier le quatrième slot (TourCanon)
+        float slot4X = SLOT4_X * screenWidth;
+        float slot4Y = SLOT4_Y * screenHeight;
+        if (screenX >= slot4X && screenX <= slot4X + slotSize &&
+            yInverse >= slot4Y && yInverse <= slot4Y + slotSize) {
+            return 4;
+        }
+
         return 0; // Aucun slot cliqué
     }
 
@@ -337,6 +373,9 @@ public class HUD {
         }
         if (tourForgeronLevel1Texture != null) {
             tourForgeronLevel1Texture.dispose();
+        }
+        if (tourCanonLevel1Texture != null) {
+            tourCanonLevel1Texture.dispose();
         }
     }
 }

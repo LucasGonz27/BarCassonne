@@ -3,6 +3,7 @@ package Epi.BarCassonne.game.Entities.Mechants;
 import Epi.BarCassonne.game.Entities.Towers.TypeTour;
 import Epi.BarCassonne.game.Interfaces.Damageable;
 import Epi.BarCassonne.game.Interfaces.Movable;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
@@ -156,25 +157,25 @@ public abstract class Mechant implements Movable, Damageable {
     public int getDegatsFinChemin() {
         switch (this.getClass().getSimpleName()) {
             case "PaysanGoblin":
-                return 1;
-            case "GuerrierGoblin":
                 return 2;
-            case "GoblinGuerrisseur":
-                return 3;
-            case "GoblinBomb":
+            case "GuerrierGoblin":
                 return 4;
-            case "Cochon":
-                return 5;
-            case "Chevalier":
+            case "GoblinGuerrisseur":
+                return 6;
+            case "GoblinBomb":
                 return 8;
-            case "BossChevalier":
+            case "Cochon":
                 return 10;
-            case "Golem":
-                return 12;
-            case "RoiGoblin":
+            case "Chevalier":
+                return 16;
+            case "BossChevalier":
                 return 20;
+            case "Golem":
+                return 24;
+            case "RoiGoblin":
+                return 40;
             default:
-                return 1;
+                return 2;
         }
     }
     
@@ -202,8 +203,17 @@ public abstract class Mechant implements Movable, Damageable {
         float resistance = getResistance(typeTour);
         int degatsReels = (int) (degats * (1.0f - resistance));
         
+        boolean etaitEnVie = isEnVie();
         this.PV -= degatsReels;
-        if (this.PV <= 0) this.PV = 0;
+        if (this.PV <= 0) {
+            this.PV = 0;
+        }
+        
+        // Si l'ennemi vient de mourir, jouer le son de mort
+        if (etaitEnVie && !isEnVie()) {
+            System.out.println("Ennemi mort ! Jouer son de mort. PV: " + this.PV);
+            SoundManager.jouerSonMortEnnemi(0.4f);
+        }
         
         // Afficher un message flottant avec les dégâts réels
         messageFlottant.creerMessage(positionX, positionY + 60f, String.valueOf(degatsReels), Color.RED, 25, 0.5f, -60f);
@@ -217,8 +227,19 @@ public abstract class Mechant implements Movable, Damageable {
     @Override
     public void recevoirDegats(int degats) {
         if (!isEnVie()) return;
+        
+        boolean etaitEnVie = isEnVie();
         this.PV -= degats;
-        if (this.PV <= 0) this.PV = 0;
+        if (this.PV <= 0) {
+            this.PV = 0;
+        }
+        
+        // Si l'ennemi vient de mourir, jouer le son de mort
+        if (etaitEnVie && !isEnVie()) {
+            System.out.println("Ennemi mort ! Jouer son de mort. PV: " + this.PV);
+            SoundManager.jouerSonMortEnnemi(0.4f);
+        }
+        
         messageFlottant.creerMessage(positionX, positionY + 60f, String.valueOf(degats), Color.RED, 25, 0.5f, -60f);
     }
     
@@ -335,5 +356,27 @@ public abstract class Mechant implements Movable, Damageable {
      */
     public MessageFlottant getMessageFlottant() {
         return messageFlottant;
+    }
+
+    /**
+     * Retourne la position X du centre de la hitbox du méchant.
+     * @return La position X du centre
+     */
+    public float getCentreX() {
+        if (animation == null || getFrame() == null) {
+            return positionX;
+        }
+        return positionX + getFrame().getRegionWidth() / 2f;
+    }
+
+    /**
+     * Retourne la position Y du centre de la hitbox du méchant.
+     * @return La position Y du centre
+     */
+    public float getCentreY() {
+        if (animation == null || getFrame() == null) {
+            return positionY;
+        }
+        return positionY + getFrame().getRegionHeight() / 2f;
     }
 }

@@ -2,7 +2,9 @@ package Epi.BarCassonne.game.Managers;
 
 import Epi.BarCassonne.game.Entities.Mechants.*;
 import Epi.BarCassonne.game.Vague.Vague;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -113,6 +115,7 @@ public class VagueMana {
 
         // Vague 9
         Vague v9 = new Vague(9);
+        v9.ajouterEnnemi(GoblinGuerrisseur.class, 10);
         v9.ajouterEnnemi(Chevalier.class, 2);
         vagues.add(v9);
 

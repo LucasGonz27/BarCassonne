@@ -3,7 +3,6 @@ package Epi.BarCassonne.game.Screens;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -18,6 +17,8 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 import Epi.BarCassonne.game.Managers.BackgroundManager;
 import Epi.BarCassonne.game.Managers.CheminMana;
 import Epi.BarCassonne.game.Managers.GameState;
+import Epi.BarCassonne.game.Managers.ProjectileManager;
+import Epi.BarCassonne.game.Managers.SoundManager;
 import Epi.BarCassonne.game.Managers.TowerManager;
 import Epi.BarCassonne.game.Managers.VagueMana;
 import Epi.BarCassonne.game.UI.HUD;
@@ -44,43 +45,72 @@ public class GameScreen implements Screen {
     // ------------------------------------------------------------------------
     // REGION : CONSTANTES
     // ------------------------------------------------------------------------
+    /** Durée d'affichage du message de vague en secondes */
     private static final float DUREE_AFFICHAGE_MESSAGE_VAGUE = 2.0f;
+    
+    /** Taille de la police du message de vague */
     private static final int TAILLE_POLICE_MESSAGE_VAGUE = 120;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - RENDU
     // ------------------------------------------------------------------------
+    /** SpriteBatch pour le rendu des textures et sprites */
     private SpriteBatch spriteBatch;
+    
+    /** ShapeRenderer pour le rendu des formes géométriques */
     private ShapeRenderer shapeRenderer;
+    
+    /** Caméra orthographique partagée entre la map et le HUD */
     private OrthographicCamera camera;
+    
+    /** Viewport pour la zone de la map */
     private Viewport mapViewport;
+    
+    /** Viewport pour la zone du HUD */
     private Viewport hudViewport;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - MANAGERS
     // ------------------------------------------------------------------------
+    /** Gestionnaire du fond d'écran */
     private BackgroundManager backgroundManager;
+    
+    /** Gestionnaire du chemin des ennemis */
     private CheminMana cheminManager;
+    
+    /** Gestionnaire des vagues d'ennemis */
     private VagueMana vagueManager;
+    
+    /** État global du jeu (lingots, vie, etc.) */
     private GameState gameState;
+    
+    /** Interface utilisateur (HUD) */
     private HUD hud;
+    
+    /** Gestionnaire des tours */
     private TowerManager towerManager;
+    
+    /** Gestionnaire des projectiles */
+    private ProjectileManager projectileManager;
+    
+    /** Validateur de collisions pour le placement des tours */
     private CollisionValid collisionValid;
 
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - ÉTAT DU JEU
     // ------------------------------------------------------------------------
+    /** Indique si le jeu est terminé (game over) */
     private boolean gameOver;
-    private boolean afficherMessageVague;
-    private float tempsAffichageMessage;
     
-    /** Instance du jeu pour changer d'écran. */
+    /** Indique si le message de vague doit être affiché */
+    private boolean afficherMessageVague;
+    
+    /** Temps écoulé depuis le début de l'affichage du message de vague */
+    private float tempsAffichageMessage;
+
+    /** Instance du jeu pour changer d'écran */
     private Game game;
 
-    // ------------------------------------------------------------------------
-    // REGION : CHAMPS - AUDIO
-    // ------------------------------------------------------------------------
-    private Sound musiqueJeux;
 
     // ------------------------------------------------------------------------
     // REGION : INITIALISATION
@@ -99,6 +129,7 @@ public class GameScreen implements Screen {
         initialiserRendu(screenWidth, screenHeight, mapWidth, mapHeight);
         chargerAssets();
         GameState.resetInstance();
+        SoundManager.initialiser();
         initialiserJeu(mapWidth, mapHeight);
     }
 
@@ -116,7 +147,7 @@ public class GameScreen implements Screen {
 
         // Initialiser la caméra unique (partagée entre map et HUD)
         camera = new OrthographicCamera();
-        
+
         // Initialiser les viewports (ils gèrent la projection de la caméra)
         mapViewport = new StretchViewport(mapWidth, mapHeight, camera);
         hudViewport = new StretchViewport(screenWidth, screenHeight, camera);
@@ -132,6 +163,8 @@ public class GameScreen implements Screen {
         AssetMana.loadAnimation("GoblinBomb");
         AssetMana.loadAnimation("Cochon");
         AssetMana.loadAnimation("RoiGoblin");
+        AssetMana.loadAnimation("Chevalier");
+        AssetMana.loadAnimation("Golem");
     }
 
     /**
@@ -155,8 +188,11 @@ public class GameScreen implements Screen {
         // Créer le validateur de collision
         collisionValid = new CollisionValid(mapWidth, mapHeight);
 
+        // Créer le gestionnaire de projectiles
+        projectileManager = new ProjectileManager();
+
         // Créer le gestionnaire de tour
-        towerManager = new TowerManager(collisionValid, vagueManager, gameState);
+        towerManager = new TowerManager(collisionValid, vagueManager, gameState, projectileManager);
 
         // Initialiser l'état du game over
         gameOver = false;
@@ -165,11 +201,8 @@ public class GameScreen implements Screen {
         afficherMessageVague = false;
         tempsAffichageMessage = 0f;
 
-        // Initialiser la musique de jeu
-        musiqueJeux = Gdx.audio.newSound(Gdx.files.internal("sounds/musiqueDurantJeux.mp3"));
-        if (musiqueJeux != null) {
-            musiqueJeux.loop();
-        }
+        // Démarrer la musique de jeu via SoundManager
+        SoundManager.demarrerMusiqueJeu(0.7f);
     }
 
     // ------------------------------------------------------------------------
@@ -202,6 +235,7 @@ public class GameScreen implements Screen {
     private void mettreAJourJeu(float delta) {
         vagueManager.update(delta);
         towerManager.update(delta);
+        projectileManager.update(delta);
         mettreAJourVague();
         mettreAJourMessageVague(delta);
     }
@@ -274,13 +308,14 @@ public class GameScreen implements Screen {
         mapViewport.apply();
         camera.update();
         spriteBatch.setProjectionMatrix(camera.combined);
-        
+
         spriteBatch.begin();
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
         vagueManager.render(spriteBatch);
         towerManager.render(spriteBatch);
+        projectileManager.render(spriteBatch);
         spriteBatch.end();
-        
+
         towerManager.renderPortee(shapeRenderer, camera);
     }
 
@@ -313,7 +348,7 @@ public class GameScreen implements Screen {
         float screenWidth = hudViewport.getWorldWidth();
         float screenHeight = hudViewport.getWorldHeight();
         String message = "Vague " + vagueManager.getVagueActuelle().getNumero();
-        
+
         // Calculer la position centrée du texte
         GlyphLayout layout = new GlyphLayout();
         layout.setText(Texte.getFont(TAILLE_POLICE_MESSAGE_VAGUE), message);
@@ -363,6 +398,7 @@ public class GameScreen implements Screen {
             return;
         }
 
+
         float screenX = Gdx.input.getX();
         float screenY = Gdx.input.getY();
         float screenWidth = Gdx.graphics.getWidth();
@@ -374,12 +410,18 @@ public class GameScreen implements Screen {
             return;
         }
 
+        // Mettre à jour la caméra pour la map avant toute interaction
+        camera.position.set(mapViewport.getWorldWidth() / 2, mapViewport.getWorldHeight() / 2, 0);
+        mapViewport.apply();
+        camera.update();
+
+        // Vérifier d'abord si on clique sur une tour ou l'interface d'amélioration
+        if (towerManager.gererClicTour(screenX, screenY, screenWidth, screenHeight, mapViewport)) {
+            return; // Le clic a été traité par le système d'amélioration
+        }
+
+        // Sinon, gérer le placement de tour si en mode placement
         if (towerManager.estEnModePlacement()) {
-            // Mettre à jour la caméra pour la map avant le placement
-            camera.position.set(mapViewport.getWorldWidth() / 2, mapViewport.getWorldHeight() / 2, 0);
-            mapViewport.apply();
-            camera.update();
-            
             towerManager.placerTour(screenX, screenY, screenWidth, screenHeight, mapViewport);
         }
     }
@@ -524,9 +566,7 @@ public class GameScreen implements Screen {
         if (towerManager != null) {
             towerManager.dispose();
         }
-        if (musiqueJeux != null) {
-            musiqueJeux.dispose();
-        }
+        SoundManager.dispose();
         AssetMana.dispose();
     }
 }

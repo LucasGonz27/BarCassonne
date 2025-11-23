@@ -6,12 +6,18 @@ import Epi.BarCassonne.game.Managers.AssetMana;
  * Classe représentant le GoblinBomb.
  */
 public class GoblinBomb extends Mechant {
-    
+
+
+    /** Points de vie du GoblinBomb. */
+    private static final int PV = 325;
+
+    /** Vitesse de déplacement du GoblinBomb. */
+    private static final float VITESSE = 30f;
     /**
      * Constructeur par défaut.
      */
     public GoblinBomb() {
-        super(130, 25f, AssetMana.getAnimation("GoblinBomb"));
+        super(PV, VITESSE, AssetMana.getAnimation("GoblinBomb"));
     }
 
 
