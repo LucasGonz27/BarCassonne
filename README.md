@@ -298,19 +298,5 @@ git push origin ma-nouvelle-fonctionnalite
 # 6. Ouvrir une Pull Request sur GitHub
 ```
 
----
-
-## 📝 Roadmap
-
-- [ ] Ajout de nouveaux types de tours
-- [ ] Système de succès et achievements
-- [ ] Mode multijoueur
-- [ ] Sauvegarde de progression
-- [ ] Ajout de boss et événements spéciaux
-- [ ] Niveaux de difficulté supplémentaires
-- [ ] Système de statistiques en fin de partie
-- [ ] Mode survie infini
-
----
 
 **La Défense de Barcassone** - *Défendez votre territoire avec stratégie* 🏰⚔️
