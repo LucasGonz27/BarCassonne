@@ -16,12 +16,12 @@ public class CheminMana {
     /** Liste des points du chemin principal que suivent les ennemis. */
     protected List<Vector2> cheminPrincipal;
 
-    /** Points du chemin en coordonnées relatives (0.0 à 1.0). */
+    /** Points du chemin en coordonnées relatives*/
     private static final float[][] CHEMIN_POINTS_RELATIFS = {
-        {0.0f, 0.376f},      // Point 0 : début à gauche, 37.6% de la hauteur
-        {0.494f, 0.430f},    // Point 1 : 49.4% de la largeur, 43.0% de la hauteur
-        {0.494f, 0.634f},    // Point 2 : 49.4% de la largeur, 63.4% de la hauteur
-        {0.961f, 0.634f}     // Point 3 : 96.1% de la largeur, 63.4% de la hauteur
+        {0.0f, 0.376f},
+        {0.494f, 0.430f},
+        {0.494f, 0.634f},
+        {0.961f, 0.634f}
     };
 
     // ------------------------------------------------------------------------
@@ -36,7 +36,7 @@ public class CheminMana {
         cheminPrincipal = new ArrayList<>();
         mettreAJourChemin(mapWidth, mapHeight);
     }
-    
+
     /**
      * Met à jour le chemin en fonction des nouvelles dimensions de la map.
      * @param mapWidth Largeur de la map
@@ -44,7 +44,7 @@ public class CheminMana {
      */
     public void mettreAJourChemin(float mapWidth, float mapHeight) {
         cheminPrincipal.clear();
-        
+
         // Convertir les coordonnées relatives en coordonnées réelles
         for (float[] point : CHEMIN_POINTS_RELATIFS) {
             float x = point[0] * mapWidth;

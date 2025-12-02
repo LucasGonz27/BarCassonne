@@ -203,14 +203,14 @@ public abstract class Mechant implements Movable, Damageable {
         float resistance = getResistance(typeTour);
         int degatsReels = (int) (degats * (1.0f - resistance));
         
-        boolean etaitEnVie = isEnVie();
+        
         this.PV -= degatsReels;
         if (this.PV <= 0) {
             this.PV = 0;
         }
         
         // Si l'ennemi vient de mourir, jouer le son de mort
-        if (etaitEnVie && !isEnVie()) {
+        if (!isEnVie()) {
             System.out.println("Ennemi mort ! Jouer son de mort. PV: " + this.PV);
             SoundManager.jouerSonMortEnnemi(0.4f);
         }
@@ -228,14 +228,14 @@ public abstract class Mechant implements Movable, Damageable {
     public void recevoirDegats(int degats) {
         if (!isEnVie()) return;
         
-        boolean etaitEnVie = isEnVie();
+        
         this.PV -= degats;
         if (this.PV <= 0) {
             this.PV = 0;
         }
         
         // Si l'ennemi vient de mourir, jouer le son de mort
-        if (etaitEnVie && !isEnVie()) {
+        if (!isEnVie()) {
             System.out.println("Ennemi mort ! Jouer son de mort. PV: " + this.PV);
             SoundManager.jouerSonMortEnnemi(0.4f);
         }

@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 
+import Epi.BarCassonne.game.Config.TowerUpgradeConfig;
 /**
  * Classe abstraite représentant un projectile tiré par une tour.
  * Le projectile suit automatiquement sa cible pour ne jamais la rater.
@@ -31,13 +32,13 @@ public abstract class Projectile {
     /** Position actuelle du projectile dans le monde */
     private final Vector2 position;
 
-    /** Vitesse de déplacement du projectile (en pixels/seconde) */
+    /** Vitesse de déplacement du projectile*/
     private final float vitesse;
 
-    /** Direction normalisée vers la cible (recalculée à chaque frame) */
+    /** Direction normalisée vers la cible*/
     private final Vector2 direction;
 
-    /** Angle de rotation pour l'affichage (en degrés) */
+    /** Angle de rotation pour l'affichage*/
     private float angle;
 
     /** Dégâts infligés à la cible lors de l'impact */
@@ -76,7 +77,7 @@ public abstract class Projectile {
         this.vitesse = vitesse;
         this.angle = 0;
         this.aTouche = false;
-        this.niveauTour = 1; // Niveau par défaut
+        this.niveauTour = 1;
     }
 
     // ========================================================================
@@ -159,7 +160,7 @@ public abstract class Projectile {
      * @return Les dégâts finaux après application du multiplicateur
      */
     private int calculerDegatsAvecNiveau() {
-        float multiplicateur = Epi.BarCassonne.game.Config.TowerUpgradeConfig.getMultiplicateurDegats(niveauTour);
+        float multiplicateur = TowerUpgradeConfig.getMultiplicateurDegats(niveauTour);
         return (int) (degats * multiplicateur);
     }
 

@@ -62,27 +62,27 @@ public class TowerUpgradeConfig {
      */
     private void initialiserCoutsAmelioration() {
         Map<Integer, Integer> coutsArcher = new HashMap<>();
-        coutsArcher.put(2, 150);
-        coutsArcher.put(3, 300);
-        coutsArcher.put(4, 600);
+        coutsArcher.put(2, 250);
+        coutsArcher.put(3, 500);
+        coutsArcher.put(4, 800);
         coutsAmelioration.put("TowerArcher", coutsArcher);
 
         Map<Integer, Integer> coutsMagie = new HashMap<>();
         coutsMagie.put(2, 500);
-        coutsMagie.put(3, 1000);
-        coutsMagie.put(4, 2000);
+        coutsMagie.put(3, 1500);
+        coutsMagie.put(4, 3000);
         coutsAmelioration.put("TowerMagie", coutsMagie);
 
         Map<Integer, Integer> coutsCanon = new HashMap<>();
         coutsCanon.put(2, 300);
-        coutsCanon.put(3, 600);
-        coutsCanon.put(4, 1000);
+        coutsCanon.put(3, 700);
+        coutsCanon.put(4, 1800);
         coutsAmelioration.put("TowerCanon", coutsCanon);
 
         Map<Integer, Integer> coutsForgeron = new HashMap<>();
-        coutsForgeron.put(2, 700);
-        coutsForgeron.put(3, 1500);
-        coutsForgeron.put(4, 2500);
+        coutsForgeron.put(2, 1500);
+        coutsForgeron.put(3, 2500);
+        coutsForgeron.put(4, 3500);
         coutsAmelioration.put("TowerForgeron", coutsForgeron);
     }
 

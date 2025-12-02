@@ -7,8 +7,10 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -96,11 +98,20 @@ public class GameScreen implements Screen {
     /** Validateur de collisions pour le placement des tours */
     private CollisionValid collisionValid;
 
+    /** Animation de la princesse */
+    private Animation<TextureRegion> animationPrincesse;
+    
+    /** Temps écoulé pour l'animation de la princesse */
+    private float stateTimePrincesse = 0f;
+
     // ------------------------------------------------------------------------
     // REGION : CHAMPS - ÉTAT DU JEU
     // ------------------------------------------------------------------------
     /** Indique si le jeu est terminé (game over) */
     private boolean gameOver;
+    
+    /** Indique si le joueur a gagné (victoire) */
+    private boolean victoire;
     
     /** Indique si le message de vague doit être affiché */
     private boolean afficherMessageVague;
@@ -165,6 +176,8 @@ public class GameScreen implements Screen {
         AssetMana.loadAnimation("RoiGoblin");
         AssetMana.loadAnimation("Chevalier");
         AssetMana.loadAnimation("Golem");
+        AssetMana.loadAnimation("Princesse");
+        animationPrincesse = AssetMana.getAnimation("Princesse");
     }
 
     /**
@@ -196,6 +209,9 @@ public class GameScreen implements Screen {
 
         // Initialiser l'état du game over
         gameOver = false;
+        
+        // Initialiser l'état de la victoire
+        victoire = false;
 
         // Initialiser le message de vague
         afficherMessageVague = false;
@@ -216,9 +232,10 @@ public class GameScreen implements Screen {
     public void render(float delta) {
         gererQuitterJeu();
         verifierGameOver();
+        verifierVictoire();
         gererEntrees();
 
-        if (gameState.estEnVie()) {
+        if (gameState.estEnVie() && !victoire) {
             mettreAJourJeu(delta);
         }
 
@@ -238,6 +255,7 @@ public class GameScreen implements Screen {
         projectileManager.update(delta);
         mettreAJourVague();
         mettreAJourMessageVague(delta);
+        stateTimePrincesse += delta;
     }
 
     /**
@@ -270,16 +288,44 @@ public class GameScreen implements Screen {
     }
 
     // ------------------------------------------------------------------------
-    // REGION : GESTION DU GAME OVER
+    // REGION : GESTION DU GAME OVER ET DE LA VICTOIRE
     // ------------------------------------------------------------------------
     /**
      * Vérifie si le joueur a perdu et change d'écran vers GameOver.
      */
     private void verifierGameOver() {
-        if (!gameState.estEnVie() && !gameOver) {
+        if (!gameState.estEnVie() && !gameOver && !victoire) {
             gameOver = true;
             if (game != null) {
                 game.setScreen(new GameOver(game));
+            }
+        }
+    }
+
+    /**
+     * Vérifie si le joueur a gagné (toutes les vagues terminées, plus d'ennemis actifs, joueur encore en vie).
+     * Change d'écran vers VictoryScreen si la victoire est détectée.
+     */
+    private void verifierVictoire() {
+        if (victoire || gameOver) {
+            return; // Déjà gagné ou perdu
+        }
+
+        if (vagueManager == null || !gameState.estEnVie()) {
+            return; // Pas encore initialisé ou joueur mort
+        }
+
+        // Vérifier si toutes les vagues sont terminées
+        boolean toutesVaguesTerminees = vagueManager.toutesVaguesTerminees();
+        
+        // Vérifier s'il n'y a plus d'ennemis actifs
+        boolean plusDEnnemis = vagueManager.getEnnemisActifs() == null || vagueManager.getEnnemisActifs().size == 0;
+
+        // Si toutes les conditions sont remplies, déclencher la victoire
+        if (toutesVaguesTerminees && plusDEnnemis) {
+            victoire = true;
+            if (game != null) {
+                game.setScreen(new VictoryScreen(game));
             }
         }
     }
@@ -311,6 +357,7 @@ public class GameScreen implements Screen {
 
         spriteBatch.begin();
         backgroundManager.renderFillScreen(spriteBatch, mapViewport.getWorldWidth(), mapViewport.getWorldHeight());
+        dessinerPrincesse(spriteBatch);
         vagueManager.render(spriteBatch);
         towerManager.render(spriteBatch);
         projectileManager.render(spriteBatch);
@@ -337,6 +384,22 @@ public class GameScreen implements Screen {
     private void dessinerMessages() {
         if (afficherMessageVague && vagueManager.getVagueActuelle() != null) {
             dessinerMessageVague();
+        }
+    }
+
+    /**
+     * Dessine la princesse en haut à gauche de la map.
+     * @param batch Le SpriteBatch pour le rendu
+     */
+    private void dessinerPrincesse(SpriteBatch batch) {
+        if (animationPrincesse != null) {
+            TextureRegion frame = animationPrincesse.getKeyFrame(stateTimePrincesse, true);
+            if (frame != null) {
+                float taillePrincesse = 120f; // Taille du sprite de la princesse
+                float x = 150f; // Position en haut à gauche
+                float y = 833f; // Position en haut
+                batch.draw(frame, x, y, taillePrincesse, taillePrincesse);
+            }
         }
     }
 

@@ -45,10 +45,10 @@ public abstract class Tower implements Attacker {
     /** Prix d'achat de la tour */
     protected int prix;
 
-    /** Temps écoulé depuis la dernière attaque (en secondes) */
+    /** Temps écoulé depuis la dernière attaque*/
     private float tempsDepuisDerniereAttaque;
 
-    /** Type de la tour (utilisé pour le système de résistances) */
+    /** Type de la tour */
     protected final TypeTour typeTour;
 
     // ========================================================================
@@ -64,7 +64,7 @@ public abstract class Tower implements Attacker {
      * @param maxLevel Niveau maximum de la tour
      * @param portee Portée d'attaque de la tour (distance maximale)
      * @param prix Prix d'achat de la tour
-     * @param typeTour Type de la tour (doit être défini par chaque sous-classe)
+     * @param typeTour Type de la tour
      */
     protected Tower(float positionX, float positionY, int level, int maxLevel, float portee, int prix, TypeTour typeTour) {
         this.positionX = positionX;
@@ -211,7 +211,7 @@ public abstract class Tower implements Attacker {
         projectile.setPositionY(projectileY);
         projectile.setCible(ennemi);
         projectile.setTypeTour(typeTour);
-        projectile.setNiveauTour(level); // Transmet le niveau de la tour au projectile
+        projectile.setNiveauTour(level); 
     }
 
     /**

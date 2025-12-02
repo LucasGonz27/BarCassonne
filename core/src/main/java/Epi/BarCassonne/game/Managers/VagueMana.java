@@ -2,9 +2,7 @@ package Epi.BarCassonne.game.Managers;
 
 import Epi.BarCassonne.game.Entities.Mechants.*;
 import Epi.BarCassonne.game.Vague.Vague;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 
@@ -73,17 +71,21 @@ public class VagueMana {
 
         // Vague 2
         Vague v2 = new Vague(2);
-        v2.ajouterEnnemi(PaysanGoblin.class, 15);
+        v2.ajouterEnnemi(PaysanGoblin.class, 5);
+        v2.ajouterEnnemi(GuerrierGoblin.class, 5);
+        v2.ajouterEnnemi(PaysanGoblin.class, 5);
         vagues.add(v2);
 
         // Vague 3
         Vague v3 = new Vague(3);
-        v3.ajouterEnnemi(PaysanGoblin.class, 3);
-        v3.ajouterEnnemi(GuerrierGoblin.class, 8);
+        v3.ajouterEnnemi(GuerrierGoblin.class, 3);
+        v3.ajouterEnnemi(GoblinGuerrisseur.class, 5);
+        v3.ajouterEnnemi(GuerrierGoblin.class, 5);
         vagues.add(v3);
 
         //vague 4
         Vague v4 = new Vague(4);
+        v4.ajouterEnnemi(GoblinGuerrisseur.class, 2);
         v4.ajouterEnnemi(GuerrierGoblin.class, 10);
         v4.ajouterEnnemi(GoblinGuerrisseur.class, 2);
         vagues.add(v4);
@@ -91,6 +93,7 @@ public class VagueMana {
         // Vague 5
         Vague v5 = new Vague(5);
         v5.ajouterEnnemi(GoblinBomb.class, 4);
+        v5.ajouterEnnemi(Cochon.class, 2);
         v5.ajouterEnnemi(GuerrierGoblin.class, 2);
         vagues.add(v5);
 
@@ -98,12 +101,14 @@ public class VagueMana {
         Vague v6 = new Vague(6);
         v6.ajouterEnnemi(Cochon.class, 10);
         v6.ajouterEnnemi(GuerrierGoblin.class, 5);
+        v6.ajouterEnnemi(PaysanGoblin.class, 5);
         vagues.add(v6);
 
         // Vague 7
         Vague v7 = new Vague(7);
         v7.ajouterEnnemi(GuerrierGoblin.class, 15);
         v7.ajouterEnnemi(GoblinBomb.class, 5);
+        v7.ajouterEnnemi(GoblinGuerrisseur.class, 5);
         vagues.add(v7);
 
         // Vague 8
@@ -115,14 +120,15 @@ public class VagueMana {
 
         // Vague 9
         Vague v9 = new Vague(9);
-        v9.ajouterEnnemi(GoblinGuerrisseur.class, 10);
-        v9.ajouterEnnemi(Chevalier.class, 2);
+        v9.ajouterEnnemi(Chevalier.class, 5);
         vagues.add(v9);
 
         // Vague 10
         Vague v10 = new Vague(10);
         v10.ajouterEnnemi(Chevalier.class, 2);
-        v10.ajouterEnnemi(GoblinBomb.class, 10);
+        v10.ajouterEnnemi(GoblinBomb.class, 5);
+        v10.ajouterEnnemi(Chevalier.class, 2);
+        v10.ajouterEnnemi(GoblinBomb.class, 5);
         vagues.add(v10);
 
         // Vague 11
@@ -150,18 +156,18 @@ public class VagueMana {
 
         // Vague 14
         Vague v14 = new Vague(14);
-        v14.ajouterEnnemi(GuerrierGoblin.class, 10);
-        v14.ajouterEnnemi(Chevalier.class, 20);
-        v14.ajouterEnnemi(PaysanGoblin.class, 20);
         v14.ajouterEnnemi(Golem.class, 5);
+        v14.ajouterEnnemi(Chevalier.class, 20);
+        v14.ajouterEnnemi(GuerrierGoblin.class, 10);
+        v14.ajouterEnnemi(PaysanGoblin.class, 20);
         v14.ajouterEnnemi(BossChevalier.class, 10);
         vagues.add(v14);
 
         // Vague 15
         Vague v15 = new Vague(15);
         v15.ajouterEnnemi(GuerrierGoblin.class, 10);
-        v15.ajouterEnnemi(PaysanGoblin.class, 20);
         v15.ajouterEnnemi(Golem.class, 10);
+        v15.ajouterEnnemi(PaysanGoblin.class, 20);
         v15.ajouterEnnemi(BossChevalier.class, 10);
         v15.ajouterEnnemi(GoblinGuerrisseur.class, 10);
         v15.ajouterEnnemi(Chevalier.class, 10);
@@ -177,6 +183,9 @@ public class VagueMana {
      * @param deltaTime Temps écoulé depuis la dernière frame
      */
     public void update(float deltaTime) {
+        // Mettre à jour les ennemis même si toutes les vagues sont terminées
+        mettreAJourEnnemis(deltaTime);
+        
         if (vagueActuelle == null) return;
 
         if (vagueActuelle.estTerminee()) {
@@ -185,7 +194,6 @@ public class VagueMana {
         }
 
         spawnEnnemisSuivant(deltaTime);
-        mettreAJourEnnemis(deltaTime);
     }
 
     /**
@@ -295,6 +303,14 @@ public class VagueMana {
      */
     public Vague getVagueActuelle() {
         return vagueActuelle;
+    }
+
+    /**
+     * Vérifie si toutes les vagues sont terminées.
+     * @return true si toutes les vagues sont terminées (index dépasse la taille ou vagueActuelle est null)
+     */
+    public boolean toutesVaguesTerminees() {
+        return indexVagueActuelle >= vagues.size || vagueActuelle == null;
     }
 
     /**

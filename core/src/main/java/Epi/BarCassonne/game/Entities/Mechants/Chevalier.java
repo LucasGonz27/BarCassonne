@@ -10,7 +10,7 @@ public class Chevalier extends Mechant {
 
 
     /** Points de vie du Chevalier. */
-    private static final int PV = 625;
+    private static final int PV = 450;
 
     /** Vitesse de déplacement du Chevalier. */
     private static final float VITESSE = 170f;
@@ -20,7 +20,7 @@ public class Chevalier extends Mechant {
     public Chevalier() {
         super(PV, VITESSE, AssetMana.getAnimation("Chevalier"));
     }
-    
+
     /**
      * Initialise les résistances du Chevalier.
      */

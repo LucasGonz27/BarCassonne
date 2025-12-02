@@ -68,7 +68,7 @@ public class TowerPanelInfo {
 
     /** Callback pour améliorer la tour */
     private Runnable callbackAmeliorer;
- 
+
     /** Callback pour supprimer la tour */
     private Runnable callbackSupprimer;
 
@@ -164,11 +164,11 @@ public class TowerPanelInfo {
      */
     private void initialiserBoutons() {
 
-        //position du bouton amelioration 
-        float boutonXAmeliorer = panneauX + LARGEUR_PANNEAU * 0.37f; 
-        float boutonYAmeliorer = panneauY + HAUTEUR_PANNEAU * 0.36f; 
-        float largeurBoutonAmeliorer = LARGEUR_PANNEAU * 0.28f; 
-        float hauteurBoutonAmeliorer = HAUTEUR_PANNEAU * 0.23f; 
+        //position du bouton amelioration
+        float boutonXAmeliorer = panneauX + LARGEUR_PANNEAU * 0.37f;
+        float boutonYAmeliorer = panneauY + HAUTEUR_PANNEAU * 0.36f;
+        float largeurBoutonAmeliorer = LARGEUR_PANNEAU * 0.28f;
+        float hauteurBoutonAmeliorer = HAUTEUR_PANNEAU * 0.23f;
 
         String texteAmeliorer = "Améliorer";
         Color couleurAmeliorer = Color.GREEN;
@@ -191,11 +191,11 @@ public class TowerPanelInfo {
             }
         }
 
-        //position du bouton supprimer 
-        float boutonXSupprimer = panneauX + LARGEUR_PANNEAU * 0.37f; 
+        //position du bouton supprimer
+        float boutonXSupprimer = panneauX + LARGEUR_PANNEAU * 0.37f;
         float boutonYSupprimer = panneauY + HAUTEUR_PANNEAU * 0.11f;
-        float largeurBoutonSupprimer = LARGEUR_PANNEAU * 0.28f; 
-        float hauteurBoutonSupprimer = HAUTEUR_PANNEAU * 0.23f; 
+        float largeurBoutonSupprimer = LARGEUR_PANNEAU * 0.28f;
+        float hauteurBoutonSupprimer = HAUTEUR_PANNEAU * 0.23f;
         String texteSupprimer = "Supprimer";
         Color couleurSupprimer = Color.RED;
         int taillePoliceSupprimer = 40;
@@ -205,7 +205,7 @@ public class TowerPanelInfo {
             boutonSupprimer.dispose();
         }
         boutonSupprimer = new Button(boutonXSupprimer, boutonYSupprimer, largeurBoutonSupprimer, hauteurBoutonSupprimer, texteSupprimer, cheminTextureSupprimer, couleurSupprimer, taillePoliceSupprimer);
-       
+
         if (callbackSupprimer != null) {
             boutonSupprimer.setAction(callbackSupprimer);
         }
@@ -299,7 +299,7 @@ public class TowerPanelInfo {
             int degats = (int) (towerDataManager.getDegats(towerType) * TowerUpgradeConfig.getMultiplicateurDegats(niveau));
             Texte.drawText(batch, "" + degats, panneauX + LARGEUR_PANNEAU * 0.60f, panneauY + HAUTEUR_PANNEAU * 0.82f, Color.BLACK, 30);
         }
-        
+
         // Texte qui affiche le niveau actuel de la tour - coordonnées relatives
         if (TowerUpgradeConfig.peutEtreAmelioree(niveau, tourSelectionnee.getMaxLevel())) {
             // Afficher le niveau normal si on peut encore améliorer
@@ -310,12 +310,6 @@ public class TowerPanelInfo {
         } else {
             // Afficher "Niveau MAX" si on est au niveau maximum
             Texte.drawText(batch, "Niveau MAX", panneauX + LARGEUR_PANNEAU * 0.76f, panneauY + HAUTEUR_PANNEAU * 0.86f, Color.WHITE, 25);
-        }
-    }
-
-    public void cliquerEnDehorsPanneau(float screenX, float screenY) {
-        if (screenX < panneauX || screenX > panneauX + LARGEUR_PANNEAU || screenY < panneauY || screenY > panneauY + HAUTEUR_PANNEAU) {
-            masquer();
         }
     }
 

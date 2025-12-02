@@ -7,16 +7,13 @@ import Epi.BarCassonne.game.Config.TowerUpgradeConfig;
  */
 public class TowerForgeron extends Tower {
 
-    protected static final int PRIX = 1500;
+    protected static final int PRIX = 1200;
     protected static final float PORTEE = 0f;
-    protected static final int APPORT_LINGOTS_BASE = 300;
+    protected static final int APPORT_LINGOTS_BASE = 100;
 
-    /**
-     * Constructeur par défaut.
-     */
     public TowerForgeron() {
         super(0f, 0f, 1, 4, PORTEE, PRIX, TypeTour.FORGERON);
-    }   
+    }
 
     /**
      * Retourne le nombre de lingots générés par cette tour selon son niveau.

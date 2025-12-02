@@ -9,7 +9,7 @@ import Epi.BarCassonne.game.Managers.AssetMana;
 public class RoiGoblin extends Mechant {
 
     /** Points de vie du RoiGoblin. */
-    private static final int PV = 1250;
+    private static final int PV = 1500;
 
     /** Vitesse de déplacement du RoiGoblin. */
     private static final float VITESSE = 60f;
